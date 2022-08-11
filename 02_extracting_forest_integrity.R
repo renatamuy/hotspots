@@ -18,8 +18,6 @@ getwd()
 
 f <- raster('flii_earth.tif')
 
-
-
 target <- ne_countries(type = "countries", country = c('Bangladesh',
                                                        'Bhutan',
                                                        'Brunei',
@@ -41,7 +39,6 @@ target <- ne_countries(type = "countries", country = c('Bangladesh',
 tr <- raster(target, res=res(ref), crs= crs(ref))
 
 fr <- resample(f, ref)
-
 
 frc <-mask(fr, target)
 frcc <- crop(frc, tr)
