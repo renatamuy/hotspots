@@ -1,8 +1,10 @@
 # perturbation
 
 Cluster methods to compare:
-[rgeoda](https://geodacenter.github.io/rgeoda/articles/rgeoda_tutorial.html#spatial-clustering)
-[ClustGeo](https://cran.r-project.org/web/packages/ClustGeo/vignettes/intro_ClustGeo.html)
+
+* [rgeoda](https://geodacenter.github.io/rgeoda/articles/rgeoda_tutorial.html#spatial-clustering)
+
+* [ClustGeo](https://cran.r-project.org/web/packages/ClustGeo/vignettes/intro_ClustGeo.html)
 
 
 Table 1. Indicators, their description and sources.
