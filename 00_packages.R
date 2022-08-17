@@ -1,6 +1,5 @@
 #' ----
-# Packages used in 
-# Make sure you are 
+# General package set
 #' ----
 
 # extra 
@@ -11,7 +10,6 @@ library(hrbrthemes)
 require(RColorBrewer)
 library(randomcoloR)
 require(raster)
-
 
 # package list
 pkg_list_cran <- c("devtools", 
@@ -64,8 +62,6 @@ pkg_list_cran <- c("devtools",
                    "corrplot",
                    "classInt",
                    "graphlayouts",
-                   "oaqc",
-                   "bipartite",
                    "RColorBrewer",
                    "randomcoloR",
                    "viridis",
@@ -74,7 +70,7 @@ pkg_list_cran <- c("devtools",
                    "rstatix",
                    "MuMIn")
 
-# install all packages
+# install 
 lapply(X = pkg_list_cran, 
        FUN = function(x) if(!require(x, character.only = TRUE)) install.packages(x, dep = TRUE, quiet = TRUE))
 
