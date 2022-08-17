@@ -6,6 +6,9 @@ Cluster methods to compare:
 
 * [ClustGeo](https://cran.r-project.org/web/packages/ClustGeo/vignettes/intro_ClustGeo.html)
 
+Draft:
+
+* [Google Docs](https://docs.google.com/document/d/1NN-Y-8p2pzKfhQoE_bO_Yea-Lk9QKzDAWbsNfvQalOE/edit#)
 
 Table 1. Indicators, their description and sources.
 
