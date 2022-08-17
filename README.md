@@ -1,5 +1,15 @@
 # perturbation
 
+Cluster methods to compare:
+
+* [rgeoda](https://geodacenter.github.io/rgeoda/articles/rgeoda_tutorial.html#spatial-clustering)
+
+* [ClustGeo](https://cran.r-project.org/web/packages/ClustGeo/vignettes/intro_ClustGeo.html)
+
+Draft:
+
+* [Google Docs](https://docs.google.com/document/d/1NN-Y-8p2pzKfhQoE_bO_Yea-Lk9QKzDAWbsNfvQalOE/edit#)
+
 Table 1. Indicators, their description and sources.
 
 | Higher-level indicator | Univariate spatial layer                                                                                                                                                          | Rationale for inclusion                                                                                                                                                                                                                                                                                                              | References                                                                                                                                                                    | Spatial layer details                                                                                                                                                                                                                                                                                                                     | Spatial layer source                                                                                               |
