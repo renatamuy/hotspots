@@ -15,25 +15,31 @@ setwd('results')
 
 # read all data 
 
-ds <- raster::shapefile("clusters_rgeoda_c20_rows25796_mercator.shp")
+ds <- raster::shapefile("mercator.shp")
 
-prepdf <- read.csv('prepdf.csv')
+g <- read.csv('gstar.csv')
 
-ds <- cbind(ds, w)
- 
-d <- ds[sample(1:length(ds), 1000),]
+tofocus <- colnames(   g %>% dplyr::select(!c( 'ID', contains("95")))    )
+
+#d <- ds[sample(1:length(ds), 1000),]
+
+d <- g[,tofocus]
+
+d <- cbind(d, ds)
+
+d <- d[,tofocus]
 
 d$cluster <- NULL
 
 # In case weights are wanted (I did not use them)
 w <- d['pop_2020_worldpop']
 
-d$pop_2020_worldpop <- NULL
-
 dat <- d 
 
-D <- as.dist(dist(dat@data)) # environmental distances
-tree <- hclustgeo(D,wt=NULL)
+D <- as.dist(dist(d)) # environmental distances
+
+tree <- hclustgeo(D, wt=NULL)
+
 sum(tree$height)
 inertdiss(D,wt=NULL)
 inert(dat,w=NULL)
@@ -42,7 +48,7 @@ part <- cutree(tree, k=5)
 sp::plot(dat, border = "grey", col = part)
 
 # with two dissimilarity matrix
-Dgeo <- gDistance(d, byid=T)
+Dgeo <- gDistance(ds, byid=T)
 D1 <- as.dist(Dgeo) # the geographical distances
 alpha <- 0.2 # the mixing parameter
 tree <- hclustgeo(D, D1, alpha=alpha, wt=NULL)

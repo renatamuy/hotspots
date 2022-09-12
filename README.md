@@ -1,5 +1,8 @@
 # perturbation
 
+* MAIN postprocessing workflow is in github perturbation project.
+* Workflow for preparation of big data, transportation, pollution and travel time is in the OneDrive bat_non_bat project.
+
 Cluster methods to compare:
 
 * [rgeoda](https://geodacenter.github.io/rgeoda/articles/rgeoda_tutorial.html#spatial-clustering)

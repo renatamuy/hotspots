@@ -54,6 +54,10 @@ for(t in todo){
   
   pt <- as.numeric(unlist(p[t]))
   
+  # default NULL, use global option value
+  #if TRUE assign zero to the lagged value of zones without neighbours, 
+  #if FALSE assign NA
+  
   templocalGvalues <- localG(x = pt, listw = nb2listw(knn, style = "B"), 
                              zero.policy = FALSE, alternative="two-sided")
   
@@ -253,6 +257,3 @@ write.csv(dfgplot, fname, row.names = FALSE)
 #  over all links to n), C is globally standardised (sums over all links to n), U is equal to C divided by
 #the number of neighbours (sums over all links to unity), while S is the variance-stabilizing coding
 #scheme proposed by Tiefelsdorf et al. 1999, p. 167-168 (sums over all links to n)
-
-
-

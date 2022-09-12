@@ -1,15 +1,14 @@
-# Spider graphs from maps
+# Spider graphs from univariate hotspots and multivariate clusters  ---------------------------------
 
 require(tidyverse)
 require(ggplot2)
 library(here())
-
-#https://xl0418.github.io/2018/12/05/2018-12-05-ggradar2/
-#devtools::install_github("xl0418/ggradar2",dependencies=TRUE)
+require(raster)
 
 #remotes::install_github("AllanCameron/geomtextpath")
 
 setwd(here())
+
 setwd('results/')
 
 dfg <- read.csv("gstar.csv")
@@ -17,41 +16,6 @@ dfg <- read.csv("gstar.csv")
 #18.24306 to 52.33333 and longitude from 75.98951 to 134.28917
 
 dfradar <- dfg
-dfradar <- subset(dfradar, y > 19 & y <40  )
-dfradar <- subset(dfradar, x > 80 & y <120  )
-
-nrow(dfradar)
-12486/6
-dfradar$mock_cluster <- c(rep('Pequim', nrow(dfradar)/6, ) , rep('Bla', nrow(dfradar)/6),
-                          rep('Blu', nrow(dfradar)/6),
-                          rep('Ble', nrow(dfradar)/6),
-                          rep('Bli', nrow(dfradar)/6), rep('Blo', nrow(dfradar)/6))
-
-#% Extract the group names. Otherwise, the first column will be chosen as the group names.
-#% The radar chart is not a nice presentation if you want to compare too many groups. Thus here 
-#% we only focus on 4 groups.
-dftest = dfradar[c(1,9000),]
-
-#% To better distinguish two different styles, 6 groups are selected for illustration.
-# Get values for trajectories
-dfgplot$lincomb_hosts
-dfgplot$lincomb_shosts
-dfgplot$lincomb_human_vulnerability
-dfgplot$lincomb_habitat_quality
-
-
-todo <- c('lincomb_hosts', 'lincomb_shosts',  'lincomb_human_vulnerability', 'lincomb_habitat_quality'  )
-dftest = dftest[,todo]
-
-row.names(dftest) <- dftest$mock_cluster
-dftest$mock_cluster <- NULL
-ggradar2(dftest, webtype = 'lux')
-
-fullscore <- c(100,10,300,150,10,10)
-
-#devtools::install_github("ricardo-bion/ggradar", 
-#                         dependencies = TRUE)
-
 
 dfg$tile <- row.names(dfg)
 
@@ -59,115 +23,10 @@ library(reshape2)
 dfm <- melt(dfg[,c(todo,"tile", 'x', 'y')], 
             id.vars= c("tile", 'x', 'y'))
 
-
-library(ggplot2)
-
 # Define selected tiles
-
-addref <- data.frame(tile= rep('Neutral-Hotspot shift',4), 
-                     x=c(NA, NA, NA, NA),
-                     y=c(NA, NA, NA, NA), variable=
-                       c("lincomb_hosts", 
-                         "lincomb_shosts",
-                         'lincomb_habitat_quality' ,
-                         'lincomb_human_vulnerability')
-                     , value =c(1.96,1.96,1.96,1.96)  )
-
 dfmplot <- dfm
 
 # Selection or regions for display ---------------------------------------------------------------------------
-# Gaps show possibilities for change between hotspots
-selection <- sample( 1:24000, 6)
-
-base <- dfmplot %>% filter(tile %in% selection) %>% 
-  mutate(variablelab = fct_recode(variable, "Bat \n hosts" = "lincomb_hosts",
-                                            'Secondary \n hosts'="lincomb_shosts",
-                                            'Habitat \n modification' = 'lincomb_habitat_quality',
-                                            'Human \n vulnerability' = 'lincomb_human_vulnerability' )) %>% 
-  ggplot(aes(x = variablelab, y = value, group = tile))+ #, colour = tile, fill = tile)) + 
-  facet_wrap(~tile)+
-  geom_polygon(size = 1, alpha= 1, colour = 'gray15', fill = NA, lty = 3) +
-  geom_point(size = 2,  shape = 18) + # colour='gray15'
-  geomtextpath::coord_curvedpolar()+ #coord_polar() +
-  ylim(-6.0, 6.0) + ggtitle("")  + 
-  annotate("rect", alpha = 0.4, ymin = -1.96, ymax = 1.96, xmin = 0, xmax = 5,
-       fill = "khaki")+
-  annotate("rect", alpha = 0.4, ymin = -Inf, ymax = -1.959, xmin = 0, xmax = 5,
-           fill = "royalblue3")+
-  annotate("rect", alpha = 0.4, ymin = 1.969, ymax = 6, xmin = 0, xmax = 5,
-           fill = "violetred4",
-           colour = NA)+
-  theme_light()+
-  labs(x = 'Components', y = 'G*i', fill = 'Region', colour = 'Region' ) +
-  theme(strip.background = element_rect(fill = "grey32"),
-                       legend.position = "right",
-                       text = element_text(size = 16)) 
-#+  theme(plot.margin = unit(c(-.8,-.8,-.8,-.8),"cm")   )
-
-base
-
-# Export 
-ggsave('hotspots_trajectories.png',
-  plot = base,
-  dpi = 400,
-  width = 13,
-  height = 8,
-  limitsize = TRUE)
-
-
-# Separate
-
-todoa <- c( 'lincomb_hosts', "cattle_gilbert", 
-           "chicken_gilbert", 
-           'lincomb_habitat_quality',
-           'lincomb_human_vulnerability', 
-           "pig_gilbert",
-           "mammals_iucn_mode"        )
-
-dfga <- melt(dfg[,c(todoa,"tile", 'x', 'y')], 
-            id.vars= c("tile", 'x', 'y'))
-
-
-dfga <- dfga %>% mutate(variablelab = fct_recode(variable, 
-                                "Bat \n hosts" = "lincomb_hosts",
-                                'Cattle' ="cattle_gilbert" ,
-                                'Habitat \n modification' = 'lincomb_habitat_quality',
-                                'Human \n vulnerability' = 'lincomb_human_vulnerability',
-                                'Mammals' = "mammals_iucn_mode",
-                                'Pigs \n'="pig_gilbert",
-                                'Poultry' = "chicken_gilbert"              )) 
-
-levels(dfga$variablelab)
-
-circlefull <- length(unique(dfga$variablelab)) + 1
-
-selection <- sample( 1:24000, 6)
-
-basea <- dfga %>% filter(tile %in% selection) %>% 
-  ggplot(aes(x = variablelab, y = value, group = tile))+ #, colour = tile, fill = tile)) + 
-  facet_wrap(~tile)+
-  geom_polygon(size = 1, alpha= 1, colour = 'gray15', fill = NA, lty = 3) +
-  geom_point(size = 2,  shape = 18) + # colour='gray15'
-   ylim(-16.0, 16.0) + ggtitle("")  + 
-  annotate("rect", alpha = 0.4, ymin = -1.96, ymax = 1.96, xmin = 0, xmax = circlefull,
-           fill = "khaki")+
-  annotate("rect", alpha = 0.4, ymin = -Inf, ymax = -1.959, xmin = 0, xmax = circlefull,
-           fill = "royalblue3")+
-  annotate("rect", alpha = 0.4, ymin = 1.969, ymax = 16, xmin = 0, xmax = circlefull,
-           fill = "violetred4",
-           colour = NA)+
-  geomtextpath::coord_curvedpolar()+ #coord_polar() +
-  theme_light()+
-  labs(x = 'Components', y = 'G*i', fill = 'Region', colour = 'Region' ) +
-  theme(strip.background = element_rect(fill = "grey32"),
-        legend.position = "right",
-        text = element_text(size = 14)) 
-
-basea
-
-# Select regions and zonal this
-
-dfga
 
 require(rnaturalearth)
 worldmap <- ne_countries(scale = 'medium', returnclass = 'sf')
@@ -191,149 +50,338 @@ target <- ne_countries(type = "countries", country = c('Bangladesh',
                                                        'Timor-Leste',
                                                        'Vietnam'))
 
+hosts_muylaert <- raster::raster('D:/OneDrive - Massey University/bat_non_bat/data/region/hosts_muylaert.tif')
 
-require(raster)
-hosts_muylaert <- raster::raster( 'D:/OneDrive - Massey University/bat_non_bat/data/region/hosts_muylaert.tif')
-
-res(hosts_muylaert)
 bbox(hosts_muylaert)
+
 ras_dom<-raster::raster(xmn=68.25, xmx= 141.0, ymn=-10.25, ymx=53.5,
                 crs="+proj=longlat +datum=WGS84 +no_defs ",
                 resolution=res(hosts_muylaert), vals=NA)
 
-coordinates(dfradar) <- ~ x + y 
-crs(dfradar) <- "+proj=longlat +datum=WGS84 +no_defs "
+tofocus <- colnames(   dfradar %>% dplyr::select(!c( 'ID', contains("95")))    )
+
+dfgsub <- dfradar[tofocus]
+
+str(dfgsub)
+
+colnames(dfgsub[3:ncol(dfgsub)])
+
+coordinates(dfgsub) <- ~ x + y 
+
+crs(dfgsub) <- "+proj=longlat +datum=WGS84 +no_defs "
   
-colnames(dfradar@data)
+colnames(dfgsub@data)
+
 # G star values rasterized
 
 pigg <- rasterize(dfgsub, ras_dom, field = c("pig_gilbert"), update = TRUE) 
 cattleg <- rasterize(dfgsub, ras_dom, field = c('cattle_gilbert'), update = TRUE) 
-chickeng <- rasterize(dfgsub, ras_dom, field = c('chicken_gilbert'), update = TRUE) 
+#chickeng <- rasterize(dfgsub, ras_dom, field = c('chicken_gilbert'), update = TRUE) 
 hostsg <-  rasterize(dfgsub, ras_dom, field = c('lincomb_hosts'), update = TRUE) 
 mammalg <- rasterize(dfgsub, ras_dom, field = c("mammals_iucn_mode"), update = TRUE)
-human_vulnerabilityg <- rasterize(dfgsub, ras_dom, field = c('lincomb_human_vulnerability'), update = TRUE) 
-# think high foest quality and high forest division
-habitatmodg <- rasterize(dfgsub, ras_dom, field = c("lincomb_habitat_quality"), update = TRUE) 
 
-namesg <- c('pigg', 'cattleg', 'chickeng', 'hostsg', 'mammalg', 'human_vulnerabilityg', 'habitatmodg')
+forest_transitiong <- rasterize(dfgsub, ras_dom, field = c('hewson_forest_transition_potential'), update = TRUE) 
+forest_qualityg <- rasterize(dfgsub, ras_dom, field = c('forest_integrity_grantham'), update = TRUE) 
 
-stackg <- stack(pigg,cattleg, chickeng, hostsg,mammalg,human_vulnerabilityg,habitatmodg )
+builtupg <- rasterize(dfgsub, ras_dom, field = c('builtup'), update = TRUE) 
+transg <- rasterize(dfgsub, ras_dom, field = c('trans'), update = TRUE) 
+pollutiong <- rasterize(dfgsub, ras_dom, field = c('pollution'), update = TRUE) 
+energyg <- rasterize(dfgsub, ras_dom, field = c('energy'), update = TRUE) 
+agriharvg <- rasterize(dfgsub, ras_dom, field = c('agriharv'), update = TRUE) 
+
+popg <- rasterize(dfgsub, ras_dom, field = c('pop_2020_worldpop'), update = TRUE) 
+traveltimeg <- rasterize(dfgsub, ras_dom, field = c('motor_travel_time_weiss'), update = TRUE) 
+
+namesg <- c('pigg', 'cattleg', 'hostsg', 'mammalg',
+            'forest_transitiong', 'forest_qualityg',
+            'builtupg','transg',  'pollutiong','energyg','agriharvg',
+            'popg','traveltimeg'  )
+
+stackg <- stack(pigg, cattleg, hostsg, mammalg,
+                forest_transitiong, forest_qualityg,
+                builtupg,transg,  pollutiong, energyg, agriharvg,
+                popg, traveltimeg )
+
 names(stackg) <- namesg
-plot(stackg)
 
-# Zonal
+##############################################################################################################
+# Zonal countries
 
 testando <- raster::extract( stackg, target,  fun=mean, na.rm=TRUE, df=TRUE, weights = FALSE, sp=TRUE) 
-
 head(testando)
-##############################################################################################################
-# Check
+require(sf)
 test1 <- sf::st_as_sf(testando)
 sf::st_crs(crs(test1)) 
-require(sf)
-head(test1)
-
-maptheme <- theme_classic() + 
-  theme(axis.text = element_blank(),
-        axis.title = element_blank(),
-        axis.line = element_blank(), 
-        axis.ticks = element_blank(),
-        plot.title = element_text(hjust=0.5, size=14),
-        legend.title = element_text(size=10), 
-        strip.background = element_blank(),
-        strip.text = element_text(size=16))
-
-
-# Zonal 
-ggplot() +
-  geom_sf(data=test1, aes(fill=pigg), col="black", size=0.3, alpha=0.8)  +
-   coord_sf(crs = st_crs(crs(target)) )+ #ylim = c(-30, 80), xlim = c(-20, 181))+
-  scale_fill_viridis_c( na.value= NA, alpha = .4)+  #trans = "sqrt"
-  ggtitle( 'Hosts' )  + 
-  maptheme+
-  theme(legend.title=element_blank(), plot.title=element_text(size=16, face = "italic"))
-
-# Continuous with countries
-ggplot() +
-  geom_tile(data= as.data.frame(pigg, xy=TRUE) %>%  drop_na(), aes(x=x, y=y, fill=layer)) +
-  scale_fill_viridis_c( na.value= NA, alpha = .9)+  #trans = "sqrt"
-  geom_sf(data=test1, fill= 'transparent', col="white", size=0.3)  + # alpha=0.8
-  coord_sf(crs = st_crs(crs(target)))+ #, ylim = c(-30, 80), xlim = c(-20, 181))+
-  ggtitle( 'Pig' )  + 
-  maptheme+
-  theme(legend.title=element_blank(), plot.title=element_text(size=16, face = "italic"))+  ylab('Latitude') + xlab('Longitude')
-#
-
 
 tomeltg <- as.data.frame(test1)
-
 
 mgg <- melt(tomeltg[,c(namesg, 'name')], 
             id.vars= c('name'))
 
 mgg
 
-# Radar with plots
+# Radar plots
 
 circlefull <- length(unique(mgg$variable)) + 1
 
-#selection <- sample( 1:24000, 6)
 unique(mgg$variable)
 
 mggp <- mgg %>% mutate(variablelab = fct_recode(variable, 
                                                  "Bat \n hosts" = "hostsg",
                                                  'Cattle' ="cattleg" ,
-                                                 'Habitat \n modification' = 'habitatmodg',
-                                                 'Human \n vulnerability' = 'human_vulnerabilityg',
+                                                 'Forest \n loss risk' = 'forest_transitiong',
+                                                'Forest \n quality' = 'forest_qualityg',
+                                                 'Population' = 'popg',
+                                                'Access \n to healthcare' = 'traveltimeg',
                                                  'Mammals' = "mammalg",
                                                  'Pigs \n'="pigg",
-                                                 'Poultry' = "chickeng"              )) 
+                                                'Energy \n'="energyg",
+                                                'Builtup \n'="builtupg",
+                                                'Pollution \n'="pollutiong",
+                                                'Transportation \n'="transg",
+                                                'Agriculture \n and harvest'="agriharvg"  )) 
 
-
+# 'Poultry' = "chickeng" ,
 max(mggp$value)
 
 mggp %>% filter(name == 'Bangladesh') 
+# Straight
 
 basez <- mggp %>% #filter(name != 'Bangladesh') %>% 
-  ggplot(aes(x = variablelab, y = value, group = name))+ #, colour = tile, fill = tile)) + 
+  ggplot(aes(x = variablelab, y = value, group = name)) + 
   facet_wrap(~name)+ #ncol
-  geom_polygon(size = 1, alpha= 1, colour = 'gray15', fill = NA, lty = 3) +
+  #geom_polygon(size = 1, alpha= 1, colour = 'gray15', fill = NA, lty = 3) +
   geom_point(size = 2,  shape = 18) + # colour='gray15'
-  ylim(-16.0, 19.0) + ggtitle("")  + 
-  annotate("rect", alpha = 0.4, ymin = -1.96, ymax = 1.96, xmin = 0, xmax = circlefull,
+  ylim(-16.0, 20.0) + ggtitle("")  + 
+  annotate("rect", alpha = 0.4, ymin = -1.645, ymax = 1.645, xmin = 0, xmax = circlefull,
            fill = "khaki")+
-  annotate("rect", alpha = 0.4, ymin = -Inf, ymax = -1.959, xmin = 0, xmax = circlefull,
+  annotate("rect", alpha = 0.4, ymin = -Inf, ymax = -1.645, xmin = 0, xmax = circlefull,
            fill = "royalblue3")+
-  annotate("rect", alpha = 0.4, ymin = 1.969, ymax = 16, xmin = 0, xmax = circlefull,
+  annotate("rect", alpha = 0.4, ymin = 1.645, ymax = 20, xmin = 0, xmax = circlefull,
            fill = "violetred4",
            colour = NA)+
-  geomtextpath::coord_curvedpolar()+ #coord_polar() +
+  #geomtextpath::coord_curvedpolar()+                   ####coord_polar() +
   theme_light()+
   labs(x = 'Components', y = 'G*i', fill = 'Region', colour = 'Region' ) +
   theme(strip.background = element_rect(fill = "grey32"),
         legend.position = "right",
-        text = element_text(size = 14)) 
+        text = element_text(size = 14), 
+        axis.text.x = element_text(angle = 45, hjust = 0.99, size=9)) 
 
 basez
 
+# Hotspot variation plot (could be radar plot or flat)
+
+baseradar <- mggp %>% #filter(name != 'Bangladesh') %>% 
+  ggplot(aes(x = variablelab, y = value, group = name))+ #, colour = tile, fill = tile)) + 
+  facet_wrap(~name)+ #ncol
+  geom_polygon(size = 1, alpha= 1, colour = 'gray15', fill = NA, lty = 3) +
+  geom_point(size = 2,  shape = 18) + # colour='gray15'
+  ylim(-16.0, 20.0) + ggtitle("")  + 
+  annotate("rect", alpha = 0.4, ymin = -1.645, ymax = 1.645, xmin = 0, xmax = circlefull,
+           fill = "khaki")+
+  annotate("rect", alpha = 0.4, ymin = -Inf, ymax = -1.645, xmin = 0, xmax = circlefull,
+           fill = "royalblue3")+
+  annotate("rect", alpha = 0.4, ymin = 1.645, ymax = 20, xmin = 0, xmax = circlefull,
+           fill = "violetred4",
+           colour = NA)+
+  coord_polar() + #geomtextpath::coord_curvedpolar()+      # For curving labels           
+  theme_light()+
+  labs(x = 'Components', y = 'G*i', fill = 'Region', colour = 'Region' ) +
+  theme(strip.background = element_rect(fill = "grey32"),
+        legend.position = "right",
+        text = element_text(size = 14), axis.text.x = element_text(angle = 0, hjust = 0.99, size=9)) 
+
+baseradar
+
 # Exporting
-ggsave('hotspots_trajectories_countries_mean.png',
-       plot = basez,
+ggsave('hotspots_coord_polar.png',
+       plot = baseradar,
        dpi = 400,
        width = 13,
        height = 14,
        limitsize = TRUE)
 
+#-------------------------------------------------------------------------
+# Final plot
+setwd('skater_optimal_cluster_size/')
 
+clusters <- read.csv("clusters_rgeoda_c12.csv")
+
+setwd(here())
+setwd('results/')
+
+head(mggp)
+
+# -------------------------------------------------------------------------------
+# Zonal with multivariate clusters from skater and univariate hotspot rasters
+# Making raster from cluster 
+
+dcc <- clusters %>% dplyr::select(c('x', 'y', 'cluster')) 
+
+coordinates(dcc) <- ~ x + y 
+
+crs(dcc) <- "+proj=longlat +datum=WGS84 +no_defs "
+
+dcc
+
+craster <- rasterize(dcc, ras_dom, field = c('cluster'), update = TRUE) 
+
+plot(craster)
+
+
+zcluster <- as.data.frame(raster::zonal(stackg, craster, 'mean'))
+
+head(zcluster)
+
+zclusterm <- melt(zcluster , id.vars= c('zone'))
+
+head(zclusterm)
+
+zclustermlab <- zclusterm %>% mutate(variablelab = fct_recode(variable, 
+                                                "Bat hosts" = "hostsg", #\n
+                                                'Cattle' ="cattleg" ,
+                                                'Forest loss risk' = 'forest_transitiong', #\n 
+                                                'Forest quality' = 'forest_qualityg', #\n 
+                                                'Population' = 'popg',
+                                                'Access to healthcare' = 'traveltimeg', #\n 
+                                                'Mammals' = "mammalg",
+                                                'Pigs'="pigg",
+                                                'Energy'="energyg",
+                                                'Builtup'="builtupg",
+                                                'Pollution'="pollutiong",
+                                                'Transportation'="transg",
+                                                'Agriculture and harvest'="agriharvg"  )) #\n 
+
+pal <- wesanderson::wes_palette("Moonrise3", length(unique(zclustermlab$zone)), type = "continuous")
+
+baseradarz <- zclustermlab %>% 
+  ggplot(aes(x = variablelab, y = value, group = zone))+ #, colour = tile, fill = tile)) + 
+  facet_wrap(~zone, nrow = 3, ncol=4)+
+  #geom_polygon(size = 1, alpha= 1, colour = 'gray15', fill = NA, lty = 3) +
+  geom_point(size = 2  ) + # colour='gray15' #shape = 18
+  ylim(-20.0, 20.0) + ggtitle("")  + 
+  annotate("rect", alpha = 0.4, ymin = -1.645, ymax = 1.645, xmin = 0, xmax = circlefull,
+           fill = "khaki")+
+  annotate("rect", alpha = 0.4, ymin = -20 , ymax = -1.645, xmin = 0, xmax = circlefull,#-Inf
+           fill = "royalblue3")+
+  annotate("rect", alpha = 0.4, ymin = 1.645, ymax = 20, xmin = 0, xmax = circlefull,
+           fill = "violetred4",         colour = NA)+
+  #coord_polar() +  #for straight labels
+  #geomtextpath::coord_curvedpolar() +  # For curved labels           
+  theme_light()+
+  coord_flip()+
+  labs(x = 'Clusters', y = 'G*i', fill = 'Region', colour = 'Region' ) +
+  theme(strip.background = element_rect(fill ="grey32"),
+        strip.text.x = element_text(size=16),
+        legend.position = "right",
+        text = element_text(size = 14),  #panel.spacing = unit(0.5, "lines"),
+        axis.text.x = element_text(angle = 45, hjust = 1.0, size=13))
+
+baseradarz
+
+# Checking color sequence for clusters:
+
+barplot(c(1:12), col=pal)
+barplot(c(1), col="#85D4E3")
+barplot(c(1:12), col=rev(pal)) 
+
+# Matching strip text color to cluster pallette
+# Facet wrap grobs for strips position colors from bottom to top and from RIGHT TO LEFT, so I had to reorder the sript grob slots for color before building the loop
+g <- ggplot_gtable(ggplot_build(baseradarz))
+
+# Understanding grob slots
+
+g$grobs[[62]]$grobs[[1]]$children[[1]]$gp$fill 
+
+strip_both <- c(70,71,72,73,66,67,68,69, 62,63,64,65 )
+
+fills <- unique(pal)
+
+k <- 1
+for (i in strip_both) {
+  j <- which(grepl('rect', g$grobs[[i]]$grobs[[1]]$childrenOrder))
+  g$grobs[[i]]$grobs[[1]]$children[[j]]$gp$fill <- fills[k]
+  k <- k+1
+}
+
+# SLOW
+grid::grid.draw(g)
+
+# Based on https://github.com/tidyverse/ggplot2/issues/2096
+
+png("facet_clusters_flat_flip.png",
+    width = 30,
+    height = 25, unit='cm', res=600)
+print(grid::grid.draw(g))
+dev.off()
 
 ##------------------------------------------------------------------------------------------------------------
-#Optional annotations for plotx
-#scale_fill_brewer(palette = 'Greys')+
-#scale_colour_brewer(palette = 'Greys')+
-#annotate("text", x = 1, y = 1.90,
-#         label = "Neutral", parse = TRUE, colour= "khaki") +
-#Dashed line
-#geom_hline(yintercept= 1.96 , lty=2, size = 1, alpha= 0.2, colour = 'black') +
-
 #-------------------------------------------------------------------------------------------------------------
+library(ggridges)
+
+tofocus <- colnames(   joyc %>% dplyr::select(!c( 'x','y', contains("95")))    )
+
+
+joyc <- melt(clusters , id.vars= c('x','y','cluster'))
+head(joyc)
+
+# novo recebe velho 
+
+min(joyc$value)
+
+cridges <- joyc %>% 
+  mutate(variablelab = fct_recode(variable, 
+                                      "Bat hosts" = "lincomb_hosts", #\n
+                                      'Cattle' ="cattle_gilbert" ,
+                                      'Forest loss risk' = 'hewson_forest_transition_potential', #\n 
+                                      'Forest quality' = 'forest_integrity_grantham', #\n 
+                                      'Population' = 'pop_2020_worldpop',
+                                      'Access to healthcare' = 'motor_travel_time_weiss', #\n 
+                                      'Mammals' = "mammals_iucn_mode",
+                                      'Pigs'="pig_gilbert",
+                                      'Energy'="energy",
+                                      'Builtup'="builtup",
+                                      'Pollution'="pollution",
+                                      'Transportation'="trans",
+                                      'Agriculture and harvest'="agriharv"  )) %>% 
+  filter(variable != 'hosts_sanchez' & variable != 'hosts_muylaert') %>% 
+  ggplot(aes(x =value , y = variablelab)) +
+  facet_wrap(~cluster)+ geom_density_ridges(scale=2, quantile_lines = TRUE, quantiles = 2) +
+  annotate("rect", alpha = 0.4, xmin = -1.645, xmax = 1.645, ymin = 0, ymax = circlefull,
+           fill = "khaki")+
+  annotate("rect", alpha = 0.4, xmin = -20 , xmax = -1.645, ymin = 0, ymax = circlefull,
+           fill = "royalblue3")+
+  annotate("rect", alpha = 0.4, xmin = 1.645, xmax = 20, ymin = 0, ymax = circlefull,
+           fill = "violetred4",         colour = NA)+
+    coord_cartesian(xlim = c(-7, 20))+
+  ylab('')+ xlab('G*i')+
+   theme_bw()
+
+gr <- ggplot_gtable(ggplot_build(cridges))
+
+# Understanding grob slots
+
+gr$grobs[[62]]$grobs[[1]]$children[[1]]$gp$fill 
+
+strip_bothr <- c(70,71,72,73,66,67,68,69, 62,63,64,65 )
+
+fillsr <- unique(pal)
+
+k <- 1
+for (i in strip_both) {
+  j <- which(grepl('rect', g$grobs[[i]]$grobs[[1]]$childrenOrder))
+  gr$grobs[[i]]$grobs[[1]]$children[[j]]$gp$fill <- fillsr[k]
+  k <- k+1
+}
+
+# SLOW
+grid::grid.draw(gr)
+
+png("facet_clusters_ridges.png",
+    width = 28,
+    height = 25, unit='cm', res=600)
+print(grid::grid.draw(gr))
+dev.off()
+
+#---------------------------------------------------------------------------------------------

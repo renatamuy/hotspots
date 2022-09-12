@@ -4,10 +4,11 @@ require(tidyverse)
 require(stringr)
 require(reshape2)
 require(here)
+require(gridExtra)
 
 setwd(here())
-setwd('results/hotspots_region')
-dfgplot <- read.csv('gstar_1.645.csv' )
+setwd('results')
+dfgplot <- read.csv('gstar.csv' )
 
 colnames(dfgplot)
 
@@ -95,8 +96,8 @@ pland
 #
 library(grid)
 setwd(here())
-dir.create('results_1.645')
-setwd('results_1.645')
+
+setwd('results')
 
 ggsave(
   'hotspots_univariate_bio.png',
@@ -174,6 +175,7 @@ sumelt %>%
   theme( legend.title = element_blank(), legend.position = "bottom") + coord_flip() + 
   labs( title = "", x = "", y = "Area (%)", caption = "") 
 
+# Exporting 
 ggsave(
   'hotspots_all_pct_geom_bar.png',
   plot = last_plot(),
@@ -186,7 +188,6 @@ ggsave(
 # Individual values
 
 sumelt$tile <- rep(1:nrow(su))
-
 
 # Latitude variation 
 
@@ -221,19 +222,22 @@ dev.off()
 want_risk3
 
 su$tile <- 1:nrow(su)
+
 allhot <- dplyr::filter(su, 
                         grepl('violetred4', su$`hosts` ) & 
                         grepl('violetred4', su$`mammals` )  &
                         grepl('violetred4', su$`pig`) & 
                         grepl('violetred4', su$`cattle` ) &
-                         # grepl('violetred4', su$`builtup` ) &
-                          #grepl('violetred4', su$`energy` ) &
-                          #grepl('violetred4', su$`trans` ) &
-                          #grepl('violetred4', su$`agriharv` ) &
-                          #grepl('violetred4', su$`pollution` ) &
+                          grepl('violetred4', su$`builtup` ) &
+                         grepl('violetred4', su$`energy` ) &
+                         grepl('violetred4', su$`trans` ) &
+                         grepl('violetred4', su$`agriharv` ) &
+                         grepl('violetred4', su$`pollution` ) &
                            grepl('violetred4', su$`forest_integrity_grantham` ) &
                            grepl('violetred4', su$`hewson_forest_transition_potential` ) 
                                          )
+allhot
+
 
 allhot_mammals <- dplyr::filter(su, 
                                 grepl('violetred4', su$`hosts` ) & 
@@ -241,13 +245,15 @@ allhot_mammals <- dplyr::filter(su,
                                   grepl('violetred4', su$`pig`) & 
                                   grepl('violetred4', su$`cattle` ) )
 
-  
-allhot_mammals
-sumelt[sumelt$tile == allhot_mammals$tile, ]
+
+
+distinct(allhot_mammals[, c('x','y')])
+
 
 #   grepl('violetred4', su$`pop_2020_worldpop` ) 
 #             grepl('violetred4', su$`motor_travel_time_weiss` )
 sumelt[sumelt$tile == allhot$tile, ]
+
 su$`Human vulnerability` <- as.character(su$`Human vulnerability`)
 su$`Bat hosts` <- as.character(su$`Bat hosts`)
 su$`Secondary hosts` <- as.character(su$`Secondary hosts`)
@@ -255,9 +261,29 @@ su$`Habitat modification` <- as.character(su$`Habitat modification`)
 
 # java convergence only happened with those averaged, but I don't think it is a good idea to 
 # do it like that
-#su %>% filter("Bat hosts" == "Hotspot" &
-#                "Secondary hosts" == "Hotspot" &
-#               "Habitat modification" == "Hotspot"  &
-#                "Human vulnerability" == "Neutral" )
 
-write.table(file = 'hotspot_convergence.txt', allhot, row.names = FALSE)
+write.csv(file = 'hotspot_convergence_mammals.csv', allhot_mammals, row.names = FALSE)
+
+# Correlation
+# Yes
+cor.test(dfgplot$pollution, dfgplot$pop_2020_worldpop)
+cor.test(dfgplot$builtup, dfgplot$trans)
+cor.test(dfgplot$pop_2020_worldpop, dfgplot$trans)
+
+
+# No
+cor.test(dfgplot$agriharv, dfgplot$pop_2020_worldpop)
+cor.test(dfgplot$pollution, dfgplot$lincomb_hosts)
+cor.test(dfgplot$builtup, dfgplot$energy)
+cor.test(dfgplot$builtup, dfgplot$pop_2020_worldpop)
+cor.test(dfgplot$pop_2020_worldpop, dfgplot$energy)
+cor.test(dfgplot$energy, dfgplot$trans)
+cor.test(dfgplot$forest_integrity_grantham, dfgplot$hewson_forest_transition_potential)
+cor.test(dfgplot$lincomb_hosts, dfgplot$mammals_iucn_mode)
+cor.test(dfgplot$lincomb_hosts, dfgplot$pig_gilbert)
+cor.test(dfgplot$lincomb_hosts, dfgplot$cattle_gilbert)
+cor.test(dfgplot$motor_travel_time_weiss, dfgplot$pop_2020_worldpop)
+cor.test(dfgplot$motor_travel_time_weiss, dfgplot$energy)
+cor.test(dfgplot$motor_travel_time_weiss, dfgplot$builtup)
+
+
