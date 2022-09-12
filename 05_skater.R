@@ -42,10 +42,8 @@ tofocus <- colnames(dfsub %>% select(!c('x','y', 'hosts_muylaert', 'hosts_sanche
 #------------------------------
 # Comparing with geoda skater
 
-require(rgeoda)
 
 # Get projected coords and generate weights matrix ---
-
 #mercator <- raster::shapefile('mercator.shp')
 #queen_w <- queen_weights(st_as_sf(mercator))
 #save(queen_w, file= 'queen_w.RData')
@@ -55,7 +53,7 @@ queen_w
 
 # No need to rescale as we have the z-scores as input here
 
-its <- c(1:8)
+its <- c(1:40)
   
 dir.create('skater')
 setwd('skater')

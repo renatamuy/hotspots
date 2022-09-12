@@ -10,18 +10,12 @@ library(hrbrthemes)
 require(RColorBrewer)
 library(randomcoloR)
 require(raster)
-pkg_list_cran <- c('sp','rgeoda',
-                   'spdep','here')
-                   
-lapply(X = pkg_list_cran, 
-       FUN = function(x) if(!require(x, character.only = TRUE)) install.packages(x, dep = TRUE, quiet = TRUE))
 
-                   
 # package list
 pkg_list_cran <- c('rgeoda','ClustGeo',
 'sp', 'spdep', 'rgeoda',
                    "here",
-                   "tidyverse",
+'gridExtra', "tidyverse",
                    "xlsx", 
                    "vroom",
                    "data.table",
@@ -31,10 +25,6 @@ pkg_list_cran <- c('rgeoda','ClustGeo',
                    "DataExplorer",
                    "skimr",
                    "XML",
-                   "spocc",
-                   "taxize",
-                   "CoordinateCleaner",
-                   "rredlist",
                    "rnaturalearth",
                    "rnaturalearthdata",
                    "spData",
@@ -42,9 +32,6 @@ pkg_list_cran <- c('rgeoda','ClustGeo',
                    "raster",
                    "terra",
                    "ncdf4",
-                   "spatialEco",
-                   "ecospat",
-                   "dismo",
                    "tmap",
                    "ggmap",
                    "ggspatial",
@@ -71,8 +58,7 @@ pkg_list_cran <- c('rgeoda','ClustGeo',
                    "RColorBrewer",
                    "randomcoloR",
                    "viridis",
-                   "wesanderson"
-               )
+                   "wesanderson"       )
 
 # install 
 lapply(X = pkg_list_cran, 
