@@ -1,10 +1,11 @@
-### Stripes for characterizing hotspot gradients across space
+#### Stripes for characterizing hotspot gradients across space
+# Correlation between covariates
 
-require(tidyverse)
 require(stringr)
 require(reshape2)
 require(here)
 require(gridExtra)
+require(tidyverse)
 
 setwd(here())
 setwd('results')
@@ -12,17 +13,43 @@ dfgplot <- read.csv('gstar.csv' )
 
 colnames(dfgplot)
 
+# Correlation tests 
+# Yes
+cor.test(dfgplot$pollution, dfgplot$pop_2020_worldpop)
+cor.test(dfgplot$builtup, dfgplot$trans)
+cor.test(dfgplot$pop_2020_worldpop, dfgplot$trans)
+
+# No
+cor.test(dfgplot$agriharv, dfgplot$pop_2020_worldpop)
+cor.test(dfgplot$pollution, dfgplot$lincomb_hosts)
+cor.test(dfgplot$builtup, dfgplot$energy)
+cor.test(dfgplot$builtup, dfgplot$pop_2020_worldpop)
+cor.test(dfgplot$pop_2020_worldpop, dfgplot$energy)
+cor.test(dfgplot$energy, dfgplot$trans)
+cor.test(dfgplot$forest_integrity_grantham, dfgplot$hewson_forest_transition_potential)
+cor.test(dfgplot$lincomb_hosts, dfgplot$mammals_iucn_mode)
+cor.test(dfgplot$lincomb_hosts, dfgplot$pig_gilbert)
+cor.test(dfgplot$lincomb_hosts, dfgplot$cattle_gilbert)
+cor.test(dfgplot$motor_travel_time_weiss, dfgplot$pop_2020_worldpop)
+cor.test(dfgplot$motor_travel_time_weiss, dfgplot$energy)
+cor.test(dfgplot$motor_travel_time_weiss, dfgplot$builtup)
+
+
 # Plot melt panels
 
-su <- dfgplot %>% select(c('x','y',starts_with("col95")))
+su <- dfgplot %>% dplyr::select(c('x','y', starts_with("col95")))
 
 head(su)
 
 colnames(su) <- sub('col95_', '', colnames(su))
 
-sumelt <- melt(su, id=c("x", "y"))
+tofocus <- colnames(su %>% dplyr::select(!c( 
+                                               'trans',
+                                               'pollution',
+                                               'motor_travel_time_weiss'   ))    )
 
-colnames(sumelt)
+
+sumelt <- melt(su[,tofocus], id=c("x", "y"))
 
 #-------------------------------------------------------------------
 
@@ -57,7 +84,6 @@ pdom
 
 # Human dimension
 
-
 phum <- sumelt %>% filter(variable == 'pop_2020_worldpop' | variable == 'motor_travel_time_weiss'  ) %>% 
   ggplot(aes(y=y, x=x, fill = value))+
   geom_tile()+
@@ -67,12 +93,13 @@ phum <- sumelt %>% filter(variable == 'pop_2020_worldpop' | variable == 'motor_t
                     labels = c("Neutral", "Coldspot", "Hotspot")) + theme_bw() +
   theme(legend.title=element_blank(), legend.position = 'bottom',
         strip.text = element_text(size = 14)) + labs(x='Longitude', y="Latitude",
-                  title = "Indcators of exposure and spread in humans") 
+                  title = "Indcators of exposure in humans") 
 
 phum
 
 # landscape change
-want_landscape <- c('builtup', 'energy', 'trans', 'agriharv', 'pollution',
+#'trans', 'pollution'
+want_landscape <- c('builtup', 'energy',  'agriharv', 
                     'forest_integrity_grantham',
                     'hewson_forest_transition_potential'                  )
 
@@ -113,23 +140,24 @@ ggsave(
   plot = pland,
   dpi = 400,
   width = 10,
-  height = 10,
+  height = 8,
   limitsize = TRUE)
 
 # --- All
 
 ggplot(data = sumelt, aes( y=y, x=x, fill = value))+
   geom_tile()+
-  facet_wrap(~variable, ncol=3)+
+  facet_wrap(~variable, ncol=2)+
   scale_fill_manual(values =c("khaki","royalblue3", "violetred4") ,
                     labels = c("Neutral", "Coldspot", "Hotspot")) + theme_bw() +
   theme(legend.title=element_blank(), legend.position = 'bottom',
-        strip.text = element_text(size = 14)) + labs(x='Longitude', y="Latitude") 
+        strip.text = element_text(size = 14)) + 
+  labs(x='Longitude', y="Latitude") 
 
 ggsave('hotspots_facets.png',
        plot = last_plot(),
        dpi = 400,
-       width = 8,
+       width = 6,
        height = 14,
        limitsize = TRUE)
 
@@ -144,11 +172,11 @@ sumelt %>%
                               'Pig' = 'pig',
                               'Cattle' = 'cattle',
                               "Human population" = 'pop_2020_worldpop' ,
-                              "Time to reach healthcare" = "motor_travel_time_weiss",
+                              #"Time to reach healthcare" = "motor_travel_time_weiss",
                               "Built up area"    =   "builtup",
                               "Energy-related structures" =  'energy',
-                              'Transport-related structures' = 'trans', 
-                              'Human intrusion and pollution' = 'pollution',
+                              #'Transport-related structures' = 'trans', 
+                              #'Human intrusion and pollution' = 'pollution',
                               'Agriculture and harvest land' = 'agriharv',
                               'Forest integrity' = 'forest_integrity_grantham',
                               'Deforestation potential' ='hewson_forest_transition_potential' )) %>% 
@@ -157,12 +185,12 @@ sumelt %>%
                               'Wildlife - potential hosts'= 'mammals',
                               'Domesticated - potential hosts' = 'pig',
                               'Domesticated - potential hosts' = 'cattle',
-                              "Exposure and spread in humans" = 'pop_2020_worldpop' ,
-                              "Exposure and spread in humans" = "motor_travel_time_weiss",
+                              "Exposure in humans" = 'pop_2020_worldpop' ,
+                              #"Exposure and spread in humans" = "motor_travel_time_weiss",
                               "Landscape change"    =   "builtup",
                               "Landscape change" =  'energy',
-                              'Landscape change' = 'trans', 
-                              'Landscape change' = 'pollution',
+                              #'Landscape change' = 'trans', 
+                              #'Landscape change' = 'pollution',
                               'Landscape change' = 'agriharv',
                               'Landscape change' = 'forest_integrity_grantham',
                               'Landscape change' ='hewson_forest_transition_potential' )) %>% 
@@ -246,44 +274,8 @@ allhot_mammals <- dplyr::filter(su,
                                   grepl('violetred4', su$`cattle` ) )
 
 
-
 distinct(allhot_mammals[, c('x','y')])
-
-
-#   grepl('violetred4', su$`pop_2020_worldpop` ) 
-#             grepl('violetred4', su$`motor_travel_time_weiss` )
-sumelt[sumelt$tile == allhot$tile, ]
-
-su$`Human vulnerability` <- as.character(su$`Human vulnerability`)
-su$`Bat hosts` <- as.character(su$`Bat hosts`)
-su$`Secondary hosts` <- as.character(su$`Secondary hosts`)
-su$`Habitat modification` <- as.character(su$`Habitat modification`)
-
-# java convergence only happened with those averaged, but I don't think it is a good idea to 
-# do it like that
 
 write.csv(file = 'hotspot_convergence_mammals.csv', allhot_mammals, row.names = FALSE)
 
-# Correlation
-# Yes
-cor.test(dfgplot$pollution, dfgplot$pop_2020_worldpop)
-cor.test(dfgplot$builtup, dfgplot$trans)
-cor.test(dfgplot$pop_2020_worldpop, dfgplot$trans)
-
-
-# No
-cor.test(dfgplot$agriharv, dfgplot$pop_2020_worldpop)
-cor.test(dfgplot$pollution, dfgplot$lincomb_hosts)
-cor.test(dfgplot$builtup, dfgplot$energy)
-cor.test(dfgplot$builtup, dfgplot$pop_2020_worldpop)
-cor.test(dfgplot$pop_2020_worldpop, dfgplot$energy)
-cor.test(dfgplot$energy, dfgplot$trans)
-cor.test(dfgplot$forest_integrity_grantham, dfgplot$hewson_forest_transition_potential)
-cor.test(dfgplot$lincomb_hosts, dfgplot$mammals_iucn_mode)
-cor.test(dfgplot$lincomb_hosts, dfgplot$pig_gilbert)
-cor.test(dfgplot$lincomb_hosts, dfgplot$cattle_gilbert)
-cor.test(dfgplot$motor_travel_time_weiss, dfgplot$pop_2020_worldpop)
-cor.test(dfgplot$motor_travel_time_weiss, dfgplot$energy)
-cor.test(dfgplot$motor_travel_time_weiss, dfgplot$builtup)
-
-
+#--------------------------------------------------------

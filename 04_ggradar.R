@@ -109,11 +109,17 @@ names(stackg) <- namesg
 
 testando <- raster::extract( stackg, target,  fun=mean, na.rm=TRUE, df=TRUE, weights = FALSE, sp=TRUE) 
 head(testando)
+
 require(sf)
+
 test1 <- sf::st_as_sf(testando)
 sf::st_crs(crs(test1)) 
 
 tomeltg <- as.data.frame(test1)
+
+# Removing travel time, pollution and transportation
+
+namesg <-  namesg[!namesg %in% c('transg','pollutiong','traveltimeg')]
 
 mgg <- melt(tomeltg[,c(namesg, 'name')], 
             id.vars= c('name'))
@@ -140,6 +146,8 @@ mggp <- mgg %>% mutate(variablelab = fct_recode(variable,
                                                 'Pollution \n'="pollutiong",
                                                 'Transportation \n'="transg",
                                                 'Agriculture \n and harvest'="agriharvg"  )) 
+
+
 
 # 'Poultry' = "chickeng" ,
 max(mggp$value)
@@ -204,7 +212,7 @@ ggsave('hotspots_coord_polar.png',
 
 #-------------------------------------------------------------------------
 # Final plot
-setwd('skater_optimal_cluster_size/')
+setwd('skater_optimal_cluster_size_12/')
 
 clusters <- read.csv("clusters_rgeoda_c12.csv")
 
@@ -228,7 +236,6 @@ dcc
 craster <- rasterize(dcc, ras_dom, field = c('cluster'), update = TRUE) 
 
 plot(craster)
-
 
 zcluster <- as.data.frame(raster::zonal(stackg, craster, 'mean'))
 
@@ -255,6 +262,12 @@ zclustermlab <- zclusterm %>% mutate(variablelab = fct_recode(variable,
 
 pal <- wesanderson::wes_palette("Moonrise3", length(unique(zclustermlab$zone)), type = "continuous")
 
+# Removing tran, pollution and travel time
+zclustermlab <- zclustermlab[!zclustermlab$variable %in% c("transg", "pollutiong", "traveltimeg"),]
+
+
+class(zclustermlab$variable)
+
 baseradarz <- zclustermlab %>% 
   ggplot(aes(x = variablelab, y = value, group = zone))+ #, colour = tile, fill = tile)) + 
   facet_wrap(~zone, nrow = 3, ncol=4)+
@@ -267,8 +280,6 @@ baseradarz <- zclustermlab %>%
            fill = "royalblue3")+
   annotate("rect", alpha = 0.4, ymin = 1.645, ymax = 20, xmin = 0, xmax = circlefull,
            fill = "violetred4",         colour = NA)+
-  #coord_polar() +  #for straight labels
-  #geomtextpath::coord_curvedpolar() +  # For curved labels           
   theme_light()+
   coord_flip()+
   labs(x = 'Clusters', y = 'G*i', fill = 'Region', colour = 'Region' ) +
@@ -320,15 +331,17 @@ dev.off()
 #-------------------------------------------------------------------------------------------------------------
 library(ggridges)
 
-tofocus <- colnames(   joyc %>% dplyr::select(!c( 'x','y', contains("95")))    )
-
-
 joyc <- melt(clusters , id.vars= c('x','y','cluster'))
+
 head(joyc)
 
 # novo recebe velho 
 
 min(joyc$value)
+
+joyc <- joyc[!joyc$variable %in% c("motor_travel_time_weiss",
+                                   "pollution", "trans"),]
+
 
 cridges <- joyc %>% 
   mutate(variablelab = fct_recode(variable, 
@@ -337,13 +350,13 @@ cridges <- joyc %>%
                                       'Forest loss risk' = 'hewson_forest_transition_potential', #\n 
                                       'Forest quality' = 'forest_integrity_grantham', #\n 
                                       'Population' = 'pop_2020_worldpop',
-                                      'Access to healthcare' = 'motor_travel_time_weiss', #\n 
+                                      #'Access to healthcare' = 'motor_travel_time_weiss', #\n 
                                       'Mammals' = "mammals_iucn_mode",
                                       'Pigs'="pig_gilbert",
                                       'Energy'="energy",
                                       'Builtup'="builtup",
-                                      'Pollution'="pollution",
-                                      'Transportation'="trans",
+                                      #'Pollution'="pollution",
+                                      #'Transportation'="trans",
                                       'Agriculture and harvest'="agriharv"  )) %>% 
   filter(variable != 'hosts_sanchez' & variable != 'hosts_muylaert') %>% 
   ggplot(aes(x =value , y = variablelab)) +

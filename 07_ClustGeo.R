@@ -19,7 +19,11 @@ ds <- raster::shapefile("mercator.shp")
 
 g <- read.csv('gstar.csv')
 
-tofocus <- colnames(   g %>% dplyr::select(!c( 'ID', contains("95")))    )
+tofocus <- colnames(   g %>% dplyr::select(!c('x','y','ID', contains("95"),
+                                               'hosts_muylaert', 'hosts_sanchez',
+                                               'trans',
+                                               'pollution',
+                                               'motor_travel_time_weiss' ))    )
 
 #d <- ds[sample(1:length(ds), 1000),]
 

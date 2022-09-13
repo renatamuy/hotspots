@@ -22,7 +22,7 @@ setwd('results')
 #----> identifies risk areas for change, surveillance sites in wildlife/communities
 #Uses #s 1-3; 7 & 8
 
-want_landscape <- c('builtup', 'energy', 'trans', 'agriharv', 'pollution',
+want_landscape <- c('builtup', 'energy',  'agriharv', 
                     'forest_integrity_grantham',
                     'hewson_forest_transition_potential'                  )
 
@@ -51,7 +51,7 @@ setdiff(want_risk1, colnames(dfgplot))
 
 dfgplot <- dplyr::mutate(dfgplot, n_hotspots_risk1 = rowSums(dfgplot[want_risk1]  > 1.9546, na.rm = TRUE))
 
-go <- dfgplot %>% select(c('x','y',starts_with("n_hotspots_risk1")))
+go <- dfgplot %>% dplyr::select(c('x','y',starts_with("n_hotspots_risk1")))
 
 cats <- length(unique(dfgplot$n_hotspots_risk1))
 pal <- scico::scico(  length(unique(dfgplot$n_hotspots_risk1)) , palette = "vik")
@@ -110,7 +110,7 @@ cats <- length(unique(dfgplot$n_hotspots_risk2))
 pal2 <- rev(RColorBrewer::brewer.pal(cats,"Spectral"))
 b <- c(0,2,4,6,8,10 )
 
-go2 <- dfgplot %>% select(c('x','y',starts_with("n_hotspots_risk2")))
+go2 <- dfgplot %>% dplyr::select(c('x','y',starts_with("n_hotspots_risk2")))
 
 # Spectral 
 p2 <- ggplot(data = go2, aes( y=y, x=x, fill = n_hotspots_risk2))+
@@ -154,7 +154,7 @@ want_risk3 <- c(want_risk2, 'motor_travel_time_weiss' )
 
 dfgplot <- dplyr::mutate(dfgplot, n_hotspots_risk3 = rowSums(dfgplot[want_risk3]  > 1.9546, na.rm = TRUE))
 
-go3 <- dfgplot %>% select(c('x','y',starts_with("n_hotspots_risk3")))
+go3 <- dfgplot %>% dplyr::select(c('x','y',starts_with("n_hotspots_risk3")))
 
 cats <- length(unique(dfgplot$n_hotspots_risk3))
 pal3 <- rev(RColorBrewer::brewer.pal(cats,"Spectral"))
@@ -213,10 +213,4 @@ ggsave(
   height = 6,
   limitsize = TRUE)
 
-
 #----------------------------------------------------------------------
-
-# Difference map?
-
-  
-
