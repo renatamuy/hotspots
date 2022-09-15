@@ -1,8 +1,5 @@
 #-------------- MAXP GREEDY ---------------------
 
-memory.size()
-memory.limit()
-
 ls()
 rm(list = ls())
 gc() 
@@ -10,14 +7,16 @@ options(digits=7, scipen=999)
 
 library(sp)
 library(spdep)
-library(here())
+library(here)
 library(rgeoda)
 library(raster)
 
 setwd(here())
+
 setwd('results')
 
 d <- read.csv('prepdf.csv')
+
 d$X <- NULL
   
 mercator <- raster::shapefile('mercator.shp')
@@ -38,11 +37,11 @@ tofocus <- colnames(d %>% dplyr::select(!c('x','y',
 minbound <- 0.05*sum(d$pop_2020_worldpop) 
 
 maxp_o5pct <- maxp_greedy(
-  w= queen_w,
-  df= d[,tofocus],
+  w = queen_w,
+  df = d[,tofocus],
   bound_variable = d['pop_2020_worldpop'], # always index it as df, not as vector
   min_bound = minbound,
-  iterations = 5,
+  iterations = 99,
   initial_regions = vector("numeric"),
   scale_method = "standardize",
   distance_method = "euclidean",
@@ -55,11 +54,11 @@ print('5% bounding variable completed')
 minbound10pct <- 0.1*sum(d$pop_2020_worldpop) 
 
 maxp_o10pct <- maxp_greedy(
-  w= queen_w,
-  df= d[,tofocus],
+  w = queen_w,
+  df = d[,tofocus],
   bound_variable = d['pop_2020_worldpop'], # always index it as df, not as vector
   min_bound = minbound10pct,
-  iterations = 5,
+  iterations = 99,
   initial_regions = vector("numeric"),
   scale_method = "standardize",
   distance_method = "euclidean",
@@ -70,7 +69,9 @@ print('10% bounding variable completed')
 # Export
 
 setwd(here())
+
 setwd('results')
+
 dir.create('maxp')
 
 save(maxp_o5pct, 'maxp_o5pct.RData')
@@ -80,9 +81,10 @@ d$maxp5pct <- maxp_o5pct$Clusters
 d$maxp10pct <- maxp_o10pct$Clusters
 
 save(d, 'prepdf_maxp.RData')
+
 write.csv(d, 'prepdf_maxp.RData', row.names = FALSE)
 
-print('DONE')
+print('Job completed')
 
 #------------------------------------------------------------------------
 # Description: https://geodacenter.github.io/rgeoda/articles/rgeoda_tutorial.html#max-p
