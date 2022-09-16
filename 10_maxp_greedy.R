@@ -18,17 +18,17 @@ setwd('results')
 d <- read.csv('prepdf.csv')
 
 d$X <- NULL
-  
+
 mercator <- raster::shapefile('mercator.shp')
 
 queen_w <- queen_weights(st_as_sf(mercator))
 
 tofocus <- colnames(d %>% dplyr::select(!c('x','y', 
-                                               'hosts_muylaert',
-                                               'hosts_sanchez',
-                                               'trans',
-                                               'pollution',
-                                               'motor_travel_time_weiss'   ))    )
+                                           'hosts_muylaert',
+                                           'hosts_sanchez',
+                                           'trans',
+                                           'pollution',
+                                           'motor_travel_time_weiss'   ))    )
 
 
 
@@ -46,6 +46,14 @@ maxp_o5pct <- maxp_greedy(
   scale_method = "standardize",
   distance_method = "euclidean",
   random_seed = 123456789)
+
+setwd(here())
+
+setwd('results')
+
+dir.create('maxp')
+
+save(maxp_o5pct, 'maxp_o5pct.RData')
 
 print('5% bounding variable completed')
 
@@ -68,13 +76,6 @@ print('10% bounding variable completed')
 
 # Export
 
-setwd(here())
-
-setwd('results')
-
-dir.create('maxp')
-
-save(maxp_o5pct, 'maxp_o5pct.RData')
 save(maxp_o10pct, 'maxp_o10pct.RData')
 
 d$maxp5pct <- maxp_o5pct$Clusters
@@ -85,6 +86,10 @@ save(d, 'prepdf_maxp.RData')
 write.csv(d, 'prepdf_maxp.RData', row.names = FALSE)
 
 print('Job completed')
+
+
+
+
 
 #------------------------------------------------------------------------
 # Description: https://geodacenter.github.io/rgeoda/articles/rgeoda_tutorial.html#max-p
