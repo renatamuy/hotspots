@@ -5,6 +5,7 @@ rm(list = ls())
 gc() 
 options(digits=7, scipen=999)
 
+library(sf)
 library(sp)
 library(spdep)
 library(here)

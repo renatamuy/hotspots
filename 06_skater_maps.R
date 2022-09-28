@@ -7,9 +7,9 @@ require(rnaturalearth)
 require(here)
 
 setwd(here())
-setwd('results/skater_optimal_cluster_size_12')
+setwd('results/skater_optimal_cluster_size_09')
 
-c <- read.csv('clusters_rgeoda_c12.csv')
+c <- read.csv('clusters_rgeoda_c09.csv')
 
 target <- ne_countries(type = "countries", country = c('Bangladesh',
                                                        'Bhutan',

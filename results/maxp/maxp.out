@@ -1,0 +1,10 @@
+Executing R ...
+character(0)
+         used (Mb) gc trigger (Mb) max used (Mb)
+Ncells 268908 14.4     654411   35   443760 23.7
+Vcells 448550  3.5    8388608   64  1771986 13.6
+[1] "loaded libs"
+[1] "5% bounding variable completed"
+[1] "10% bounding variable completed"
+[1] "Job completed"
+Completed
