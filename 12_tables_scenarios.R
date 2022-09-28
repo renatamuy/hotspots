@@ -104,5 +104,20 @@ cor(d$motor_travel_time_weiss, d$pop_2020_worldpop, method = 'spearman')
 
 cor(d$motor_travel_time_weiss, d$pop_2020_worldpop, method = 'pearson')
 
-plot(d$motor_travel_time_weiss, d$pop_2020_worldpop)
+plot(log(d$motor_travel_time_weiss), log(d$pop_2020_worldpop))
+
+cor(log(d$motor_travel_time_weiss), log(d$pop_2020_worldpop), 
+    method = 'spearman')
+
+cor(d$motor_travel_time_weiss, d$pop_2020_worldpop, method = 
+      'spearman')
+
+
+cor(d$motor_travel_time_weiss, d$trans, method = 
+      'spearman')
+plot(log(d$motor_travel_time_weiss), log(d$trans))
+
+plot(log(d$motor_travel_time_weiss), log(d$builtup))
+
+plot(dfg$lincomb_hosts, dfg$mammals_iucn_mode)
 

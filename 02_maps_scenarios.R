@@ -3,9 +3,8 @@
 # risk from zero to one from z-scores
 #Selection of higher-level indicators
 # Risk surface considering all values
-batpop <- rccpos * log(prcc+1)
-batpop_pct <- (batpop- min(na.omit(values(batpop))))  / (max(na.omit(values(batpop))) - min(na.omit(values(batpop))) )
 
+require(rnaturalearth)
 require(tidyverse)
 require(stringr)
 require(reshape2)
@@ -20,7 +19,27 @@ setwd(here())
 setwd('results')
 
 #----> identifies risk areas for change, surveillance sites in wildlife/communities
-#Uses #s 1-3; 7 & 8
+#Uses #s 1-3; 7 & 8 
+
+#Countries
+target <- ne_countries(type = "countries", country = c('Bangladesh',
+                                                       'Bhutan',
+                                                       'Brunei',
+                                                       'Cambodia',
+                                                       'China', 
+                                                       'India',
+                                                       'Indonesia',
+                                                       'Laos',
+                                                       'Malaysia',
+                                                       'Myanmar',
+                                                       'Nepal',
+                                                       'Philippines',
+                                                       'Singapore', 
+                                                       'Sri Lanka',
+                                                       'Thailand',
+                                                       'Timor-Leste',
+                                                       'Vietnam'))
+
 
 want_landscape <- c('builtup', 'energy',  'agriharv', 
                     'forest_integrity_grantham',
@@ -41,7 +60,6 @@ b <- mm %>% filter(variable == 'builtup' )
 
 head(b)
 
-plot(data = b, y~x, col= color95, pch=19)
 
 #pal <- scico::scico(length(unique(dfgplot$n_hotspots_landscape)), palette = 'lajolla')
 head(dfgplot)
@@ -60,15 +78,19 @@ pal <- rev(RColorBrewer::brewer.pal(cats,"Spectral"))
 
 b <- c(0,2,4, 6, 8,10 )
 
-p1 <- ggplot(data = go, aes( y=y, x=x, fill = n_hotspots_risk1))+
-  geom_tile()+ theme_bw() +
+p1 <- ggplot()+
+  geom_tile(data = go, aes(y=y, x=x, fill = n_hotspots_risk1))+ theme_bw() +
   scale_fill_gradientn(colours = pal, breaks = b) +
+  geom_sf(data=sf::st_as_sf(target), fill= 'transparent',col="black", size=0.50)+
   #scale_fill_gradientn(colours=c("lightskyblue", "darkmagenta", "darkorange1"), breaks = b, labels=format(b)) +
   #scale_fill_gradientn(colours= c("royalblue3", "khaki", "violetred4"), breaks=b, labels=format(b)) +
-  theme(legend.title=element_blank(), legend.position = 'bottom',  strip.text = element_text(size = 14)) +
-  labs(x='Longitude', y="Latitude", title = "Hotspot convergence areas", subtitle = 'Equal weights from univariate hotspots'  ) 
+  theme(legend.title=element_blank(), legend.position = 'bottom',  
+        strip.text = element_text(size = 14)) +
+  labs(x='Longitude', y="Latitude", title = "Hotspot convergence areas", 
+       subtitle = 'Landscape change and known bat hosts'  ) 
 
 p1
+
 ggsave(
   'hotspots.png',
   plot = last_plot(),
@@ -79,11 +101,14 @@ ggsave(
 
 # With royal blue pal
 
-p1r <- ggplot(data = go, aes( y=y, x=x, fill = n_hotspots_risk1))+
-  geom_tile()+ theme_bw() +
+p1r <- ggplot()+
+  geom_tile(data = go, aes( y=y, x=x, fill = n_hotspots_risk1))+ theme_bw() +
+  geom_sf(data=sf::st_as_sf(target), fill= 'transparent',col="black", size=0.50)+
   scale_fill_gradientn(colours= c("royalblue3", "khaki", "violetred4"), breaks=b, labels=format(b)) +
   theme(legend.title=element_blank(), legend.position = 'bottom',  strip.text = element_text(size = 14)) +
-  labs(x='Longitude', y="Latitude", title = "Hotspot convergence areas", subtitle = 'Equal weights from univariate hotspots'  ) 
+  labs(x='Longitude', y="Latitude", 
+       title = "Hotspot convergence areas", 
+       subtitle = 'Landscape change and known bat hosts'  ) 
 
 p1r
 
@@ -113,13 +138,14 @@ b <- c(0,2,4,6,8,10 )
 go2 <- dfgplot %>% dplyr::select(c('x','y',starts_with("n_hotspots_risk2")))
 
 # Spectral 
-p2 <- ggplot(data = go2, aes( y=y, x=x, fill = n_hotspots_risk2))+
-  geom_tile()+ theme_bw() +
+p2 <- ggplot()+
+  geom_tile(data = go2, aes( y=y, x=x, fill = n_hotspots_risk2))+ theme_bw() +
+  geom_sf(data=sf::st_as_sf(target), fill= 'transparent',col="black", size=0.50)+
   scale_fill_gradientn(colours = pal2, breaks = b) +
   #scale_fill_gradientn(colours = c("royalblue3", "khaki", "violetred4"), breaks=b, labels=format(b)) +
   theme(legend.title=element_blank(), legend.position = 'bottom',  strip.text = element_text(size = 14)) +
   labs(x='Longitude', y="Latitude", title = "Hotspot convergence areas", 
-       subtitle = 'Equal weights considering potential secondary hosts'  ) 
+       subtitle = 'Landscape change, known bat hosts and \n potential  secondary hosts'  ) 
 
 p2
 
@@ -132,14 +158,16 @@ ggsave(
   limitsize = TRUE)
 
 
-p2r <- ggplot(data = go2, aes( y=y, x=x, fill = n_hotspots_risk2))+
-  geom_tile()+ theme_bw() +
+p2r <- ggplot()+
+  geom_tile(data = go2, aes( y=y, x=x, fill = n_hotspots_risk2))+ theme_bw() +
+  geom_sf(data=sf::st_as_sf(target), fill= 'transparent',col="black", size=0.50)+
   #scale_fill_gradientn(colours = pal2, breaks = b) +
   scale_fill_gradientn(colours = c("royalblue3", "khaki", "violetred4"), breaks=b, labels=format(b)) +
   theme(legend.title=element_blank(), legend.position = 'bottom',  strip.text = element_text(size = 14)) +
   labs(x='Longitude', y="Latitude", title = "Hotspot convergence areas", 
        subtitle = 'Equal weights considering potential secondary hosts'  ) 
 p2r
+
 ggsave(
   'hotspots_sec_royal.png',
   plot = last_plot(),
@@ -147,6 +175,23 @@ ggsave(
   width = 5,
   height = 6,
   limitsize = TRUE)
+
+# Difference map:
+go2$dif = go2$n_hotspots_risk2 - go$n_hotspots_risk1 
+
+hist(go2$dif)
+
+p2dif <- ggplot()+
+  geom_tile(data = go2, aes( y=y, x=x, fill = dif))+ theme_bw() +
+  geom_sf(data=sf::st_as_sf(target), fill= 'transparent',col="black", size=0.50)+
+  scale_fill_gradientn(colours = pal2) + #, breaks = b
+  #scale_fill_gradientn(colours = c("royalblue3", "khaki", "violetred4"), breaks=b, labels=format(b)) +
+  theme(legend.title=element_blank(), legend.position = 'bottom',  strip.text = element_text(size = 14)) +
+  labs(x='Longitude', y="Latitude",
+       title = "Difference map (secondary - primary scenario)", 
+       subtitle = ''  ) 
+
+p2dif
 
 # Risk 3 + spread 
 

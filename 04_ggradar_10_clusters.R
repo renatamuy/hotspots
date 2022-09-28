@@ -54,7 +54,7 @@ hosts_muylaert <- raster::raster('D:/OneDrive - Massey University/bat_non_bat/da
 
 bbox(hosts_muylaert)
 
-ras_dom<-raster::raster(xmn=68.25, xmx= 141.0, ymn=-10.25, ymx=53.5,
+ras_dom <-raster::raster(xmn=68.25, xmx= 141.0, ymn=-10.25, ymx=53.5,
                         crs="+proj=longlat +datum=WGS84 +no_defs ",
                         resolution=res(hosts_muylaert), vals=NA)
 
