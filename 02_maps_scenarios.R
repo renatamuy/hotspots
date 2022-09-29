@@ -1,13 +1,11 @@
-# -- current 'risk' with no intermediate hosts
-
-# risk from zero to one from z-scores
-#Selection of higher-level indicators
-# Risk surface considering all values
+# -- scenario with no intermediate hosts
+# -- scenario with intermediate hosts
 
 require(rnaturalearth)
 require(tidyverse)
 require(stringr)
 require(reshape2)
+require(here)
 
 setwd(here())
 setwd('results')
@@ -19,8 +17,6 @@ setwd(here())
 setwd('results')
 
 #----> identifies risk areas for change, surveillance sites in wildlife/communities
-#Uses #s 1-3; 7 & 8 
-
 #Countries
 target <- ne_countries(type = "countries", country = c('Bangladesh',
                                                        'Bhutan',
@@ -51,7 +47,7 @@ want_expo_spread <- c('pop_2020_worldpop')
 
 want_risk1 <- c(want_landscape,want_bat,want_expo_spread)
 
-# risk from hotspot convergence
+# hotspot convergence in scenario 1
 
 #Melt
 mm <- melt(dfgplot[c('x','y',want_landscape,'lincomb_hosts','pop_2020_worldpop')], id.vars=c('x','y') )
@@ -86,7 +82,8 @@ p1 <- ggplot()+
   #scale_fill_gradientn(colours= c("royalblue3", "khaki", "violetred4"), breaks=b, labels=format(b)) +
   theme(legend.title=element_blank(), legend.position = 'bottom',  
         strip.text = element_text(size = 14)) +
-  labs(x='Longitude', y="Latitude", title = "Hotspot convergence areas", 
+  labs(x='Longitude', y="Latitude", 
+       title = "Hotspot convergence areas", 
        subtitle = 'Landscape change and known bat hosts'  ) 
 
 p1
@@ -120,10 +117,8 @@ ggsave(
   height = 6,
   limitsize = TRUE)
 
-# Risk from 
-#-- risks with intermediate hosts (and surveillance sites)
+# Scenario with potential intermediate hosts (and surveillance sites)
 #----> identifies risk areas for change, surveillance sites in livestock/communities
-#Uses #s 1-8
 
 want_risk2 <- c(want_risk1, 'pig_gilbert', 'cattle_gilbert','mammals_iucn_mode' )
 
@@ -193,7 +188,16 @@ p2dif <- ggplot()+
 
 p2dif
 
-# Risk 3 + spread 
+#
+ggsave(
+  'hotspots_sec_minus_first.png',
+  plot = last_plot(),
+  dpi = 400,
+  width = 5,
+  height = 6,
+  limitsize = TRUE)
+
+# Scenario 2 + spread 
 
 want_risk3 <- c(want_risk2, 'motor_travel_time_weiss' )
 
@@ -249,7 +253,6 @@ ggsave(
   height = 6,
   limitsize = TRUE)
 
-
 ggsave(
   'hotspots_all_royal.png',
   plot = grid.arrange(p1r, p2r,p3r, nrow = 1),
@@ -257,5 +260,57 @@ ggsave(
   width = 15,
   height = 6,
   limitsize = TRUE)
+
+# Bivariate map
+require(bivariatemaps)
+library(classInt)
+library(raster)
+library(rgdal)
+library(dismo)
+library(XML)
+library(maps)
+library(sp)
+
+# Check location
+setwd('C://Users//Renata//OneDrive - Massey University//bat_non_bat//data//region//')
+
+raster_access <-raster('motor_travel_time_weiss.tif')
+
+ras_dom <-raster::raster(xmn=68.25, xmx= 141.0, ymn=-10.25, ymx=53.5,
+                         crs="+proj=longlat +datum=WGS84 +no_defs ",
+                         resolution=res(raster_access), vals=NA)
+
+db <- dfgplot[c('x', 'y', 'n_hotspots_risk2')]
+db$risk2 <- (db$n_hotspots_risk2-min(db$n_hotspots_risk2))/
+  (max(db$n_hotspots_risk2)-min(db$n_hotspots_risk2))
+
+                                                           
+hist(db$risk2 )
+
+coordinates(db) <- ~ x + y 
+
+crs(db) <- "+proj=longlat +datum=WGS84 +no_defs "
+
+# Scenario 2
+
+raster2 <- rasterize(db, ras_dom, 
+                     field = c("risk2"),
+                     update = TRUE)
+
+col.matrix<-colmat(nquantiles=3,
+                   upperleft="blue", 
+                   upperright="red", 
+                   bottomleft="yellow",
+                   bottomright="pink",
+                   xlab="Access to healthcare", 
+                   ylab="Hazard: Scenario 2")
+
+bivmap<-bivariate.map(raster1,raster2, colormatrix=col.matrix,
+                      nquantiles=3)
+
+plot(bivmap,frame.plot=F,axes=F,box=F,add=F,legend=F,
+     col=as.vector(col.matrix))
+
+map(interior=T,add=T)
 
 #----------------------------------------------------------------------
