@@ -94,8 +94,6 @@ dfg %>% group_by(col95_cattle) %>%
 check2 <- dfg %>% group_by(col95_hosts,col95_mammals, col95_pig, col95_cattle ) %>% 
   summarise( mean_risk = mean(forest_loss_risk), sd=sd(forest_loss_risk) )
 
-
-
 cor(dfg$motor_travel_time_weiss, dfg$pop_2020_worldpop, method = 'spearman')
 
 cor(dfg$motor_travel_time_weiss, dfg$pop_2020_worldpop, method = 'pearson')
@@ -112,7 +110,6 @@ cor(log(d$motor_travel_time_weiss), log(d$pop_2020_worldpop),
 cor(d$motor_travel_time_weiss, d$pop_2020_worldpop, method = 
       'spearman')
 
-
 cor(d$motor_travel_time_weiss, d$trans, method = 
       'spearman')
 plot(log(d$motor_travel_time_weiss), log(d$trans))
@@ -120,4 +117,13 @@ plot(log(d$motor_travel_time_weiss), log(d$trans))
 plot(log(d$motor_travel_time_weiss), log(d$builtup))
 
 plot(dfg$lincomb_hosts, dfg$mammals_iucn_mode)
+
+
+# --------------------------
+
+plot(log(d$motor_travel_time_weiss), log(d$pop_2020_worldpop))
+
+
+
+
 
