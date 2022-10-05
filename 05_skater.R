@@ -116,7 +116,7 @@ write.csv(data.frame(its, twss, ratio), file = filenametwss, row.names = FALSE)
 
 # assign optimal k clusters to spatial object (careful, col names reduced when exported)
 
-otimo <- 9
+otimo <- 19
 
 result <- dfsub
 
@@ -142,13 +142,13 @@ class(result)
 
 setwd('../')
 
-dir.create('skater_optimal_cluster_size_09')
-setwd('skater_optimal_cluster_size_09')
+dir.create('skater_optimal_cluster_size_19')
+setwd('skater_optimal_cluster_size_19')
 colwant <- c(tofocus, 'cluster')
 
 colnames(result[colwant]@data)
 
-filenamesh <- paste0('clusters_rgeoda_c09_rows',
+filenamesh <- paste0('clusters_rgeoda_c19_rows',
                      nrow(result),       ".shp")
 
 raster::shapefile(result[colwant], filenamesh,  overwrite=TRUE)
@@ -159,7 +159,7 @@ resultdf <- result@data
 resultdf$x <- dfsub$x
 resultdf$y <- dfsub$y
 
-filenamec <- paste0('clusters_rgeoda_c09', ".csv")
+filenamec <- paste0('clusters_rgeoda_c19', ".csv")
 
 write.csv(resultdf, file = filenamec, row.names = FALSE)
 
