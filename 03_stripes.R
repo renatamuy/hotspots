@@ -145,27 +145,7 @@ ggsave(
 
 # --- All
 
-ggplot(data = sumelt, aes( y=y, x=x, fill = value))+
-  geom_tile()+
-  facet_wrap(~variable, ncol=2)+
-  scale_fill_manual(values =c("khaki","royalblue3", "violetred4") ,
-                    labels = c("Neutral", "Coldspot", "Hotspot")) + theme_bw() +
-  theme(legend.title=element_blank(), legend.position = 'bottom',
-        strip.text = element_text(size = 14)) + 
-  labs(x='Longitude', y="Latitude") 
-
-ggsave('hotspots_facets.png',
-       plot = last_plot(),
-       dpi = 400,
-       width = 6,
-       height = 14,
-       limitsize = TRUE)
-
-write.table(file='table_pct.txt', row.names = FALSE,
-            round(table(sumelt$variable, sumelt$value)/ nrow(dfgplot)*100, digits=2) )
-
-# Percentages per indicator
-sumelt %>%
+allpp <- sumelt %>% 
   mutate(unilabs = fct_recode(variable,
                               'Bat hosts' = 'hosts',
                               'All mammals'= 'mammals',
@@ -174,7 +154,46 @@ sumelt %>%
                               "Human population" = 'pop_2020_worldpop' ,
                               #"Time to reach healthcare" = "motor_travel_time_weiss",
                               "Built up area"    =   "builtup",
-                              "Energy-related structures" =  'energy',
+                              "Energy and mining" =  'energy',
+                              #'Transport-related structures' = 'trans', 
+                              #'Human intrusion and pollution' = 'pollution',
+                              'Agriculture and harvest land' = 'agriharv',
+                              'Forest integrity' = 'forest_integrity_grantham',
+                              'Deforestation potential' ='hewson_forest_transition_potential' )) %>% 
+  ggplot(aes( y=y, x=x, fill = value))+
+  geom_tile()+
+  facet_wrap(~unilabs, nrow=2)+
+  scale_fill_manual(values =c("khaki","royalblue3", "violetred4") ,
+                    labels = c("Neutral", "Coldspot", "Hotspot")) + theme_bw() +
+  theme(legend.title = element_blank(), 
+        legend.position = 'none',
+        strip.text = element_text(size = 14)) + 
+  labs(x='Longitude', y="Latitude") 
+
+allpp
+
+ggsave('hotspots_facets.png',
+       plot = last_plot(),
+       dpi = 400,
+       width = 14,
+       height = 6,
+       limitsize = TRUE)
+
+write.table(file='table_pct.txt', row.names = FALSE,
+            round(table(sumelt$variable, sumelt$value)/ nrow(dfgplot)*100, digits=2) )
+
+# Percentages per indicator
+
+plotpcts <- sumelt %>%
+  mutate(unilabs = fct_recode(variable,
+                              'Bat hosts' = 'hosts',
+                              'All mammals'= 'mammals',
+                              'Pig' = 'pig',
+                              'Cattle' = 'cattle',
+                              "Human population" = 'pop_2020_worldpop' ,
+                              #"Time to reach healthcare" = "motor_travel_time_weiss",
+                              "Built up area"    =   "builtup",
+                              "Energy and mining" =  'energy',
                               #'Transport-related structures' = 'trans', 
                               #'Human intrusion and pollution' = 'pollution',
                               'Agriculture and harvest land' = 'agriharv',
@@ -200,8 +219,11 @@ sumelt %>%
   scale_fill_manual(values =c("khaki","royalblue3", "violetred4" ) ,
                     labels = c("Neutral", "Coldspot", "Hotspot"))+
   theme_minimal(base_size = 15) + geom_rug() +
-  theme( legend.title = element_blank(), legend.position = "bottom") + coord_flip() + 
+  theme( legend.title = element_blank(), 
+         legend.position = "bottom") + coord_flip() + 
   labs( title = "", x = "", y = "Area (%)", caption = "") 
+
+plotpcts
 
 # Exporting 
 ggsave(
@@ -212,8 +234,30 @@ ggsave(
   height = 6,
   limitsize = TRUE)
 
+# Composition for paper -------------------------
+# Figure 1
+
+grid.arrange(allpp, plotpcts, nrow = 2)
+
+setwd('results')
+library(gridExtra)
+
+plotorg <- grid.arrange(arrangeGrob(allpp, 
+         plotpcts, 
+         heights = c(0.6, 0.4)),
+                    nrow = 2)
+
+plotorg
+
+ggsave( 'Fig_01.png',
+  plot = plotorg,
+  dpi = 400,
+  width = 7,
+  height = 12,
+  limitsize = TRUE)
+
 #------------------------------------------------------------------
-# Individual values
+# Individual values - Supplements
 
 sumelt$tile <- rep(1:nrow(su))
 

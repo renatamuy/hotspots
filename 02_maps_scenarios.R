@@ -197,6 +197,34 @@ ggsave(
   height = 6,
   limitsize = TRUE)
 
+# Jaccard difference map
+load('jaccard.RData')
+
+myjacs[is.nan(myjacs)] <- 0
+
+go2$jac <- myjacs
+
+p2jac <- ggplot()+
+  geom_tile(data = go2, aes( y=y, x=x, fill = jac))+ theme_bw() +
+  geom_sf(data=sf::st_as_sf(target), fill= 'transparent',col="black", size=0.50)+
+  scale_fill_gradientn(colours = pal2) + #, breaks = b
+  #scale_fill_gradientn(colours = c("royalblue3", "khaki", "violetred4"), breaks=b, labels=format(b)) +
+  theme(legend.title=element_blank(), legend.position = 'bottom',  strip.text = element_text(size = 14)) +
+  labs(x='Longitude', y="Latitude",
+       title = "Jaccard dissimilarity between scenarios", 
+       subtitle = ''  ) 
+
+p2jac
+
+ggsave(
+  'hotspots_jaccard.png',
+  plot = last_plot(),
+  dpi = 400,
+  width = 5,
+  height = 6,
+  limitsize = TRUE)
+
+
 # Scenario 2 + spread 
 
 want_risk3 <- c(want_risk2, 'motor_travel_time_weiss' )
