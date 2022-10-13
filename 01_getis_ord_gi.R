@@ -76,7 +76,7 @@ tofocus_hosts <- c("hosts_muylaert", "hosts_sanchez")
 
 cor(dfg$hosts_muylaert,dfg$hosts_sanchez, method = 'spearman')
 
-dfg$lincomb_hosts <- apply(dfg[tofocus_hosts], FUN=mean, MARGIN=1)
+dfgplot$lincomb_hosts <- apply(dfg[tofocus_hosts], FUN=mean, MARGIN=1)
 
 dfgplot$p95_hosts <- ifelse(dfg$lincomb_hosts > critical, "<0.05",
                           ifelse(dfg$lincomb_hosts  < -critical, "<0.05", "ns") )
@@ -110,6 +110,7 @@ cor(dfg$lincomb_hosts, dfg$mammals_iucn_mode, method = 'spearman')
 
 # Potential domestic sec hosts
 
+# Pig - p
 cor(dfg$cattle_gilbert, dfg$pig_gilbert, method = 'spearman')
 
 dfgplot$p95_pig <- ifelse(dfg$pig_gilbert > critical, "<0.05",
@@ -121,8 +122,7 @@ dfgplot$col95_pig <- ifelse(dfg$pig_gilbert > critical, "violetred4",
 dfgplot$hot95_pig <-  ifelse(dfg$pig_gilbert > critical, "Hotspot",
                             ifelse(dfg$pig_gilbert  < -critical, "Coldspot", "Neutral") )
 
-
-# Cattle
+# Cattle - 
 
 dfgplot$p95_cattle <- ifelse(dfg$cattle_gilbert > critical, "<0.05",
                           ifelse(dfg$cattle_gilbert < -critical, "<0.05", "ns") )
@@ -132,6 +132,21 @@ dfgplot$col95_cattle <- ifelse(dfg$cattle_gilbert > critical, "violetred4",
 
 dfgplot$hot95_cattle <-  ifelse(dfg$cattle_gilbert > critical, "Hotspot",
                          ifelse(dfg$cattle_gilbert  < -critical, "Coldspot", "Neutral") )
+
+
+# bovliv Buffalo, cattle, goat, sheep -------------------------
+
+dfgplot$p95_bovliv <- ifelse(dfg$buffalo_cattle_goat_sheep > critical, "<0.05",
+                             ifelse(dfg$buffalo_cattle_goat_sheep < -critical, "<0.05", "ns") )
+
+dfgplot$col95_bovliv <- ifelse(dfg$buffalo_cattle_goat_sheep > critical, "violetred4",
+                               ifelse(dfg$buffalo_cattle_goat_sheep  < -critical, "royalblue3", "khaki") )
+
+dfgplot$hot95_bovliv <-  ifelse(dfg$buffalo_cattle_goat_sheep > critical, "Hotspot",
+                                ifelse(dfg$buffalo_cattle_goat_sheep  < -critical, "Coldspot", "Neutral") )
+
+
+#------------------------------------------------------------
 
 #par(mfrow=c(2,1))
 
@@ -190,70 +205,12 @@ setwd('results')
 
 # Export data for multivariate-cluster and spider plots 
 
-fname <- paste0('gstar_', critical, '.csv' )
+fname <- paste0('gstar.csv')
+
+colnames(dfgplot)
+
+colnames(dfgplot)[14] <- 'bovliv'
+
 write.csv(dfgplot, fname, row.names = FALSE)
 
-# SLOW
-#Conditional permutations added for comparative purposes; 
-#permutations are over the whole data vector omitting the observation itself.
-# Permutation
-
-#localGvalues_sim <- localG_perm(info_spatial,  nsim=499, nb2listw(knn, style="B"), 
-#zero.policy = FALSE, alternative="two-sided")
-#---------
-
-#---------------------
-# Choose coding style for nb2listw() in localG() calculation
-#style="B" ensures symmetry of the neighbourhood matrix
-#"W", that is row-standardised weights, 
-# default "M", unknown style; if not "M", passed to nb2listw to re-build the object; 
-# "M", meaning matrix style, underlying style unknown, or assigned style argument in rebuilt object
-# Different coding styles can be used to minimize topology-induced heterogeneity on heatmaps
-#. "B" is the basic binary coding, "W" is row standardised (sums
-#over all links to n, 
-#"W" style assigns higher leverage to spatial objects with few connections, such as those on the periphery of a study region, or islands), 
-# C is globally standardised (sums over all links to n, results show that the "C" style emphasizes spatial objects with relatively
-#large numbers of connections, such as those in the interior of a study region), 
-#U is equal to C divided by the number of neighbours (sums over all links to unity), 
-# while "S" is the variance-stabilizing coding scheme proposed by Tiefelsdorf et al. 1999, p. 167-168 (sums over all links to n).
-#For the global test,  recommended that the weights style be binary (one of c("B","C","U")).
-################################################################################
-# If zero policy is set to TRUE, weights vectors of zero length are inserted for regions without neighbour
-#in the neighbours list. These will in turn generate lag values of zero, equivalent to the sum of
-#products of the zero row t(rep(0, length=length(neighbours))) %*% x, for arbitraty numerical
-#vector x of length length(neighbours). The spatially lagged value of x for the zero-neighbour
-#region will then be zero, which may (or may not) be a sensible choice.
-#If the sum of the glist vector for one or more observations is zero, a warning message is issued. The
-#consequence for later operations will be the same as if no-neighbour observations were present and
-#the zero.policy argument set to true.
-# Creating the localG statistic for each of counties, with a k-nearest neighbor value of k, and round this to 3 decimal places
-#The local spatial statistic G is calculated for each zone based on the spatial weights object used. The
-#value returned is a Z-value, and may be used as a diagnostic tool.
-# High positive values indicate the
-#posibility of a local cluster of high values of the variable being analysed, very low relative values
-#a similar cluster of low values. For inference, a Bonferroni-type test is suggested in the references,
-#where tables of critical values may be found (see also details below).
-#Deafut alternative="greater"
-#Binary weights recommended (sepecially for distance bands)
-#499
-#https://search.r-project.org/CRAN/refmans/spdep/html/localG.html
-#If the neighbours member of listw has a "self.included" attribute set to TRUE, the Gstar variant, 
-# including the self-weight w_{ii} > 0, is calculated and returned. The returned vector will have a "gstari" attribute set to TRUE. 
-#The value returned from getis ord g is a Z-value, and may be used as a diagnostic tool.
-# High positive values indicate the posibility of a local cluster of high values of the variable being analysed, very low relative values a similar cluster of low values. For inference, 
-# a Bonferroni-type test is suggested in the references, 
-# where tables of critical values may be found 
-#(see also details below).
-#The critical values of the statistic under assumptions given in the references for the 95th percentile are for 
-# n=1: 1.645, n=50: 3.083, n=100: 3.289, n=1000: 3.886.
-#https://www.rdocumentation.org/packages/spdep/versions/1.2-4/topics/localG
-# Create a new data frame that only includes the county fips codes and the G scores
-# Binary weights recommended (especially for distance bands)
-#zero policies: use global option value; if TRUE assign zero to the lagged value of zones without neighbours, 
-# if FALSE assign NA
-#Starting from a binary neighbours list, in which regions are either listed as neighbours or are absent
-#(thus not in the set of neighbours for some deﬁnition), the function adds a weights list with values
-#given by the coding scheme style chosen. B is the basic binary coding, W is row standardised (sums
-#  over all links to n), C is globally standardised (sums over all links to n), U is equal to C divided by
-#the number of neighbours (sums over all links to unity), while S is the variance-stabilizing coding
-#scheme proposed by Tiefelsdorf et al. 1999, p. 167-168 (sums over all links to n)
+#-------------------------------------------------------------------------------------------------------------

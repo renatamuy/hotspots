@@ -56,11 +56,12 @@ b <- mm %>% filter(variable == 'builtup' )
 
 head(b)
 
-
 #pal <- scico::scico(length(unique(dfgplot$n_hotspots_landscape)), palette = 'lajolla')
+
 head(dfgplot)
 
 # Same weights for all
+
 setdiff(want_risk1, colnames(dfgplot))
 
 dfgplot <- dplyr::mutate(dfgplot, n_hotspots_risk1 = rowSums(dfgplot[want_risk1]  > 1.9546, na.rm = TRUE))
@@ -84,7 +85,7 @@ p1 <- ggplot()+
         strip.text = element_text(size = 14)) +
   labs(x='Longitude', y="Latitude", 
        title = "Hotspot convergence areas", 
-       subtitle = 'Landscape change and known bat hosts'  ) 
+       subtitle = 'Landscape change and known bat hosts \n                          '  ) 
 
 p1
 
@@ -153,23 +154,39 @@ ggsave(
   limitsize = TRUE)
 
 
-p2r <- ggplot()+
-  geom_tile(data = go2, aes( y=y, x=x, fill = n_hotspots_risk2))+ theme_bw() +
+# bovliv
+want_risk3 <- c(want_risk1, 'pig_gilbert', 'bovliv','mammals_iucn_mode' )
+
+dfgplot <- dplyr::mutate(dfgplot, n_hotspots_risk3 = rowSums(dfgplot[want_risk3]  > 1.9546, na.rm = TRUE))
+length(unique(dfgplot$n_hotspots_risk2))
+unique(dfgplot$n_hotspots_risk2)
+
+cats <- length(unique(dfgplot$n_hotspots_risk2))
+pal3 <- rev(RColorBrewer::brewer.pal(cats,"Spectral"))
+b <- c(0,2,4,6,8,10 )
+
+go3 <- dfgplot %>% dplyr::select(c('x','y',starts_with("n_hotspots_risk3")))
+
+# Spectral 
+p3 <- ggplot()+
+  geom_tile(data = go3, aes( y=y, x=x, fill = n_hotspots_risk3))+ theme_bw() +
   geom_sf(data=sf::st_as_sf(target), fill= 'transparent',col="black", size=0.50)+
-  #scale_fill_gradientn(colours = pal2, breaks = b) +
-  scale_fill_gradientn(colours = c("royalblue3", "khaki", "violetred4"), breaks=b, labels=format(b)) +
+  scale_fill_gradientn(colours = pal2, breaks = b) +
+  #scale_fill_gradientn(colours = c("royalblue3", "khaki", "violetred4"), breaks=b, labels=format(b)) +
   theme(legend.title=element_blank(), legend.position = 'bottom',  strip.text = element_text(size = 14)) +
   labs(x='Longitude', y="Latitude", title = "Hotspot convergence areas", 
-       subtitle = 'Equal weights considering potential secondary hosts'  ) 
-p2r
+       subtitle = 'Landscape change, known bat hosts and \n potential  secondary hosts (all bovidae)'  ) 
+
+p3
 
 ggsave(
-  'hotspots_sec_royal.png',
+  'hotspots_sec_bovliv.png',
   plot = last_plot(),
   dpi = 400,
   width = 5,
   height = 6,
   limitsize = TRUE)
+
 
 # Difference map:
 go2$dif = go2$n_hotspots_risk2 - go$n_hotspots_risk1 
@@ -196,6 +213,28 @@ ggsave(
   width = 5,
   height = 6,
   limitsize = TRUE)
+
+
+# Dif 2 and bovliv
+
+go2$difbovliv = go2$n_hotspots_risk2 - go3$n_hotspots_risk3 
+
+hist(go2$dif)
+summary(go2$dif)
+
+p2dif <- ggplot()+
+  geom_tile(data = go2, aes( y=y, x=x, fill = dif))+ theme_bw() +
+  geom_sf(data=sf::st_as_sf(target), fill= 'transparent',col="black", size=0.50)+
+  scale_fill_gradientn(colours = pal2) + #, breaks = b
+  #scale_fill_gradientn(colours = c("royalblue3", "khaki", "violetred4"), breaks=b, labels=format(b)) +
+  theme(legend.title=element_blank(), legend.position = 'bottom',  strip.text = element_text(size = 14)) +
+  labs(x='Longitude', y="Latitude",
+       title = "Difference map (secondary - primary scenario)", 
+       subtitle = ''  ) 
+
+p2dif
+
+
 
 # Jaccard difference map
 load('jaccard.RData')
