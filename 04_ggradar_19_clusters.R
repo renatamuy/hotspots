@@ -76,7 +76,6 @@ colnames(dfgsub@data)
 
 pigg <- rasterize(dfgsub, ras_dom, field = c("pig_gilbert"), update = TRUE) 
 cattleg <- rasterize(dfgsub, ras_dom, field = c('cattle_gilbert'), update = TRUE) 
-#chickeng <- rasterize(dfgsub, ras_dom, field = c('chicken_gilbert'), update = TRUE) 
 hostsg <-  rasterize(dfgsub, ras_dom, field = c('lincomb_hosts'), update = TRUE) 
 mammalg <- rasterize(dfgsub, ras_dom, field = c("mammals_iucn_mode"), update = TRUE)
 
