@@ -30,8 +30,10 @@ want_bat <- c('hosts')
 
 want_expo_spread <- c('pop_2020_worldpop')
 
+# Sarbecovirus-oriented scenario
 want_risk1 <- c(want_landscape,want_bat,want_expo_spread)
 
+# More general - viruses
 want_risk2 <- c(want_risk1, 'pig', 'cattle','mammals' )
 
 want_risk3 <- c(want_landscape, want_expo_spread, 'pig', 'cattle','mammals' )

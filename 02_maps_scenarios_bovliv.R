@@ -1,3 +1,5 @@
+# Figure 2
+# Figure bivariate
 # -- scenario with no intermediate hosts
 # -- scenario with intermediate hosts
 
@@ -6,6 +8,17 @@ require(rnaturalearth)
 require(tidyverse)
 require(reshape2)
 require(here)
+library(gridExtra)
+library(grid)
+require(bivariatemaps)
+library(classInt)
+library(raster)
+library(rgdal)
+library(dismo)
+library(XML)
+library(maps)
+library(sp)
+
 
 setwd(here())
 setwd('results')
@@ -37,7 +50,8 @@ target <- ne_countries(type = "countries", country = c('Bangladesh',
                                                        'Vietnam'))
 
 
-want_landscape <- c('builtup', 'energy',  'agriharv', 
+want_landscape <- c('builtup', 'energy',  
+                    'agriharv', 
                     'forest_integrity_grantham',
                     'hewson_forest_transition_potential'                  )
 
@@ -96,31 +110,10 @@ ggsave(
   height = 6,
   limitsize = TRUE)
 
-# With royal blue pal
-
-p1r <- ggplot()+
-  geom_tile(data = go, aes( y=y, x=x, fill = n_hotspots_risk1))+ theme_bw() +
-  geom_sf(data=sf::st_as_sf(target), fill= 'transparent',col="black", size=0.50)+
-  scale_fill_gradientn(colours= c("royalblue3", "khaki", "violetred4"), breaks=b, labels=format(b)) +
-  theme(legend.title=element_blank(), legend.position = 'bottom',  strip.text = element_text(size = 14)) +
-  labs(x='Longitude', y="Latitude", 
-       title = "Hotspot convergence areas", 
-       subtitle = 'Landscape change and known bat hosts'  ) 
-
-p1r
-
-ggsave(
-  'hotspots_royal.png',
-  plot = last_plot(),
-  dpi = 400,
-  width = 5,
-  height = 6,
-  limitsize = TRUE)
-
 # Scenario with potential intermediate hosts (and surveillance sites)
 #----> identifies risk areas for change, surveillance sites in livestock/communities
 
-want_risk2 <- c(want_risk1, 'pig_gilbert', 'cattle_gilbert','mammals_iucn_mode' )
+want_risk2 <- c(want_risk1, 'pig_gilbert', 'cattle_gilbert', 'mmb') #'mammals_iucn_mode'
 
 dfgplot <- dplyr::mutate(dfgplot, n_hotspots_risk2 = rowSums(dfgplot[want_risk2]  > 1.9546, na.rm = TRUE))
 length(unique(dfgplot$n_hotspots_risk2))
@@ -153,24 +146,6 @@ ggsave(
   limitsize = TRUE)
 
 
-p2r <- ggplot()+
-  geom_tile(data = go2, aes( y=y, x=x, fill = n_hotspots_risk2))+ theme_bw() +
-  geom_sf(data=sf::st_as_sf(target), fill= 'transparent',col="black", size=0.50)+
-  #scale_fill_gradientn(colours = pal2, breaks = b) +
-  scale_fill_gradientn(colours = c("royalblue3", "khaki", "violetred4"), breaks=b, labels=format(b)) +
-  theme(legend.title=element_blank(), legend.position = 'bottom',  strip.text = element_text(size = 14)) +
-  labs(x='Longitude', y="Latitude", title = "Hotspot convergence areas", 
-       subtitle = 'Equal weights considering potential secondary hosts'  ) 
-p2r
-
-ggsave(
-  'hotspots_sec_royal.png',
-  plot = last_plot(),
-  dpi = 400,
-  width = 5,
-  height = 6,
-  limitsize = TRUE)
-
 # Difference map:
 go2$dif = go2$n_hotspots_risk2 - go$n_hotspots_risk1 
 
@@ -188,14 +163,15 @@ p2dif <- ggplot()+
 
 p2dif
 
-#
+# Export figure 2
 ggsave(
-  'hotspots_sec_minus_first.png',
-  plot = last_plot(),
+  'hotspots_all.png',
+  plot = grid.arrange(p1, p2, p2dif, nrow = 1),
   dpi = 400,
-  width = 5,
+  width = 15,
   height = 6,
   limitsize = TRUE)
+
 
 # Jaccard difference map
 load('jaccard.RData')
@@ -224,80 +200,9 @@ ggsave(
   height = 6,
   limitsize = TRUE)
 
-
-# Scenario 2 + spread 
-
-want_risk3 <- c(want_risk2, 'motor_travel_time_weiss' )
-
-dfgplot <- dplyr::mutate(dfgplot, n_hotspots_risk3 = rowSums(dfgplot[want_risk3]  > 1.9546, na.rm = TRUE))
-
-go3 <- dfgplot %>% dplyr::select(c('x','y',starts_with("n_hotspots_risk3")))
-
-cats <- length(unique(dfgplot$n_hotspots_risk3))
-pal3 <- rev(RColorBrewer::brewer.pal(cats,"Spectral"))
-
-p3 <- ggplot(data = go3, aes( y=y, x=x, fill = n_hotspots_risk3))+
-  geom_tile()+ theme_bw() +
-  scale_fill_gradientn(colours = pal, breaks = b) +
-  theme(legend.title=element_blank(), legend.position = 'bottom',  strip.text = element_text(size = 14)) +
-  labs(x='Longitude', y="Latitude", title = "Hotspot convergence areas", 
-       subtitle = 'Equal weights considering all factors + spread'  ) 
-p3 
-
-ggsave(
-  'hotspots_spread.png',
-  plot = last_plot(),
-  dpi = 400,
-  width = 5,
-  height = 6,
-  limitsize = TRUE)
-
-
-p3r <- ggplot(data = go3, aes( y=y, x=x, fill = n_hotspots_risk3))+
-  geom_tile()+ theme_bw() +
-  scale_fill_gradientn(colours= c("royalblue3", "khaki", "violetred4"), breaks=b, labels=format(b)) +
-  theme(legend.title=element_blank(), legend.position = 'bottom',  strip.text = element_text(size = 14)) +
-  labs(x='Longitude', y="Latitude", title = "Hotspot convergence areas", 
-       subtitle = 'Equal weights considering all factors + spread'  ) 
-
-p3r
-
-ggsave(
-  'hotspots_spread_royal.png',
-  plot = last_plot(),
-  dpi = 400,
-  width = 5,
-  height = 6,
-  limitsize = TRUE)
-                       
-library(gridExtra)
-library(grid)
-
-ggsave(
-  'hotspots_all.png',
-  plot = grid.arrange(p1, p2,p3, nrow = 1),
-  dpi = 400,
-  width = 15,
-  height = 6,
-  limitsize = TRUE)
-
-ggsave(
-  'hotspots_all_royal.png',
-  plot = grid.arrange(p1r, p2r,p3r, nrow = 1),
-  dpi = 400,
-  width = 15,
-  height = 6,
-  limitsize = TRUE)
-
+#--------------------------------
 # Bivariate map
-require(bivariatemaps)
-library(classInt)
-library(raster)
-library(rgdal)
-library(dismo)
-library(XML)
-library(maps)
-library(sp)
+
 
 # Check location
 setwd('../region')

@@ -78,49 +78,42 @@ cor(dfg$hosts_muylaert,dfg$hosts_sanchez, method = 'spearman')
 
 dfgplot$lincomb_hosts <- apply(dfg[tofocus_hosts], FUN=mean, MARGIN=1)
 
-dfgplot$p95_hosts <- ifelse(dfg$lincomb_hosts > critical, "<0.05",
-                          ifelse(dfg$lincomb_hosts  < -critical, "<0.05", "ns") )
+dfgplot$p95_hosts <- ifelse(dfgplot$lincomb_hosts > critical, "<0.05",
+                          ifelse(dfgplot$lincomb_hosts  < -critical, "<0.05", "ns") )
 
-dfgplot$col95_hosts <- ifelse(dfg$lincomb_hosts > critical, "violetred4",
-                         ifelse(dfg$lincomb_hosts  < -critical, "royalblue3", "khaki") )
+dfgplot$col95_hosts <- ifelse(dfgplot$lincomb_hosts > critical, "violetred4",
+                         ifelse(dfgplot$lincomb_hosts  < -critical, "royalblue3", "khaki") )
 
-dfgplot$hot95_hosts <-  ifelse(dfg$lincomb_hosts > critical, "Hotspot",
-                                ifelse(dfg$lincomb_hosts  < -critical, "Coldspot", "Neutral") )
+dfgplot$hot95_hosts <-  ifelse(dfgplot$lincomb_hosts > critical, "Hotspot",
+                                ifelse(dfgplot$lincomb_hosts  < -critical, "Coldspot", "Neutral") )
 
 # End hosts-------------------------------------------
 
 # Wild mammal hosts
 
-dfgplot$p95_mammals <- ifelse(dfg$mammals_iucn_mode > critical, "<0.05",
-                                 ifelse(dfg$lincomb_hosts  < -critical, "<0.05", "ns") )
+dfgplot$p95_mammals <- ifelse(dfgplot$mammals_iucn_mode > critical, "<0.05",
+                                 ifelse(dfgplot$lincomb_hosts  < -critical, "<0.05", "ns") )
 
-dfgplot$col95_mammals <- ifelse(dfg$mammals_iucn_mode > critical, "violetred4",
-                                ifelse(dfg$mammals_iucn_mode < -critical, "royalblue3", "khaki") )
+dfgplot$col95_mammals <- ifelse(dfgplot$mammals_iucn_mode > critical, "violetred4",
+                                ifelse(dfgplot$mammals_iucn_mode < -critical, "royalblue3", "khaki") )
 
-dfgplot$hot95_mammals <-  ifelse(dfg$mammals_iucn_mode > critical, "Hotspot",
-                           ifelse(dfg$mammals_iucn_mode  < -critical, "Coldspot", "Neutral") )
+dfgplot$hot95_mammals <-  ifelse(dfgplot$mammals_iucn_mode > critical, "Hotspot",
+                           ifelse(dfgplot$mammals_iucn_mode  < -critical, "Coldspot", "Neutral") )
 
-#par(mfrow=c(2,1))
-
-#plot(data= dfgplot, y~x, col= col95_hosts, pch=19)
-
-#plot(data= dfgplot, y~x, col= col95_mammals, pch=19)
-
-cor(dfg$lincomb_hosts, dfg$mammals_iucn_mode, method = 'spearman')
 
 # Potential domestic sec hosts
 
 # Pig - p
-cor(dfg$cattle_gilbert, dfg$pig_gilbert, method = 'spearman')
+cor(dfgplot$cattle_gilbert, dfgplot$pig_gilbert, method = 'spearman')
 
-dfgplot$p95_pig <- ifelse(dfg$pig_gilbert > critical, "<0.05",
-                                  ifelse(dfg$pig_gilbert < -critical, "<0.05", "ns") )
+dfgplot$p95_pig <- ifelse(dfgplot$pig_gilbert > critical, "<0.05",
+                                  ifelse(dfgplot$pig_gilbert < -critical, "<0.05", "ns") )
 
-dfgplot$col95_pig <- ifelse(dfg$pig_gilbert > critical, "violetred4",
-                                 ifelse(dfg$pig_gilbert  < -critical, "royalblue3", "khaki") )
+dfgplot$col95_pig <- ifelse(dfgplot$pig_gilbert > critical, "violetred4",
+                                 ifelse(dfgplot$pig_gilbert  < -critical, "royalblue3", "khaki") )
 
-dfgplot$hot95_pig <-  ifelse(dfg$pig_gilbert > critical, "Hotspot",
-                            ifelse(dfg$pig_gilbert  < -critical, "Coldspot", "Neutral") )
+dfgplot$hot95_pig <-  ifelse(dfgplot$pig_gilbert > critical, "Hotspot",
+                            ifelse(dfgplot$pig_gilbert  < -critical, "Coldspot", "Neutral") )
 
 # Cattle - 
 
@@ -144,6 +137,17 @@ dfgplot$col95_bovliv <- ifelse(dfg$buffalo_cattle_goat_sheep > critical, "violet
 
 dfgplot$hot95_bovliv <-  ifelse(dfg$buffalo_cattle_goat_sheep > critical, "Hotspot",
                                 ifelse(dfg$buffalo_cattle_goat_sheep  < -critical, "Coldspot", "Neutral") )
+
+# "mammals_minus_bat_hosts"
+
+dfgplot$p95_mmb <- ifelse(dfg$mammals_minus_bat_hosts > critical, "<0.05",
+                             ifelse(dfg$mammals_minus_bat_hosts < -critical, "<0.05", "ns") )
+
+dfgplot$col95_mmb <- ifelse(dfg$mammals_minus_bat_hosts > critical, "violetred4",
+                               ifelse(dfg$mammals_minus_bat_hosts  < -critical, "royalblue3", "khaki") )
+
+dfgplot$hot95_mmb <-  ifelse(dfg$mammals_minus_bat_hosts > critical, "Hotspot",
+                                ifelse(dfg$mammals_minus_bat_hosts < -critical, "Coldspot", "Neutral") )
 
 
 #------------------------------------------------------------
@@ -208,8 +212,8 @@ setwd('results')
 fname <- paste0('gstar.csv')
 
 colnames(dfgplot)
-
-colnames(dfgplot)[14] <- 'bovliv'
+colnames(dfgplot)[14] <-  'mmb'  #'mammals_minus_bat_hosts'
+colnames(dfgplot)[15] <- 'bovliv' # "buffalo_cattle_goat_sheep"
 
 write.csv(dfgplot, fname, row.names = FALSE)
 
