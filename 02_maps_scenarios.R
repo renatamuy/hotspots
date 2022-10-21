@@ -74,7 +74,7 @@ head(dfgplot)
 
 setdiff(want_risk1, colnames(dfgplot))
 
-dfgplot <- dplyr::mutate(dfgplot, n_hotspots_risk1 = rowSums(dfgplot[want_risk1]  > 1.9546, na.rm = TRUE))
+dfgplot <- dplyr::mutate(dfgplot, n_hotspots_risk1 = rowSums(dfgplot[want_risk1]  > 1.645, na.rm = TRUE))
 
 go <- dfgplot %>% dplyr::select(c('x','y',starts_with("n_hotspots_risk1")))
 
@@ -114,9 +114,9 @@ ggsave(
 
 #----> identifies risk areas for change, surveillance sites in livestock/communities
 
-want_risk2 <- c(want_risk1, 'pig_gilbert', 'cattle_gilbert','mammals_iucn_mode' )
+want_risk2 <- c(want_risk1, 'pig_gilbert', 'cattle_gilbert','mmb' )
 
-dfgplot <- dplyr::mutate(dfgplot, n_hotspots_risk2 = rowSums(dfgplot[want_risk2]  > 1.9546, na.rm = TRUE))
+dfgplot <- dplyr::mutate(dfgplot, n_hotspots_risk2 = rowSums(dfgplot[want_risk2]  > 1.645, na.rm = TRUE))
 length(unique(dfgplot$n_hotspots_risk2))
 unique(dfgplot$n_hotspots_risk2)
 
@@ -148,9 +148,9 @@ ggsave(
 
 
 # bovliv
-want_risk3 <- c(want_risk1, 'pig_gilbert', 'bovliv','mammals_iucn_mode' )
+want_risk3 <- c(want_risk1, 'pig_gilbert', 'bovliv','mmb' )
 
-dfgplot <- dplyr::mutate(dfgplot, n_hotspots_risk3 = rowSums(dfgplot[want_risk3]  > 1.9546, na.rm = TRUE))
+dfgplot <- dplyr::mutate(dfgplot, n_hotspots_risk3 = rowSums(dfgplot[want_risk3]  > 1.645, na.rm = TRUE))
 length(unique(dfgplot$n_hotspots_risk2))
 unique(dfgplot$n_hotspots_risk2)
 
@@ -254,7 +254,7 @@ ggsave(
 
 want_risk3 <- c(want_risk2, 'motor_travel_time_weiss' )
 
-dfgplot <- dplyr::mutate(dfgplot, n_hotspots_risk3 = rowSums(dfgplot[want_risk3]  > 1.9546, na.rm = TRUE))
+dfgplot <- dplyr::mutate(dfgplot, n_hotspots_risk3 = rowSums(dfgplot[want_risk3]  > 1.645, na.rm = TRUE))
 
 go3 <- dfgplot %>% dplyr::select(c('x','y',starts_with("n_hotspots_risk3")))
 
