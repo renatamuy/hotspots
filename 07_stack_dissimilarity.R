@@ -34,7 +34,11 @@ want_risk1 <- c(want_landscape,want_bat,want_expo_spread)
 
 want_risk2 <- c(want_risk1, 'pig', 'cattle','mammals' )
 
-com1 <-mycombin_num
+want_risk3 <- c(want_landscape, want_expo_spread, 'pig', 'cattle','mammals' )
+
+want_risk4 <- c(want_landscape, want_expo_spread, 'mammals' )
+
+com1 <- mycombin_num
 
 # Setting to zero in scenario 1 the things that are only true in scenario 2
 

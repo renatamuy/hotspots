@@ -6,6 +6,16 @@ require(rnaturalearth)
 require(tidyverse)
 require(reshape2)
 require(here)
+library(gridExtra)
+library(grid)
+require(bivariatemaps)
+library(classInt)
+library(raster)
+library(rgdal)
+library(dismo)
+library(XML)
+library(maps)
+library(sp)
 
 setwd(here())
 setwd('results')
@@ -98,27 +108,10 @@ ggsave(
   limitsize = TRUE)
 
 # With royal blue pal
-
-p1r <- ggplot()+
-  geom_tile(data = go, aes( y=y, x=x, fill = n_hotspots_risk1))+ theme_bw() +
-  geom_sf(data=sf::st_as_sf(target), fill= 'transparent',col="black", size=0.50)+
-  scale_fill_gradientn(colours= c("royalblue3", "khaki", "violetred4"), breaks=b, labels=format(b)) +
-  theme(legend.title=element_blank(), legend.position = 'bottom',  strip.text = element_text(size = 14)) +
-  labs(x='Longitude', y="Latitude", 
-       title = "Hotspot convergence areas", 
-       subtitle = 'Landscape change and known bat hosts'  ) 
-
-p1r
-
-ggsave(
-  'hotspots_royal.png',
-  plot = last_plot(),
-  dpi = 400,
-  width = 5,
-  height = 6,
-  limitsize = TRUE)
+  #scale_fill_gradientn(colours= c("royalblue3", "khaki", "violetred4"), breaks=b, labels=format(b)) +
 
 # Scenario with potential intermediate hosts (and surveillance sites)
+
 #----> identifies risk areas for change, surveillance sites in livestock/communities
 
 want_risk2 <- c(want_risk1, 'pig_gilbert', 'cattle_gilbert','mammals_iucn_mode' )
@@ -167,7 +160,6 @@ b <- c(0,2,4,6,8,10 )
 
 go3 <- dfgplot %>% dplyr::select(c('x','y',starts_with("n_hotspots_risk3")))
 
-# Spectral 
 p3 <- ggplot()+
   geom_tile(data = go3, aes( y=y, x=x, fill = n_hotspots_risk3))+ theme_bw() +
   geom_sf(data=sf::st_as_sf(target), fill= 'transparent',col="black", size=0.50)+
@@ -187,7 +179,6 @@ ggsave(
   height = 6,
   limitsize = TRUE)
 
-
 # Difference map:
 go2$dif = go2$n_hotspots_risk2 - go$n_hotspots_risk1 
 
@@ -205,7 +196,6 @@ p2dif <- ggplot()+
 
 p2dif
 
-#
 ggsave(
   'hotspots_sec_minus_first.png',
   plot = last_plot(),
@@ -213,7 +203,6 @@ ggsave(
   width = 5,
   height = 6,
   limitsize = TRUE)
-
 
 # Dif 2 and bovliv
 
@@ -226,7 +215,6 @@ p2dif <- ggplot()+
   geom_tile(data = go2, aes( y=y, x=x, fill = dif))+ theme_bw() +
   geom_sf(data=sf::st_as_sf(target), fill= 'transparent',col="black", size=0.50)+
   scale_fill_gradientn(colours = pal2) + #, breaks = b
-  #scale_fill_gradientn(colours = c("royalblue3", "khaki", "violetred4"), breaks=b, labels=format(b)) +
   theme(legend.title=element_blank(), legend.position = 'bottom',  strip.text = element_text(size = 14)) +
   labs(x='Longitude', y="Latitude",
        title = "Difference map (secondary - primary scenario)", 
@@ -234,9 +222,7 @@ p2dif <- ggplot()+
 
 p2dif
 
-
-
-# Jaccard difference map
+# Jaccard difference map -------------------------
 load('jaccard.RData')
 
 myjacs[is.nan(myjacs)] <- 0
@@ -264,7 +250,7 @@ ggsave(
   limitsize = TRUE)
 
 
-# Scenario 2 + spread 
+# Scenario 2 + travel time ---------------------
 
 want_risk3 <- c(want_risk2, 'motor_travel_time_weiss' )
 
@@ -280,38 +266,20 @@ p3 <- ggplot(data = go3, aes( y=y, x=x, fill = n_hotspots_risk3))+
   scale_fill_gradientn(colours = pal, breaks = b) +
   theme(legend.title=element_blank(), legend.position = 'bottom',  strip.text = element_text(size = 14)) +
   labs(x='Longitude', y="Latitude", title = "Hotspot convergence areas", 
-       subtitle = 'Equal weights considering all factors + spread'  ) 
+       subtitle = 'Equal weights considering all factors + healthcare access'  ) 
+
 p3 
 
 ggsave(
-  'hotspots_spread.png',
+  'hotspots_healthcare.png',
   plot = last_plot(),
   dpi = 400,
   width = 5,
   height = 6,
   limitsize = TRUE)
 
-
-p3r <- ggplot(data = go3, aes( y=y, x=x, fill = n_hotspots_risk3))+
-  geom_tile()+ theme_bw() +
-  scale_fill_gradientn(colours= c("royalblue3", "khaki", "violetred4"), breaks=b, labels=format(b)) +
-  theme(legend.title=element_blank(), legend.position = 'bottom',  strip.text = element_text(size = 14)) +
-  labs(x='Longitude', y="Latitude", title = "Hotspot convergence areas", 
-       subtitle = 'Equal weights considering all factors + spread'  ) 
-
-p3r
-
-ggsave(
-  'hotspots_spread_royal.png',
-  plot = last_plot(),
-  dpi = 400,
-  width = 5,
-  height = 6,
-  limitsize = TRUE)
+# Exporting 
                        
-library(gridExtra)
-library(grid)
-
 ggsave(
   'hotspots_all.png',
   plot = grid.arrange(p1, p2,p3, nrow = 1),
@@ -320,31 +288,14 @@ ggsave(
   height = 6,
   limitsize = TRUE)
 
-ggsave(
-  'hotspots_all_royal.png',
-  plot = grid.arrange(p1r, p2r,p3r, nrow = 1),
-  dpi = 400,
-  width = 15,
-  height = 6,
-  limitsize = TRUE)
-
 # Bivariate map
-require(bivariatemaps)
-library(classInt)
-library(raster)
-library(rgdal)
-library(dismo)
-library(XML)
-library(maps)
-library(sp)
 
-# Check location
 setwd('../region')
 
-raster_access <-raster('motor_travel_time_weiss.tif')
+raster_access <- raster('motor_travel_time_weiss.tif')
 
-mini <-  min(na.omit(values(raster_access)))
-maxi <-  max(na.omit(values(raster_access)))
+mini <- min(na.omit(values(raster_access)))
+maxi <- max(na.omit(values(raster_access)))
 values(raster_access) <-( values(raster_access) - mini)/ (maxi-mini)
 
 ras_dom <-raster::raster(xmn=68.25, xmx= 141.0, ymn=-10.25, ymx=53.5,
@@ -359,12 +310,10 @@ db$risk2 <- (db$n_hotspots_risk2-min(db$n_hotspots_risk2))/
 hist(db$risk2)
 quantile(db$risk2)
 quantile(raster_access )
-
 coordinates(db) <- ~ x + y 
-
 crs(db) <- "+proj=longlat +datum=WGS84 +no_defs "
 
-# Scenario 2
+# Scenario 2 ---------------------------------------------
 
 raster2 <- rasterize(db, ras_dom, 
                      field = c("risk2"),
@@ -376,13 +325,13 @@ col.matrix <- bivariatemaps::colmat(nquantiles=3,
                    upperleft= 'khaki',#'khaki', #, ##4DDDDD
                    upperright= '#ff0000',#"#B22222",#"violetred4", 
                    bottomleft= 'azure2',#'#d8d8d8',#'#1B9E77',  #"azure2",
-                   bottomright= '#141414',# "#141414",
+                   bottomright= 'blue',#'#141414',# "#141414",
                    xlab="Time to reach healthcare", 
                    ylab="Hazard: Scenario 2")
 
 #Green zones are graph nodes with the strongest influence on the total risk of pandemic spread
 
-bivmap2 <-bivariate.map(raster_access,raster2, 
+bivmap2 <- bivariate.map(raster_access,raster2, 
 colormatrix=col.matrix, nquantiles=3)
 
 plot(bivmap2,frame.plot=F,axes=F,box=F,add=F,legend=F,
@@ -395,8 +344,14 @@ map(interior=T, add=T)
 db$risk1 <- (db$n_hotspots_risk1-min(db$n_hotspots_risk1))/
   (max(db$n_hotspots_risk1)-min(db$n_hotspots_risk1))
 
+hist(db$risk2)
+
 hist(db$risk1)
+
 quantile(db$risk1)
+
+quantile(db$risk1)
+
 quantile(raster_access )
 
 raster1 <- rasterize(db, ras_dom, 
@@ -408,7 +363,7 @@ col.matrix <- bivariatemaps::colmat(nquantiles=3,
                                     upperleft= 'khaki',#'khaki', #, ##4DDDDD
                                     upperright= '#ff0000',#"#B22222",#"violetred4", 
                                     bottomleft= 'azure2',#'#d8d8d8',#'#1B9E77',  #"azure2",
-                                    bottomright= '#141414',# "#141414",
+                                    bottomright='blue', #'#141414',# "#141414",
                                     xlab="Time to reach healthcare", 
                                     ylab="Hazard: Scenario 1")
 
@@ -422,6 +377,8 @@ plot(bivmap1,frame.plot=F,axes=F,box=F,add=F,legend=F,
 
 map(interior=T, add=T)
 
+
+bivmap1
 # Difference in risk
 
 plot(raster2-raster1)
@@ -429,7 +386,7 @@ plot(raster2-raster1)
 bivmapdif <-bivariate.map(raster_access, raster2-raster1, 
                        colormatrix=col.matrix, nquantiles=3)
 
-plot(bivmapdif,frame.plot=F,axes=F,box=F,add=F,legend=F,
+plot(bivmapdif, frame.plot=F,axes=F,box=F,add=F,legend=F,
      col=as.vector(col.matrix))
 
 #
@@ -455,6 +412,7 @@ popcont <- (d$pop_2020_worldpop-min(d$pop_2020_worldpop))/
   (max(d$pop_2020_worldpop)-min(d$pop_2020_worldpop))
 
 plot(bivmap1, col = as.vector(col.matrix))
+
 unique(values(bivmap1))
 
 as.vector(col.matrix)
@@ -487,7 +445,7 @@ listacor
 cores1 <- ifelse(bivmap1m == 11, "#890A0A",
                  ifelse(bivmap1m == 8, "#F77346",
                         ifelse(bivmap1m == 7, "#B87963" ,
-                               ifelse(bivmap1m == 10, "#141414",
+                               ifelse(bivmap1m == 10,'blue', #"#141414",
                                       ifelse(bivmap1m == 1, "#E0EEEE",
                                              ifelse(bivmap1m == 9, "#798181",
                                                     ifelse(bivmap1m == 2, "#E8EABD",
@@ -536,7 +494,7 @@ unique(bivmap2m)
 cores2 <- ifelse(bivmap2m == 11, "#890A0A",
                  ifelse(bivmap2m == 8, "#F77346",
                         ifelse(bivmap2m == 7, "#B87963" ,
-                               ifelse(bivmap2m == 10, "#141414",
+                               ifelse(bivmap2m == 10, 'blue', #"#141414",
                                       ifelse(bivmap2m == 1, "#E0EEEE",
                                              ifelse(bivmap2m == 9, "#798181",
                                                     ifelse(bivmap2m == 2, "#E8EABD",
