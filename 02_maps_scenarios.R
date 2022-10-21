@@ -148,10 +148,12 @@ ggsave(
 
 
 # bovliv
+
 want_risk3 <- c(want_risk1, 'pig_gilbert', 'bovliv','mmb' )
 
 dfgplot <- dplyr::mutate(dfgplot, n_hotspots_risk3 = rowSums(dfgplot[want_risk3]  > 1.645, na.rm = TRUE))
-length(unique(dfgplot$n_hotspots_risk2))
+length(unique(dfgplot$n_hotspots_risk3))
+
 unique(dfgplot$n_hotspots_risk2)
 
 cats <- length(unique(dfgplot$n_hotspots_risk2))
@@ -191,36 +193,44 @@ p2dif <- ggplot()+
   #scale_fill_gradientn(colours = c("royalblue3", "khaki", "violetred4"), breaks=b, labels=format(b)) +
   theme(legend.title=element_blank(), legend.position = 'bottom',  strip.text = element_text(size = 14)) +
   labs(x='Longitude', y="Latitude",
-       title = "Difference map (secondary - primary scenario)", 
+       title = "Difference map", 
        subtitle = ''  ) 
 
 p2dif
 
 ggsave(
-  'hotspots_sec_minus_first.png',
-  plot = last_plot(),
+  'Figure_02.png',
+  plot = grid.arrange(p1, p2, p2dif, nrow = 1), #last_plot()
   dpi = 400,
-  width = 5,
+  width = 15,
   height = 6,
   limitsize = TRUE)
 
 # Dif 2 and bovliv
-
-go2$difbovliv = go2$n_hotspots_risk2 - go3$n_hotspots_risk3 
+head(go3)
+go3$difbovliv = go3$n_hotspots_risk3 -  go$n_hotspots_risk1 
 
 hist(go2$dif)
 summary(go2$dif)
 
-p2dif <- ggplot()+
-  geom_tile(data = go2, aes( y=y, x=x, fill = dif))+ theme_bw() +
+p2difb <- ggplot()+
+  geom_tile(data = go3, aes( y=y, x=x, fill = difbovliv))+ theme_bw() +
   geom_sf(data=sf::st_as_sf(target), fill= 'transparent',col="black", size=0.50)+
   scale_fill_gradientn(colours = pal2) + #, breaks = b
   theme(legend.title=element_blank(), legend.position = 'bottom',  strip.text = element_text(size = 14)) +
   labs(x='Longitude', y="Latitude",
-       title = "Difference map (secondary - primary scenario)", 
+       title = "Difference map (all bovidae)", 
        subtitle = ''  ) 
 
-p2dif
+p2difb
+
+ggsave(
+  'Figure_02_bovliv.png',
+  plot = grid.arrange(p1, p3, p2difb, nrow = 1),
+  dpi = 400,
+  width = 15,
+  height = 6,
+  limitsize = TRUE)
 
 # Jaccard difference map -------------------------
 load('jaccard.RData')
@@ -249,45 +259,6 @@ ggsave(
   height = 6,
   limitsize = TRUE)
 
-
-# Scenario 2 + travel time ---------------------
-
-want_risk3 <- c(want_risk2, 'motor_travel_time_weiss' )
-
-dfgplot <- dplyr::mutate(dfgplot, n_hotspots_risk3 = rowSums(dfgplot[want_risk3]  > 1.645, na.rm = TRUE))
-
-go3 <- dfgplot %>% dplyr::select(c('x','y',starts_with("n_hotspots_risk3")))
-
-cats <- length(unique(dfgplot$n_hotspots_risk3))
-pal3 <- rev(RColorBrewer::brewer.pal(cats,"Spectral"))
-
-p3 <- ggplot(data = go3, aes( y=y, x=x, fill = n_hotspots_risk3))+
-  geom_tile()+ theme_bw() +
-  scale_fill_gradientn(colours = pal, breaks = b) +
-  theme(legend.title=element_blank(), legend.position = 'bottom',  strip.text = element_text(size = 14)) +
-  labs(x='Longitude', y="Latitude", title = "Hotspot convergence areas", 
-       subtitle = 'Equal weights considering all factors + healthcare access'  ) 
-
-p3 
-
-ggsave(
-  'hotspots_healthcare.png',
-  plot = last_plot(),
-  dpi = 400,
-  width = 5,
-  height = 6,
-  limitsize = TRUE)
-
-# Exporting 
-                       
-ggsave(
-  'hotspots_all.png',
-  plot = grid.arrange(p1, p2,p3, nrow = 1),
-  dpi = 400,
-  width = 15,
-  height = 6,
-  limitsize = TRUE)
-
 # Bivariate map
 
 setwd('../region')
@@ -302,7 +273,7 @@ ras_dom <-raster::raster(xmn=68.25, xmx= 141.0, ymn=-10.25, ymx=53.5,
                          crs="+proj=longlat +datum=WGS84 +no_defs ",
                          resolution=res(raster_access), vals=NA)
 
-db <- dfgplot[c('x', 'y', 'n_hotspots_risk1','n_hotspots_risk2')]
+db <- dfgplot[c('x', 'y', 'n_hotspots_risk1','n_hotspots_risk2', 'n_hotspots_risk3')]
 
 db$risk2 <- (db$n_hotspots_risk2-min(db$n_hotspots_risk2))/
   (max(db$n_hotspots_risk2)-min(db$n_hotspots_risk2))
@@ -335,6 +306,37 @@ bivmap2 <- bivariate.map(raster_access,raster2,
 colormatrix=col.matrix, nquantiles=3)
 
 plot(bivmap2,frame.plot=F,axes=F,box=F,add=F,legend=F,
+     col=as.vector(col.matrix))
+
+map(interior=T, add=T)
+
+# Risk scenario 3 bovliv
+
+db$risk3 <- (db$n_hotspots_risk3-min(db$n_hotspots_risk3))/
+  (max(db$n_hotspots_risk3)-min(db$n_hotspots_risk3))
+
+plot(db$risk3 , db$risk2)
+
+raster3 <- rasterize(db, ras_dom, 
+                     field = c("risk3"),
+                     update = TRUE)
+
+#https://encycolorpedia.com/b22222
+
+col.matrix <- bivariatemaps::colmat(nquantiles=3,
+                                    upperleft= 'khaki',#'khaki', #, ##4DDDDD
+                                    upperright= '#ff0000',#"#B22222",#"violetred4", 
+                                    bottomleft= 'azure2',#'#d8d8d8',#'#1B9E77',  #"azure2",
+                                    bottomright= 'blue',#'#141414',# "#141414",
+                                    xlab="Time to reach healthcare", 
+                                    ylab="Hazard: Scenario 2 (all bovidae)")
+
+#Green zones are graph nodes with the strongest influence on the total risk of pandemic spread
+
+bivmap3 <- bivariate.map(raster_access, raster3, 
+                         colormatrix=col.matrix, nquantiles=3)
+
+plot(bivmap3,frame.plot=F,axes=F,box=F,add=F,legend=F,
      col=as.vector(col.matrix))
 
 map(interior=T, add=T)
@@ -377,10 +379,8 @@ plot(bivmap1,frame.plot=F,axes=F,box=F,add=F,legend=F,
 
 map(interior=T, add=T)
 
-
 bivmap1
 # Difference in risk
-
 plot(raster2-raster1)
 
 bivmapdif <-bivariate.map(raster_access, raster2-raster1, 
