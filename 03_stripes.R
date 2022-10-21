@@ -1,4 +1,5 @@
-#### Stripes for characterizing hotspot gradients across space
+# Figure 01
+##### Stripes for characterizing hotspot gradients across space
 # Correlation between covariates
 
 require(stringr)
@@ -6,6 +7,7 @@ require(reshape2)
 require(here)
 require(gridExtra)
 require(tidyverse)
+library(grid)
 
 setwd(here())
 setwd('results')
@@ -55,11 +57,11 @@ sumelt <- melt(su[,tofocus], id=c("x", "y"))
 
 # Wildlife
 
-pw <- sumelt %>% filter(variable == 'mammals' | variable == 'hosts'  ) %>% 
+pw <- sumelt %>% filter(variable == 'mmb' | variable == 'hosts'  ) %>% 
 ggplot(aes( y=y, x=x, fill = value))+
   geom_tile()+
   facet_wrap(case_when(variable == "hosts" ~ "Bat hosts",
-                       variable == "mammals" ~ "All mammals") ~ . , ncol=3)+
+                       variable == "mmb" ~ "Wild mammals") ~ . , ncol=3)+
   scale_fill_manual(values =c("khaki","royalblue3", "violetred4"), 
                     labels = c("Neutral", "Coldspot", "Hotspot")) + theme_bw() +
   theme(legend.title=element_blank(), legend.position = 'bottom',
@@ -146,17 +148,15 @@ ggsave(
 # --- All
 
 allpp <- sumelt %>% 
+  filter(variable %in% c(want_bat, 'mmb', want_landscape, 'pig', 'cattle' )  )%>%  
   mutate(unilabs = fct_recode(variable,
                               'Bat hosts' = 'hosts',
-                              'All mammals'= 'mammals',
+                              'Wild mammals'= 'mmb',
                               'Pig' = 'pig',
                               'Cattle' = 'cattle',
                               "Human population" = 'pop_2020_worldpop' ,
-                              #"Time to reach healthcare" = "motor_travel_time_weiss",
                               "Built up area"    =   "builtup",
                               "Energy and mining" =  'energy',
-                              #'Transport-related structures' = 'trans', 
-                              #'Human intrusion and pollution' = 'pollution',
                               'Agriculture and harvest land' = 'agriharv',
                               'Forest integrity' = 'forest_integrity_grantham',
                               'Deforestation potential' ='hewson_forest_transition_potential' )) %>% 
@@ -172,7 +172,7 @@ allpp <- sumelt %>%
 
 allpp
 
-ggsave('hotspots_facets.png',
+ggsave('Figure_01a.png',
        plot = last_plot(),
        dpi = 400,
        width = 14,
@@ -183,33 +183,28 @@ write.table(file='table_pct.txt', row.names = FALSE,
             round(table(sumelt$variable, sumelt$value)/ nrow(dfgplot)*100, digits=2) )
 
 # Percentages per indicator
+head(sumelt)
 
-plotpcts <- sumelt %>%
+plotpcts <- sumelt %>%  filter(variable %in% c(want_bat, 'mmb', want_landscape, 'pig', 'cattle' )  ) %>% 
   mutate(unilabs = fct_recode(variable,
                               'Bat hosts' = 'hosts',
-                              'All mammals'= 'mammals',
+                              'Wild mammals'= 'mmb',
                               'Pig' = 'pig',
                               'Cattle' = 'cattle',
                               "Human population" = 'pop_2020_worldpop' ,
-                              #"Time to reach healthcare" = "motor_travel_time_weiss",
                               "Built up area"    =   "builtup",
                               "Energy and mining" =  'energy',
-                              #'Transport-related structures' = 'trans', 
-                              #'Human intrusion and pollution' = 'pollution',
-                              'Agriculture and harvest land' = 'agriharv',
+                             'Agriculture and harvest land' = 'agriharv',
                               'Forest integrity' = 'forest_integrity_grantham',
                               'Deforestation potential' ='hewson_forest_transition_potential' )) %>% 
   mutate(highlevel = fct_recode(variable,
                               'Wildlife - potential hosts' = 'hosts',
-                              'Wildlife - potential hosts'= 'mammals',
+                              'Wildlife - potential hosts'= 'mmb',
                               'Domesticated - potential hosts' = 'pig',
                               'Domesticated - potential hosts' = 'cattle',
                               "Exposure in humans" = 'pop_2020_worldpop' ,
-                              #"Exposure and spread in humans" = "motor_travel_time_weiss",
                               "Landscape change"    =   "builtup",
                               "Landscape change" =  'energy',
-                              #'Landscape change' = 'trans', 
-                              #'Landscape change' = 'pollution',
                               'Landscape change' = 'agriharv',
                               'Landscape change' = 'forest_integrity_grantham',
                               'Landscape change' ='hewson_forest_transition_potential' )) %>% 
@@ -223,37 +218,25 @@ plotpcts <- sumelt %>%
          legend.position = "bottom") + coord_flip() + 
   labs( title = "", x = "", y = "Area (%)", caption = "") 
 
+  
 plotpcts
 
 # Exporting 
 ggsave(
-  'hotspots_all_pct_geom_bar.png',
+  'Fgure_01b.png',
   plot = last_plot(),
   dpi = 400,
   width = 13,
   height = 6,
   limitsize = TRUE)
 
-# Composition for paper -------------------------
-# Figure 1
-
-grid.arrange(allpp, plotpcts, nrow = 2)
-
 setwd('results')
-library(gridExtra)
 
-plotorg <- grid.arrange(arrangeGrob(allpp, 
-         plotpcts, 
-         heights = c(0.6, 0.4)),
-                    nrow = 2)
-
-plotorg
-
-ggsave( 'Fig_01.png',
-  plot = plotorg,
+ggsave('Figure_01.png',
+  plot = grid.arrange(allpp, plotpcts, nrow = 2), #last_plot()
   dpi = 400,
-  width = 7,
-  height = 12,
+  width = 16,
+  height = 13,
   limitsize = TRUE)
 
 #------------------------------------------------------------------
@@ -287,24 +270,19 @@ ggplot(sumelt,aes(x=variable,y=x,fill=value))+
 dev.off()
 
 # Convergence of hotspots
-
 # Hotspot convergence
 # Few areas 
-
-want_risk3
 
 su$tile <- 1:nrow(su)
 
 allhot <- dplyr::filter(su, 
                         grepl('violetred4', su$`hosts` ) & 
-                        grepl('violetred4', su$`mammals` )  &
+                        grepl('violetred4', su$`mmb` )  &
                         grepl('violetred4', su$`pig`) & 
                         grepl('violetred4', su$`cattle` ) &
                           grepl('violetred4', su$`builtup` ) &
                          grepl('violetred4', su$`energy` ) &
-                         grepl('violetred4', su$`trans` ) &
                          grepl('violetred4', su$`agriharv` ) &
-                         grepl('violetred4', su$`pollution` ) &
                            grepl('violetred4', su$`forest_integrity_grantham` ) &
                            grepl('violetred4', su$`hewson_forest_transition_potential` ) 
                                          )
@@ -313,12 +291,25 @@ allhot
 
 allhot_mammals <- dplyr::filter(su, 
                                 grepl('violetred4', su$`hosts` ) & 
+                                  grepl('violetred4', su$`mmb` )  &
+                                  grepl('violetred4', su$`pig`) & 
+                                  grepl('violetred4', su$`cattle` ) )
+
+
+allhot_mammals
+
+
+allhot_mammals_all <- dplyr::filter(su, 
+                                grepl('violetred4', su$`hosts` ) & 
                                   grepl('violetred4', su$`mammals` )  &
                                   grepl('violetred4', su$`pig`) & 
                                   grepl('violetred4', su$`cattle` ) )
 
 
-distinct(allhot_mammals[, c('x','y')])
+plot(allhot_mammals[, c('x','y')])
+nrow(distinct(allhot_mammals[, c('x','y')]))
+
+nrow(distinct(allhot_mammals_all[, c('x','y')]))
 
 write.csv(file = 'hotspot_convergence_mammals.csv', allhot_mammals, row.names = FALSE)
 
