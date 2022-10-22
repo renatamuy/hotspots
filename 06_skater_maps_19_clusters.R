@@ -68,7 +68,7 @@ pcone <- ggplot()+
   #geom_label(data = positions, aes(y=my, x=mx, label=factor(cluster) ), label.size = 0.4, alpha = 1)+
   ggrepel::geom_label_repel(data = positions, aes(y=my, x=mx, label=factor(cluster) ), label.size = 0.1, alpha = 0.7)+
   theme(legend.title=element_blank(), 
-        legend.position = 'right',  
+        legend.position = 'bottom',  
         strip.text = element_text(size = 14)) +
   scale_fill_manual(values = pal ) +
   labs(x='Longitude', y="Latitude", title = "Clusters", subtitle = ''  ) 
@@ -76,7 +76,7 @@ pcone <- ggplot()+
 pcone
 
 ggsave(
-  'clusters_countries_onemap.png',
+  'Figure_03a.png',
   plot = pcone,
   dpi = 400,
   width = 5,
@@ -84,7 +84,6 @@ ggsave(
   limitsize = TRUE)
 
 # Other Colour schemes:
-#BottleRocket1, BottleRocket2, Rushmore1, Royal1, Royal2, Zissou1, 
-#Darjeeling1, Darjeeling2, Chevalier1 , FantasticFox1 ,
-#Moonrise1, Moonrise2, Moonrise3, Cavalcanti1, GrandBudapest1, GrandBudapest2, 
-#IsleofDogs1, IsleofDogs2
+#BottleRocket1, BottleRocket2, Rushmore1, Royal1, Royal2, Zissou1, Darjeeling1, Darjeeling2, Chevalier1 , FantasticFox1 ,
+#Moonrise1, Moonrise2, Moonrise3, Cavalcanti1, GrandBudapest1, GrandBudapest2, IsleofDogs1, IsleofDogs2
+#--------------------------------------------------------------------------------------------

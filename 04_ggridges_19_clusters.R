@@ -77,7 +77,7 @@ colnames(dfgsub@data)
 pigg <- rasterize(dfgsub, ras_dom, field = c("pig_gilbert"), update = TRUE) 
 cattleg <- rasterize(dfgsub, ras_dom, field = c('cattle_gilbert'), update = TRUE) 
 hostsg <-  rasterize(dfgsub, ras_dom, field = c('lincomb_hosts'), update = TRUE) 
-mammalg <- rasterize(dfgsub, ras_dom, field = c("mammals_iucn_mode"), update = TRUE)
+mammalg <- rasterize(dfgsub, ras_dom, field = c("mmb"), update = TRUE)
 
 forest_transitiong <- rasterize(dfgsub, ras_dom, field = c('hewson_forest_transition_potential'), update = TRUE) 
 forest_qualityg <- rasterize(dfgsub, ras_dom, field = c('forest_integrity_grantham'), update = TRUE) 
@@ -87,7 +87,6 @@ transg <- rasterize(dfgsub, ras_dom, field = c('trans'), update = TRUE)
 pollutiong <- rasterize(dfgsub, ras_dom, field = c('pollution'), update = TRUE) 
 energyg <- rasterize(dfgsub, ras_dom, field = c('energy'), update = TRUE) 
 agriharvg <- rasterize(dfgsub, ras_dom, field = c('agriharv'), update = TRUE) 
-
 popg <- rasterize(dfgsub, ras_dom, field = c('pop_2020_worldpop'), update = TRUE) 
 traveltimeg <- rasterize(dfgsub, ras_dom, field = c('motor_travel_time_weiss'), update = TRUE) 
 
@@ -148,7 +147,6 @@ mggp <- mgg %>% mutate(variablelab = fct_recode(variable,
 
 
 
-# 'Poultry' = "chickeng" ,
 max(mggp$value)
 
 mggp %>% filter(name == 'Bangladesh') 
@@ -214,6 +212,8 @@ ggsave('hotspots_coord_polar.png',
 setwd('skater_optimal_cluster_size_19/')
 
 clusters <- read.csv("clusters_rgeoda_c19.csv")
+clusters$bovliv <- NULL
+clusters$mammals_iucn_mode <- NULL
 
 setwd(here())
 setwd('results/')
@@ -261,11 +261,9 @@ pal <- wesanderson::wes_palette("Moonrise3",
                                 length(unique(zclustermlab$zone)),
                                 type = "continuous")
 
-# Removing tran, pollution and travel time
+# Removing trans, pollution and travel time
 zclustermlab <- zclustermlab[!zclustermlab$variable %in% c("transg", "pollutiong", "traveltimeg"),]
 
-
-class(zclustermlab$variable)
 
 baseradarz <- zclustermlab %>% 
   ggplot(aes(x = variablelab, y = value, group = zone))+ #, colour = tile, fill = tile)) + 
@@ -296,18 +294,29 @@ library(ggridges)
 
 joyc <- melt(clusters , id.vars= c('x','y','cluster'))
 
-head(joyc)
+joyc <- joyc[!joyc$variable %in% c("motor_travel_time_weiss",
+                                   "pollution", "trans"),]
+unique(joyc$variable )
 
-# novo recebe velho 
+myorder <- rev(c('lincomb_hosts', 
+             'mmb',
+             'pig_gilbert',
+             'cattle_gilbert',
+             'hewson_forest_transition_potential',
+             'forest_integrity_grantham',
+             'energy',
+             "builtup",
+             "agriharv", 
+             'pop_2020_worldpop'))
+
+joyc$variable <- factor(joyc$variable, 
+                          levels = myorder)
+
+
 
 pal <- wesanderson::wes_palette("Moonrise3",
                                 length(unique(zclustermlab$zone)),
                                 type = "continuous")
-
-
-joyc <- joyc[!joyc$variable %in% c("motor_travel_time_weiss",
-                                   "pollution", "trans"),]
-
 
 cridges <- joyc %>% 
   mutate(variablelab = fct_recode(variable, 
@@ -316,13 +325,10 @@ cridges <- joyc %>%
                                       'Forest loss risk' = 'hewson_forest_transition_potential', #\n 
                                       'Forest quality' = 'forest_integrity_grantham', #\n 
                                       'Population' = 'pop_2020_worldpop',
-                                      #'Access to healthcare' = 'motor_travel_time_weiss', #\n 
-                                      'Mammals' = "mammals_iucn_mode",
+                                      'Mammals' = "mmb",
                                       'Pigs'="pig_gilbert",
                                       'Energy'="energy",
                                       'Builtup'="builtup",
-                                      #'Pollution'="pollution",
-                                      #'Transportation'="trans",
                                       'Agriculture and harvest'="agriharv"  )) %>% 
   filter(variable != 'hosts_sanchez' & variable != 'hosts_muylaert') %>% 
   ggplot(aes(x =value , y = variablelab)) +
@@ -345,7 +351,7 @@ cridges
 
 gr <- ggplot_gtable(ggplot_build(cridges))
 
-# Understanding grob slots
+# Understanding grob slots - this must adapt according to the optimal number of clusters from maxp
 
 gr$grobs[[121]]$grobs[[1]]$children[[1]]$gp$fill 
 gr$grobs[[102]]$grobs[[1]]$children[[1]]$gp$fill 

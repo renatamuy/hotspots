@@ -38,6 +38,12 @@ plot(dfg$cattle_gilbert, dfg$tt   , col = dfg$col95_cattle,
      ylab='Access to healthcare (h)',
      xlab= 'Cattle', pch=21)
 
+
+plot(dfg$bovliv, dfg$tt   , col = dfg$col95_cattle, 
+     ylab='Access to healthcare (h)',
+     xlab= 'Bovidae livestock', pch=21)
+
+
 plot(dfg$pig_gilbert, dfg$tt   , col = dfg$col95_pig, 
      ylab='Access to healthcare (h)',
      xlab= 'Pig', pch=21)
@@ -50,6 +56,11 @@ plot(dfg$mammals_iucn_mode, dfg$tt   , col = dfg$col95_mammals,
 dfg %>% group_by(col95_hosts) %>% 
   summarise( mean_hours = mean(tt), sd=sd(tt) )
 
+# All mammals minus bat hosts
+dfg %>% group_by(col95_mmb) %>% 
+  summarise( mean_hours = mean(tt), sd=sd(tt) )
+
+# All mammals (out)
 dfg %>% group_by(col95_mammals) %>% 
   summarise( mean_hours = mean(tt), sd=sd(tt) )
 
@@ -60,7 +71,6 @@ dfg %>% group_by(col95_pig) %>%
   summarise( mean_hours = mean(tt), sd=sd(tt) )
 
 
-
 table(dfg$col95_mammals) / nrow(dfg)
 
 boxplot(dfg$lincomb_hosts ~ dfg$col95_hosts )
@@ -69,8 +79,6 @@ boxplot(tt ~ dfg$col95_hosts, col = c('khaki', 'royalblue3', 'violetred4'))
 
 boxplot(d$forest_integrity_grantham ~ dfg$col95_hosts)
 
-
-#
 check <- dfg %>% group_by(col95_hosts,col95_mammals, col95_pig,col95_cattle ) %>% 
   summarise( mean_hours = mean(tt), sd=sd(tt) )
 
@@ -90,10 +98,19 @@ dfg %>% group_by(col95_pig) %>%
 dfg %>% group_by(col95_cattle) %>% 
   summarise( mean_risk = mean(forest_loss_risk), sd=sd(forest_loss_risk) )
 
-
 check2 <- dfg %>% group_by(col95_hosts,col95_mammals, col95_pig, col95_cattle ) %>% 
   summarise( mean_risk = mean(forest_loss_risk), sd=sd(forest_loss_risk) )
 
+plot(log(d$motor_travel_time_weiss), log(d$trans))
+
+plot(log(d$motor_travel_time_weiss), log(d$builtup))
+
+plot(dfg$lincomb_hosts, dfg$mammals_iucn_mode)
+
+plot(log(d$motor_travel_time_weiss), log(d$pop_2020_worldpop))
+
+
+# correlations
 cor(dfg$motor_travel_time_weiss, dfg$pop_2020_worldpop, method = 'spearman')
 
 cor(dfg$motor_travel_time_weiss, dfg$pop_2020_worldpop, method = 'pearson')
@@ -112,18 +129,9 @@ cor(d$motor_travel_time_weiss, d$pop_2020_worldpop, method =
 
 cor(d$motor_travel_time_weiss, d$trans, method = 
       'spearman')
-plot(log(d$motor_travel_time_weiss), log(d$trans))
-
-plot(log(d$motor_travel_time_weiss), log(d$builtup))
-
-plot(dfg$lincomb_hosts, dfg$mammals_iucn_mode)
 
 
 # --------------------------
-
-plot(log(d$motor_travel_time_weiss), log(d$pop_2020_worldpop))
-
-
 
 
 

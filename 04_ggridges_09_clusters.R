@@ -78,7 +78,7 @@ pigg <- rasterize(dfgsub, ras_dom, field = c("pig_gilbert"), update = TRUE)
 cattleg <- rasterize(dfgsub, ras_dom, field = c('cattle_gilbert'), update = TRUE) 
 #chickeng <- rasterize(dfgsub, ras_dom, field = c('chicken_gilbert'), update = TRUE) 
 hostsg <-  rasterize(dfgsub, ras_dom, field = c('lincomb_hosts'), update = TRUE) 
-mammalg <- rasterize(dfgsub, ras_dom, field = c("mammals_iucn_mode"), update = TRUE)
+mammalg <- rasterize(dfgsub, ras_dom, field = c("mmb"), update = TRUE) # mammals_iucn_mode out
 
 forest_transitiong <- rasterize(dfgsub, ras_dom, field = c('hewson_forest_transition_potential'), update = TRUE) 
 forest_qualityg <- rasterize(dfgsub, ras_dom, field = c('forest_integrity_grantham'), update = TRUE) 
@@ -318,7 +318,7 @@ cridges <- joyc %>%
                                       'Forest quality' = 'forest_integrity_grantham', #\n 
                                       'Population' = 'pop_2020_worldpop',
                                       #'Access to healthcare' = 'motor_travel_time_weiss', #\n 
-                                      'Mammals' = "mammals_iucn_mode",
+                                      'Mammals' = "mmb",
                                       'Pigs'="pig_gilbert",
                                       'Energy'="energy",
                                       'Builtup'="builtup",

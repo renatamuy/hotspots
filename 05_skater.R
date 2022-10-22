@@ -1,6 +1,5 @@
 #-------------- SKATER ---------------------
-# Based on 
-#https://geodacenter.github.io/rgeoda/articles/rgeoda_tutorial.html#spatial-clustering
+# Reference: https://geodacenter.github.io/rgeoda/articles/rgeoda_tutorial.html#spatial-clustering
 
 memory.size()
 memory.limit()
@@ -56,7 +55,7 @@ head(dfsub[,tofocus])
 
 # No need to rescale as we have the z-scores as input here
 
-its <- c(38:40)
+its <- c(40:1)
   
 dir.create('skater')
 setwd('skater')
@@ -116,7 +115,7 @@ write.csv(data.frame(its, twss, ratio), file = filenametwss, row.names = FALSE)
 # After inspecting
 # assign optimal k clusters to spatial object (careful, col names reduced when exported)
 
-otimo <- 19
+otimo <- 9
 
 result <- dfsub
 
@@ -142,13 +141,13 @@ class(result)
 
 setwd('../')
 
-dir.create('skater_optimal_cluster_size_19')
-setwd('skater_optimal_cluster_size_19')
+dir.create('skater_optimal_cluster_size_09')
+setwd('skater_optimal_cluster_size_09')
 colwant <- c(tofocus, 'cluster')
 
 colnames(result[colwant]@data)
 
-filenamesh <- paste0('clusters_rgeoda_c19_rows', ".shp")
+filenamesh <- paste0('clusters_rgeoda_c09', ".shp")
 
 raster::shapefile(result[colwant], filenamesh,  overwrite=TRUE)
 
@@ -158,7 +157,7 @@ resultdf <- result@data
 resultdf$x <- dfsub$x
 resultdf$y <- dfsub$y
 
-filenamec <- paste0('clusters_rgeoda_c19', ".csv")
+filenamec <- paste0('clusters_rgeoda_c09', ".csv")
 
 write.csv(resultdf, file = filenamec, row.names = FALSE)
 
@@ -171,8 +170,10 @@ write.csv(resultdf, file = filenamec, row.names = FALSE)
 #       ##
 #-------------------------------------------------------------------------------
   
-# bovliv -------------------------
+# bovliv (all bovidae livestock) -------------------------
 
+setwd(here())
+setwd('results')
 
 tofocus <- colnames(dfsub %>% dplyr::select(!c('x','y', 
                                                'hosts_muylaert',
@@ -195,16 +196,10 @@ queen_w <- queen_weights(st_as_sf(mercator))
 #save(queen_w, file = 'queen_w.RData')
 #load('queen_w.RData')
 
-queen_w
+its <- c(40:1)
 
-head(dfsub[,tofocus])
-
-# No need to rescale as we have the z-scores as input here
-
-its <- c(1:40)
-
-dir.create('skater')
-setwd('skater')
+dir.create('skater_bovliv')
+setwd('skater_bovliv')
 
 for(i in its){
   
@@ -271,7 +266,7 @@ coordinates(result)<-~x+y
 raster::crs(result) <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0" 
 
 setwd(here())
-setwd('results/skater')
+setwd('results/skater_bovliv')
 
 load(paste0(otimo,'_clusters.RData') ) 
 
@@ -283,23 +278,22 @@ colnames(result@data)
 
 class(result)
 
+#---- 
+#---------
 #------------------------------
-# Export shapefile of points and csv 
+# Export shapefile of points and csv bovliv
 
 setwd('../')
 
-dir.create('skater_optimal_cluster_size_19')
-setwd('skater_optimal_cluster_size_19')
+dir.create('skater_optimal_cluster_size_19_bovliv')
+setwd('skater_optimal_cluster_size_19_bovliv')
 colwant <- c(tofocus, 'cluster')
 
 colnames(result[colwant]@data)
 
-filenamesh <- paste0('clusters_rgeoda_c19_rows',
-                     nrow(result),       ".shp")
+filenamesh <- paste0('clusters_rgeoda_c19',  ".shp")
 
 raster::shapefile(result[colwant], filenamesh,  overwrite=TRUE)
-
-hist(table(result[colwant]@data$cluster))
 
 resultdf <- result@data
 resultdf$x <- dfsub$x
@@ -310,4 +304,3 @@ filenamec <- paste0('clusters_rgeoda_c19', ".csv")
 write.csv(resultdf, file = filenamec, row.names = FALSE)
 
 #--------------------------------------------------------------------------------
-

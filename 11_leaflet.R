@@ -20,7 +20,7 @@ library(sp)
 setwd(here())
 setwd('results/skater_optimal_cluster_size_09/')
 
-s9 <- shapefile('clusters_rgeoda_c09_rows25796.shp')
+s9 <- shapefile('clusters_rgeoda_c09.shp')
 
 setwd(here())
 setwd('region')
@@ -55,15 +55,13 @@ s9s <- rasterToPolygons(s9r, dissolve = TRUE)
 
 nrow(s9s@data)
 
-plot(s9s)
-
 # Export as shapefile
 
 # Open shapefiles of clusters
 setwd(here())
 setwd('results/skater_optimal_cluster_size_19/')
 
-s19 <- shapefile('clusters_rgeoda_c19_rows25796.shp')
+s19 <- shapefile('clusters_rgeoda_c19_rows.shp')
 
 s19d <- s19@data
 s19d$x <- coordinates(s19)[,1]
@@ -77,7 +75,11 @@ crs(s19d) <- "+proj=longlat +datum=WGS84 +no_defs "
 
 s19r <- rasterize(s19d, ras_dom, field = c("cluster"), update = TRUE) 
 
-plot(s19r)
+par(mfrow=c(1,2))
+plot(s9s, lwd=1)
+plot(s19s, lwd=1)
+
+
 
 # Retrieve shapefile back
 
@@ -110,11 +112,11 @@ library(RColorBrewer)
 # Export as shapefile
 
 setwd(here())
-setwd('results')
-dir.create('leaflet')
-setwd('leaflet')
-
+setwd('results/skater_optimal_cluster_size_19')
 shapefile(s19s, 's19s.shp')
+
+setwd(here())
+setwd('results/skater_optimal_cluster_size_09')
 shapefile(s9s, 's9s.shp')
 
 # Make leaflet
