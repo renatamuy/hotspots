@@ -9,6 +9,7 @@ require(gridExtra)
 require(tidyverse)
 library(grid)
 
+
 setwd(here())
 setwd('results')
 dfgplot <- read.csv('gstar.csv' )
@@ -105,6 +106,17 @@ want_landscape <- c('builtup', 'energy',  'agriharv',
                     'forest_integrity_grantham',
                     'hewson_forest_transition_potential'                  )
 
+# Factor reorder ---------------------------------------------
+myorder <- c('hosts', 'mmb', 'mammals', want_landscape, 
+             'pig',
+             'cattle',
+             "bovliv" ,
+             'pop_2020_worldpop')
+
+sumelt$variable <- factor(sumelt$variable, 
+                          levels = myorder)
+
+
 pland <- sumelt %>% filter(variable %in% want_landscape  ) %>% 
   ggplot(aes(y=y, x=x, fill = value))+
   geom_tile()+
@@ -122,33 +134,15 @@ pland <- sumelt %>% filter(variable %in% want_landscape  ) %>%
             title = "Landscape change indicators") 
 pland
 
-#
-library(grid)
-setwd(here())
 
-setwd('results')
 
-ggsave(
-  'hotspots_univariate_bio.png',
-  plot = grid.arrange(pw, pdom, phum, nrow = 3),
-  dpi = 400,
-  width = 6.5,
-  height = 13,
-  limitsize = TRUE)
-
-# Landscape change 
-ggsave(
-  'hotspots_univariate_pland.png',
-  plot = pland,
-  dpi = 400,
-  width = 10,
-  height = 8,
-  limitsize = TRUE)
 
 # --- All
 
+
 allpp <- sumelt %>% 
-  filter(variable %in% c(want_bat, 'mmb', want_landscape, 'pig', 'cattle' )  )%>%  
+  filter(variable %in% c('hosts', 'mmb', want_landscape, 'pig', 'cattle',
+                         'pop_2020_worldpop')   )%>%  
   mutate(unilabs = fct_recode(variable,
                               'Bat hosts' = 'hosts',
                               'Wild mammals'= 'mmb',
@@ -170,7 +164,12 @@ allpp <- sumelt %>%
         strip.text = element_text(size = 14)) + 
   labs(x='Longitude', y="Latitude") 
 
+
+
 allpp
+
+setwd(here())
+setwd('results')
 
 ggsave('Figure_01a.png',
        plot = last_plot(),
@@ -183,33 +182,36 @@ write.table(file='table_pct.txt', row.names = FALSE,
             round(table(sumelt$variable, sumelt$value)/ nrow(dfgplot)*100, digits=2) )
 
 # Percentages per indicator
-head(sumelt)
+unique(sumelt$variable)
 
-plotpcts <- sumelt %>%  filter(variable %in% c(want_bat, 'mmb', want_landscape, 'pig', 'cattle' )  ) %>% 
+plotpcts <- sumelt %>%  filter(variable %in% c('hosts', 'mmb',
+                                               want_landscape,
+                                               'pig', 'cattle',
+                                               'pop_2020_worldpop')  ) %>% 
   mutate(unilabs = fct_recode(variable,
                               'Bat hosts' = 'hosts',
                               'Wild mammals'= 'mmb',
                               'Pig' = 'pig',
                               'Cattle' = 'cattle',
-                              "Human population" = 'pop_2020_worldpop' ,
                               "Built up area"    =   "builtup",
                               "Energy and mining" =  'energy',
-                             'Agriculture and harvest land' = 'agriharv',
+                              'Agriculture and harvest land' = 'agriharv',
                               'Forest integrity' = 'forest_integrity_grantham',
-                              'Deforestation potential' ='hewson_forest_transition_potential' )) %>% 
+                              'Deforestation potential' ='hewson_forest_transition_potential',
+                              "Human population" = 'pop_2020_worldpop' )) %>% 
   mutate(highlevel = fct_recode(variable,
                               'Wildlife - potential hosts' = 'hosts',
                               'Wildlife - potential hosts'= 'mmb',
                               'Domesticated - potential hosts' = 'pig',
                               'Domesticated - potential hosts' = 'cattle',
-                              "Exposure in humans" = 'pop_2020_worldpop' ,
                               "Landscape change"    =   "builtup",
                               "Landscape change" =  'energy',
                               'Landscape change' = 'agriharv',
                               'Landscape change' = 'forest_integrity_grantham',
-                              'Landscape change' ='hewson_forest_transition_potential' )) %>% 
+                              'Landscape change' ='hewson_forest_transition_potential',
+                              "Exposure in humans" = 'pop_2020_worldpop')) %>% 
   ggplot(aes(unilabs  )) + 
-  facet_grid(~highlevel)+
+  facet_grid(~highlevel) +
   geom_bar(aes(fill= value), alpha=0.8,position="fill") +
   scale_fill_manual(values =c("khaki","royalblue3", "violetred4" ) ,
                     labels = c("Neutral", "Coldspot", "Hotspot"))+
@@ -230,13 +232,11 @@ ggsave(
   height = 6,
   limitsize = TRUE)
 
-setwd('results')
-
 ggsave('Figure_01.png',
   plot = grid.arrange(allpp, plotpcts, nrow = 2), #last_plot()
   dpi = 400,
-  width = 16,
-  height = 13,
+  width = 12,
+  height = 11,
   limitsize = TRUE)
 
 #------------------------------------------------------------------

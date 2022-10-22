@@ -1,5 +1,8 @@
 # -- scenario with no intermediate hosts
 # -- scenario with intermediate hosts
+# -- scenario with intermediate hosts and no bats
+# Figure 02
+# Figure 04
 
 require(stringr)
 require(rnaturalearth)
@@ -206,7 +209,7 @@ ggsave(
   height = 6,
   limitsize = TRUE)
 
-# Dif 2 and bovliv
+# Dif 2 and bovliv (risk3)
 head(go3)
 go3$difbovliv = go3$n_hotspots_risk3 -  go$n_hotspots_risk1 
 
@@ -231,6 +234,156 @@ ggsave(
   width = 15,
   height = 6,
   limitsize = TRUE)
+
+
+# Scenario 2 with no bats ----------
+
+
+#----> identifies risk areas for change, surveillance sites in livestock/communities
+
+want_risk2_nobats <- c('pig_gilbert', 'cattle_gilbert','mmb',
+                       "builtup"     ,   
+                        "energy",                     
+   "agriharv", 
+   "forest_integrity_grantham" ,        
+  "hewson_forest_transition_potential",
+  "pop_2020_worldpop"  )
+
+dfgplot <- dplyr::mutate(dfgplot, 
+                         n_hotspots_risk2_nobats = rowSums(dfgplot[want_risk2_nobats]  > 1.645, 
+                                                           na.rm = TRUE))
+length(unique(dfgplot$n_hotspots_risk2_nobats))
+
+unique(dfgplot$n_hotspots_risk2_nobats)
+
+cats <- length(unique(dfgplot$n_hotspots_risk2_nobats))
+pal2 <- rev(RColorBrewer::brewer.pal(cats,"Spectral"))
+b <- c(0,2,4,6,8,10 )
+
+go2nb <- dfgplot %>% dplyr::select(c('x','y',starts_with("n_hotspots_risk2_nobats")))
+
+# Spectral 
+p2nb <- ggplot()+
+  geom_tile(data = go2nb, aes( y=y, x=x, fill = n_hotspots_risk2_nobats))+ theme_bw() +
+  geom_sf(data=sf::st_as_sf(target), fill= 'transparent',col="black", size=0.50)+
+  scale_fill_gradientn(colours = pal2, breaks = b) +
+  #scale_fill_gradientn(colours = c("royalblue3", "khaki", "violetred4"), breaks=b, labels=format(b)) +
+  theme(legend.title=element_blank(), legend.position = 'bottom',  strip.text = element_text(size = 14)) +
+  labs(x='Longitude', y="Latitude", title = "Hotspot convergence areas", 
+       subtitle = 'Landscape change, \n potential  (non-bat hosts) secondary hosts'  ) 
+
+p2nb
+
+ggsave(
+  'hotspots_sec_no_bat_hosts.png',
+  plot = last_plot(),
+  dpi = 400,
+  width = 5,
+  height = 6,
+  limitsize = TRUE)
+
+# Difference with nb scenario 2
+
+dfgplot$difnb = dfgplot$n_hotspots_risk2_nobats -  dfgplot$n_hotspots_risk1 
+
+head(go2nb)
+head(dfgplot)
+
+summary(go2$dif)
+
+p2difnb <- ggplot()+
+  geom_tile(data = dfgplot, aes( y=y, x=x, fill = difnb))+ theme_bw() +
+  geom_sf(data=sf::st_as_sf(target), fill= 'transparent',col="black", size=0.50)+
+  scale_fill_gradientn(colours = pal2) + #, breaks = b
+  theme(legend.title=element_blank(), legend.position = 'bottom',  strip.text = element_text(size = 14)) +
+  labs(x='Longitude', y="Latitude",
+       title = "Difference map", 
+       subtitle = ''  ) 
+
+p2difnb
+
+ggsave(
+  'Figure_02nb.png',
+  plot = grid.arrange(p1, p2nb, p2difnb, nrow = 1), #last_plot()
+  dpi = 400,
+  width = 15,
+  height = 6,
+  limitsize = TRUE)
+
+
+# ------------- bovliv no bats in scenario 2 (all bovidae) --------------------
+
+want_risk2_nobats_bovliv <- c('pig_gilbert', 'bovliv','mmb',
+                       "builtup"     ,   
+                       "energy",                     
+                       "agriharv", 
+                       "forest_integrity_grantham" ,        
+                       "hewson_forest_transition_potential",
+                       "pop_2020_worldpop"  )
+
+dfgplot <- dplyr::mutate(dfgplot, 
+                         n_hotspots_risk2_nobats_bovliv = rowSums(dfgplot[want_risk2_nobats_bovliv]  > 1.645, 
+                                                           na.rm = TRUE))
+length(unique(dfgplot$n_hotspots_risk2_nobats_bovliv))
+
+unique(dfgplot$n_hotspots_risk2_nobats_bovliv)
+
+cats <- length(unique(dfgplot$n_hotspots_risk2_nobats_bovliv))
+pal2 <- rev(RColorBrewer::brewer.pal(cats,"Spectral"))
+b <- c(0,2,4,6,8,10 )
+
+go2nb <- dfgplot %>% dplyr::select(c('x','y',starts_with("n_hotspots_risk2_nobats_bovliv")))
+
+# Spectral 
+p2nbb <- ggplot()+
+  geom_tile(data = go2nb, aes( y=y, x=x, fill = n_hotspots_risk2_nobats_bovliv))+ theme_bw() +
+  geom_sf(data=sf::st_as_sf(target), fill= 'transparent',col="black", size=0.50)+
+  scale_fill_gradientn(colours = pal2, breaks = b) +
+  #scale_fill_gradientn(colours = c("royalblue3", "khaki", "violetred4"), breaks=b, labels=format(b)) +
+  theme(legend.title=element_blank(), legend.position = 'bottom',  strip.text = element_text(size = 14)) +
+  labs(x='Longitude', y="Latitude", title = "Hotspot convergence areas", 
+       subtitle = 'Landscape change, \n potential  (non-bat hosts) secondary hosts (all bovidae)'  ) 
+
+p2nbb
+
+ggsave(
+  'hotspots_sec_no_bat_hosts_bovliv.png',
+  plot = last_plot(),
+  dpi = 400,
+  width = 5,
+  height = 6,
+  limitsize = TRUE)
+
+# Difference with nb all bovidae scenario 2
+
+dfgplot$difnbb = dfgplot$n_hotspots_risk2_nobats_bovliv -  dfgplot$n_hotspots_risk1 
+
+summary(dfgplot$difnbb)
+
+summary(dfgplot$difnb)
+
+table(dfgplot$n_hotspots_risk2 -dfgplot$n_hotspots_risk3)
+
+
+p2difnbb <- ggplot()+
+  geom_tile(data = dfgplot, aes( y=y, x=x, fill = difnbb))+ theme_bw() +
+  geom_sf(data=sf::st_as_sf(target), fill= 'transparent',col="black", size=0.50)+
+  scale_fill_gradientn(colours = pal2) + #, breaks = b
+  theme(legend.title=element_blank(), legend.position = 'bottom',  strip.text = element_text(size = 14)) +
+  labs(x='Longitude', y="Latitude",
+       title = "Difference map", 
+       subtitle = ''  ) 
+
+p2difnb
+
+ggsave(
+  'Figure_02nb_bovliv.png',
+  plot = grid.arrange(p1, p2nb, p2difnbb, nrow = 1), #last_plot()
+  dpi = 400,
+  width = 15,
+  height = 6,
+  limitsize = TRUE)
+
 
 # Jaccard difference map -------------------------
 load('jaccard.RData')
@@ -273,7 +426,7 @@ ras_dom <-raster::raster(xmn=68.25, xmx= 141.0, ymn=-10.25, ymx=53.5,
                          crs="+proj=longlat +datum=WGS84 +no_defs ",
                          resolution=res(raster_access), vals=NA)
 
-db <- dfgplot[c('x', 'y', 'n_hotspots_risk1','n_hotspots_risk2', 'n_hotspots_risk3')]
+db <- dfgplot[c('x', 'y', 'n_hotspots_risk1','n_hotspots_risk2', 'n_hotspots_risk3', 'n_hotspots_risk2_nobats')]
 
 db$risk2 <- (db$n_hotspots_risk2-min(db$n_hotspots_risk2))/
   (max(db$n_hotspots_risk2)-min(db$n_hotspots_risk2))
@@ -302,13 +455,50 @@ col.matrix <- bivariatemaps::colmat(nquantiles=3,
 
 #Green zones are graph nodes with the strongest influence on the total risk of pandemic spread
 
-bivmap2 <- bivariate.map(raster_access,raster2, 
+bivmap2 <- bivariate.map(raster_access, raster2, 
 colormatrix=col.matrix, nquantiles=3)
 
 plot(bivmap2,frame.plot=F,axes=F,box=F,add=F,legend=F,
      col=as.vector(col.matrix))
 
 map(interior=T, add=T)
+
+# Risk 2 nobats n_hotspots_risk2_nobats
+head(db)
+
+plot(db$n_hotspots_risk2 ~ db$n_hotspots_risk2_nobats)
+hist(db$n_hotspots_risk2  - db$n_hotspots_risk2_nobats)
+
+table(db$n_hotspots_risk2  - db$n_hotspots_risk2_nobats)
+
+table(db$n_hotspots_risk2_nobats - db$n_hotspots_risk1)
+table(db$n_hotspots_risk2 - db$n_hotspots_risk1)
+
+
+raster2nb <- rasterize(db, ras_dom, 
+                     field = c("n_hotspots_risk2_nobats"),
+                     update = TRUE)
+
+#https://encycolorpedia.com/b22222
+
+col.matrix <- bivariatemaps::colmat(nquantiles=3,
+                                    upperleft= 'khaki',#'khaki', #, ##4DDDDD
+                                    upperright= '#ff0000',#"#B22222",#"violetred4", 
+                                    bottomleft= 'azure2',#'#d8d8d8',#'#1B9E77',  #"azure2",
+                                    bottomright= 'blue',#'#141414',# "#141414",
+                                    xlab="Time to reach healthcare", 
+                                    ylab="Hazard: Scenario 2 (no bat hosts)")
+
+#Green zones are graph nodes with the strongest influence on the total risk of pandemic spread
+
+bivmap2nb <- bivariate.map(raster_access, raster2nb, 
+                         colormatrix=col.matrix, nquantiles=3)
+
+plot(bivmap2nb,frame.plot=F,axes=F,box=F,add=F,legend=F,
+     col=as.vector(col.matrix))
+
+map(interior=T, add=T)
+
 
 # Risk scenario 3 bovliv
 
