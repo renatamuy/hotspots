@@ -75,7 +75,8 @@ colnames(dfgsub@data)
 # G star values rasterized
 
 pigg <- rasterize(dfgsub, ras_dom, field = c("pig_gilbert"), update = TRUE) 
-cattleg <- rasterize(dfgsub, ras_dom, field = c('cattle_gilbert'), update = TRUE) 
+bovlivg <- rasterize(dfgsub, ras_dom, field = c('bovliv'), update = TRUE) 
+#chickeng <- rasterize(dfgsub, ras_dom, field = c('chicken_gilbert'), update = TRUE) 
 hostsg <-  rasterize(dfgsub, ras_dom, field = c('lincomb_hosts'), update = TRUE) 
 mammalg <- rasterize(dfgsub, ras_dom, field = c("mmb"), update = TRUE) # mammals_iucn_mode out
 
@@ -91,12 +92,12 @@ agriharvg <- rasterize(dfgsub, ras_dom, field = c('agriharv'), update = TRUE)
 popg <- rasterize(dfgsub, ras_dom, field = c('pop_2020_worldpop'), update = TRUE) 
 traveltimeg <- rasterize(dfgsub, ras_dom, field = c('motor_travel_time_weiss'), update = TRUE) 
 
-namesg <- c('pigg', 'cattleg', 'hostsg', 'mammalg',
+namesg <- c('pigg', 'bovlivg', 'hostsg', 'mammalg',
             'forest_transitiong', 'forest_qualityg',
             'builtupg','transg',  'pollutiong','energyg','agriharvg',
             'popg','traveltimeg'  )
 
-stackg <- stack(pigg, cattleg, hostsg, mammalg,
+stackg <- stack(pigg, bovlivg, hostsg, mammalg,
                 forest_transitiong, forest_qualityg,
                 builtupg,transg,  pollutiong, energyg, agriharvg,
                 popg, traveltimeg )
@@ -133,7 +134,7 @@ unique(mgg$variable)
 
 mggp <- mgg %>% mutate(variablelab = fct_recode(variable, 
                                                  "Bat \n hosts" = "hostsg",
-                                                 'Cattle' ="cattleg" ,
+                                                 'Bovidae livestock' ="bovlivg" ,
                                                  'Forest \n loss risk' = 'forest_transitiong',
                                                 'Forest \n quality' = 'forest_qualityg',
                                                  'Population' = 'popg',
@@ -148,10 +149,8 @@ mggp <- mgg %>% mutate(variablelab = fct_recode(variable,
 
 
 
-# 'Poultry' = "chickeng" ,
-max(mggp$value)
-
 mggp %>% filter(name == 'Bangladesh') 
+
 # Straight
 
 basez <- mggp %>% #filter(name != 'Bangladesh') %>% 
@@ -201,24 +200,14 @@ baseradar <- mggp %>% #filter(name != 'Bangladesh') %>%
 
 baseradar
 
-# Exporting
-ggsave('hotspots_coord_polar.png',
-       plot = baseradar,
-       dpi = 400,
-       width = 13,
-       height = 14,
-       limitsize = TRUE)
-
 #-------------------------------------------------------------------------
 # Final plot
-setwd('skater_optimal_cluster_size_09/')
+setwd('skater_optimal_cluster_size_09_bovliv/')
 
 clusters <- read.csv("clusters_rgeoda_c09.csv")
 
 setwd(here())
 setwd('results/')
-
-head(mggp)
 
 # -------------------------------------------------------------------------------
 # Zonal with multivariate clusters from skater and univariate hotspot rasters
@@ -246,7 +235,7 @@ head(zclusterm)
 
 zclustermlab <- zclusterm %>% mutate(variablelab = fct_recode(variable, 
                                                 "Bat hosts" = "hostsg", #\n
-                                                'Cattle' ="cattleg" ,
+                                                'Bovidae livestock' ="bovliv" ,
                                                 'Forest loss risk' = 'forest_transitiong', #\n 
                                                 'Forest quality' = 'forest_qualityg', #\n 
                                                 'Population' = 'popg',
@@ -263,8 +252,6 @@ pal <- wesanderson::wes_palette("Moonrise3", length(unique(zclustermlab$zone)), 
 
 # Removing tran, pollution and travel time
 zclustermlab <- zclustermlab[!zclustermlab$variable %in% c("transg", "pollutiong", "traveltimeg"),]
-
-class(zclustermlab$variable)
 
 baseradarz <- zclustermlab %>% 
   ggplot(aes(x = variablelab, y = value, group = zone))+ #, colour = tile, fill = tile)) + 
@@ -295,7 +282,7 @@ library(ggridges)
 
 joyc <- melt(clusters , id.vars= c('x','y','cluster'))
 
-unique(joyc$variable)
+head(joyc)
 
 # novo recebe velho 
 
@@ -304,24 +291,22 @@ min(joyc$value)
 pal <- wesanderson::wes_palette("Moonrise3", length(unique(zclustermlab$zone)), type = "continuous")
 
 
-joyc <- joyc[!joyc$variable %in% c('bovliv', 'mammals_iucn_mode', 'ID', "motor_travel_time_weiss",
+joyc <- joyc[!joyc$variable %in% c('mammals_iucn_mode', 'cattle_gilbert', 'ID' ,"motor_travel_time_weiss",
                                    "pollution", "trans"),]
+
 
 
 cridges <- joyc %>% 
   mutate(variablelab = fct_recode(variable, 
                                       "Bat hosts" = "lincomb_hosts", #\n
-                                      'Cattle' ="cattle_gilbert" ,
+                                      'Bovidae livestock' ="bovliv" ,
                                       'Forest loss risk' = 'hewson_forest_transition_potential', #\n 
                                       'Forest quality' = 'forest_integrity_grantham', #\n 
                                       'Population' = 'pop_2020_worldpop',
-                                      #'Access to healthcare' = 'motor_travel_time_weiss', #\n 
                                       'Mammals' = "mmb",
                                       'Pigs'="pig_gilbert",
                                       'Energy'="energy",
                                       'Builtup'="builtup",
-                                      #'Pollution'="pollution",
-                                      #'Transportation'="trans",
                                       'Agriculture and harvest'="agriharv"  )) %>% 
   filter(variable != 'hosts_sanchez' & variable != 'hosts_muylaert') %>% 
   ggplot(aes(x =value , y = variablelab)) +
@@ -339,7 +324,7 @@ cridges <- joyc %>%
         text = element_text(size = 14), 
         axis.text.x = element_text(angle = 45, hjust = 0.99, size=9)) 
 
-
+cridges
 
 gr <- ggplot_gtable(ggplot_build(cridges))
 
@@ -362,7 +347,7 @@ for (i in strip_bothr) {
 # SLOW
 grid::grid.draw(gr)
 
-setwd('skater_optimal_cluster_size_09/')
+setwd('skater_optimal_cluster_size_09_bovliv/')
 
 png("facet_clusters_ridges.png",
     width = 28,
