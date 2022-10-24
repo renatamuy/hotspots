@@ -27,6 +27,8 @@ mercator <- raster::shapefile('mercator.shp')
 queen_w <- queen_weights(sf::st_as_sf(mercator))
 
 tofocus <- colnames(d %>% dplyr::select(!c('x','y', 
+                                           'mammals_iucn_mode',
+                                           'bovliv',
                                            'hosts_muylaert',
                                            'hosts_sanchez',
                                            'trans',
@@ -87,14 +89,11 @@ write.csv(d, 'prepdf_maxp.csv', row.names = FALSE)
 
 save(d, file='prepdf_maxp.RData')
 
-save(maxp_o5pct, file='maxp_o5pct.RData')
+save(maxp_o5pct, file='maxp_o5pct_mmb.RData')
 
-save(maxp_o10pct, file='maxp_o10pct.RData')
+save(maxp_o10pct, file='maxp_o10pct_mmb.RData')
 
 print('Job completed')
-
-
-
 
 
 #------------------------------------------------------------------------

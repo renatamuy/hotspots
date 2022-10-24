@@ -20,6 +20,6 @@ module load R/4.0.1-gimkl-2020a
 
 echo "Executing R ..."
 
-Rscript 10_maxp_greedy.R
+Rscript 10_maxp_greedy_nesi.R
 
 echo "Completed"
