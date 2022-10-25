@@ -68,7 +68,7 @@ pcone <- ggplot()+
   #geom_label(data = positions, aes(y=my, x=mx, label=factor(cluster) ), label.size = 0.4, alpha = 1)+
   ggrepel::geom_label_repel(data = positions, aes(y=my, x=mx, label=factor(cluster) ), label.size = 0.1, alpha = 0.7)+
   theme(legend.title=element_blank(), 
-        legend.position = 'bottom',  
+        legend.position = 'right',  
         strip.text = element_text(size = 14)) +
   scale_fill_manual(values = pal ) +
   labs(x='Longitude', y="Latitude", title = "Clusters", subtitle = ''  ) 

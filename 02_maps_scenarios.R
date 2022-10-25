@@ -1,7 +1,11 @@
-# -- scenario with no intermediate hosts
-# -- scenario with intermediate hosts
-# -- scenario with intermediate hosts and no bats
 # Figure 02
+#Scenario 2 cattle: Bat Hosts + mammals mmb + pig + cattle + everything else
+#Scenario 2 all bovidae: Bat Hosts + mammals mmb + pig + bovidae livestock + everything else
+ 
+#Scenario 2 no bat hosts cattle: mammals mmb + pig + cattle + everything else
+#Scenario 2 no bat hosts all bovidae: mammals mmb + pig + bovidae livestock + everything else
+    
+# Bivariate maps
 # Figure 04
 
 require(stringr)
@@ -22,14 +26,13 @@ library(sp)
 
 setwd(here())
 setwd('results')
-dfgplot <- read.csv('gstar.csv' )
+dfgplot <- read.csv('gstar.csv')
 
 head(dfgplot)
 
 setwd(here())
-setwd('results')
+setwd('results/scenarios')
 
-#----> identifies risk areas for change, surveillance sites in wildlife/communities
 #Countries
 target <- ne_countries(type = "countries", country = c('Bangladesh',
                                                        'Bhutan',
@@ -102,22 +105,11 @@ p1 <- ggplot()+
 
 p1
 
-ggsave(
-  'hotspots.png',
-  plot = last_plot(),
-  dpi = 400,
-  width = 5,
-  height = 6,
-  limitsize = TRUE)
-
-# With royal blue pal
-  #scale_fill_gradientn(colours= c("royalblue3", "khaki", "violetred4"), breaks=b, labels=format(b)) +
-
 # Scenario with potential intermediate hosts (and surveillance sites)
 
 #----> identifies risk areas for change, surveillance sites in livestock/communities
 
-want_risk2 <- c(want_risk1, 'pig_gilbert', 'cattle_gilbert','mmb' )
+want_risk2 <- c(want_risk1, 'pig_gilbert', 'cattle_gilbert', 'mmb' )
 
 dfgplot <- dplyr::mutate(dfgplot, n_hotspots_risk2 = rowSums(dfgplot[want_risk2]  > 1.645, na.rm = TRUE))
 length(unique(dfgplot$n_hotspots_risk2))
@@ -141,17 +133,7 @@ p2 <- ggplot()+
 
 p2
 
-ggsave(
-  'hotspots_sec.png',
-  plot = last_plot(),
-  dpi = 400,
-  width = 5,
-  height = 6,
-  limitsize = TRUE)
-
-
-# bovliv
-
+# bovliv contains bat hosts
 want_risk3 <- c(want_risk1, 'pig_gilbert', 'bovliv','mmb' )
 
 dfgplot <- dplyr::mutate(dfgplot, n_hotspots_risk3 = rowSums(dfgplot[want_risk3]  > 1.645, na.rm = TRUE))
@@ -175,14 +157,6 @@ p3 <- ggplot()+
        subtitle = 'Landscape change, known bat hosts and \n potential  secondary hosts (all bovidae)'  ) 
 
 p3
-
-ggsave(
-  'hotspots_sec_bovliv.png',
-  plot = last_plot(),
-  dpi = 400,
-  width = 5,
-  height = 6,
-  limitsize = TRUE)
 
 # Difference map:
 go2$dif = go2$n_hotspots_risk2 - go$n_hotspots_risk1 
@@ -210,6 +184,7 @@ ggsave(
   limitsize = TRUE)
 
 # Dif 2 and bovliv (risk3)
+
 head(go3)
 go3$difbovliv = go3$n_hotspots_risk3 -  go$n_hotspots_risk1 
 
@@ -228,17 +203,14 @@ p2difb <- ggplot()+
 p2difb
 
 ggsave(
-  'Figure_02_bovliv.png',
+  'Figure_02_nested_bovliv.png',
   plot = grid.arrange(p1, p3, p2difb, nrow = 1),
   dpi = 400,
   width = 15,
   height = 6,
   limitsize = TRUE)
 
-
-# Scenario 2 with no bats ----------
-
-
+# Scenario 2 with no bat hosts ----------
 #----> identifies risk areas for change, surveillance sites in livestock/communities
 
 want_risk2_nobats <- c('pig_gilbert', 'cattle_gilbert','mmb',
@@ -274,14 +246,6 @@ p2nb <- ggplot()+
 
 p2nb
 
-ggsave(
-  'hotspots_sec_no_bat_hosts.png',
-  plot = last_plot(),
-  dpi = 400,
-  width = 5,
-  height = 6,
-  limitsize = TRUE)
-
 # Difference with nb scenario 2
 
 dfgplot$difnb = dfgplot$n_hotspots_risk2_nobats -  dfgplot$n_hotspots_risk1 
@@ -311,7 +275,7 @@ ggsave(
   limitsize = TRUE)
 
 
-# ------------- bovliv no bats in scenario 2 (all bovidae) --------------------
+# ------------- bovliv no bat hosts in scenario 2 (all bovidae) --------------------
 
 want_risk2_nobats_bovliv <- c('pig_gilbert', 'bovliv','mmb',
                        "builtup"     ,   
@@ -346,14 +310,6 @@ p2nbb <- ggplot()+
 
 p2nbb
 
-ggsave(
-  'hotspots_sec_no_bat_hosts_bovliv.png',
-  plot = last_plot(),
-  dpi = 400,
-  width = 5,
-  height = 6,
-  limitsize = TRUE)
-
 # Difference with nb all bovidae scenario 2
 
 dfgplot$difnbb = dfgplot$n_hotspots_risk2_nobats_bovliv -  dfgplot$n_hotspots_risk1 
@@ -378,7 +334,7 @@ p2difnb
 
 ggsave(
   'Figure_02nb_bovliv.png',
-  plot = grid.arrange(p1, p2nb, p2difnbb, nrow = 1), #last_plot()
+  plot = grid.arrange(p1, p2nbb, p2difnbb, nrow = 1), #last_plot()
   dpi = 400,
   width = 15,
   height = 6,
@@ -412,9 +368,10 @@ ggsave(
   height = 6,
   limitsize = TRUE)
 
-# Bivariate map
+# Bivariate maps ---------------------------------------------------------
 
-setwd('../region')
+setwd(here())
+setwd('region')
 
 raster_access <- raster('motor_travel_time_weiss.tif')
 
@@ -428,6 +385,7 @@ ras_dom <-raster::raster(xmn=68.25, xmx= 141.0, ymn=-10.25, ymx=53.5,
 
 db <- dfgplot[c('x', 'y', 'n_hotspots_risk1','n_hotspots_risk2', 'n_hotspots_risk3', 'n_hotspots_risk2_nobats')]
 
+
 db$risk2 <- (db$n_hotspots_risk2-min(db$n_hotspots_risk2))/
   (max(db$n_hotspots_risk2)-min(db$n_hotspots_risk2))
 
@@ -438,7 +396,7 @@ coordinates(db) <- ~ x + y
 crs(db) <- "+proj=longlat +datum=WGS84 +no_defs "
 
 # Scenario 2 ---------------------------------------------
-
+# Bat Hosts + mammals mmb + pig + cattle + everything else
 raster2 <- rasterize(db, ras_dom, 
                      field = c("risk2"),
                      update = TRUE)
@@ -464,6 +422,7 @@ plot(bivmap2,frame.plot=F,axes=F,box=F,add=F,legend=F,
 map(interior=T, add=T)
 
 # Risk 2 nobats n_hotspots_risk2_nobats
+# mammals mmb + pig + cattle + everything else
 head(db)
 
 plot(db$n_hotspots_risk2 ~ db$n_hotspots_risk2_nobats)
@@ -501,6 +460,7 @@ map(interior=T, add=T)
 
 
 # Risk scenario 3 bovliv
+# Bat Hosts + mammals mmb + pig + bovidae livestock + everything else
 
 db$risk3 <- (db$n_hotspots_risk3-min(db$n_hotspots_risk3))/
   (max(db$n_hotspots_risk3)-min(db$n_hotspots_risk3))
@@ -570,6 +530,7 @@ plot(bivmap1,frame.plot=F,axes=F,box=F,add=F,legend=F,
 map(interior=T, add=T)
 
 bivmap1
+
 # Difference in risk
 plot(raster2-raster1)
 
@@ -579,12 +540,11 @@ bivmapdif <-bivariate.map(raster_access, raster2-raster1,
 plot(bivmapdif, frame.plot=F,axes=F,box=F,add=F,legend=F,
      col=as.vector(col.matrix))
 
-#
+#----------------------------------------------
 setwd(here())
 setwd('results/')
 
 dfg <- read.csv("gstar.csv")
-
 d <- read.csv('prepdf.csv')
 
 colnames(dfg)
@@ -629,6 +589,7 @@ unique(bivmap1m)
 
 col.matrix
 listacor
+
 # Colors assigned from bottom to up (row), left to right (col)
 # Last color in legend is red =  "#FF0000"
  
@@ -676,8 +637,8 @@ plot_quantiles_scenario1 <- ggplot(d,
 
 plot_quantiles_scenario1
                                     
-
 # Cores scenario 2 ----
+
 bivmap2m <- na.omit(values(bivmap2) )
 unique(bivmap2m)
 
@@ -720,4 +681,5 @@ plot_quantiles_scenario2 <- ggplot(d,
 plot_quantiles_scenario2
 
 
+#
 #----------------------------------------------------------------------

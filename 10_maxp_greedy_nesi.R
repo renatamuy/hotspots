@@ -35,8 +35,6 @@ tofocus <- colnames(d %>% dplyr::select(!c('x','y',
                                            'pollution',
                                            'motor_travel_time_weiss'   ))    )
 
-
-
 # 5% pop
 
 minbound <- 0.05*sum(d$pop_2020_worldpop) 

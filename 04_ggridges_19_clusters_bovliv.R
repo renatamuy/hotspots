@@ -209,10 +209,8 @@ ggsave('hotspots_coord_polar.png',
 
 #-------------------------------------------------------------------------
 # Final plot
-setwd('skater_optimal_cluster_size_19/')
-
+setwd('skater_optimal_cluster_size_19_bovliv/')
 clusters <- read.csv("clusters_rgeoda_c19.csv")
-clusters$bovliv <- NULL
 clusters$mammals_iucn_mode <- NULL
 
 setwd(here())
@@ -294,7 +292,8 @@ library(ggridges)
 
 joyc <- melt(clusters , id.vars= c('x','y','cluster'))
 
-joyc <- joyc[!joyc$variable %in% c('cattle_gilbert', 'mammals_iucn_mode', 'ID', "motor_travel_time_weiss",
+joyc <- joyc[!joyc$variable %in% c('cattle_gilbert', 'mammals_iucn_mode', 
+                                   'ID', "motor_travel_time_weiss",
                                    "pollution", "trans"),]
 
 unique(joyc$variable )
