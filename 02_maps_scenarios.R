@@ -1,9 +1,10 @@
 # Figure 02 - Hotspot convergence areas
 # Figure 04 - bivariate maps
 
+library(here)
+setwd(here())
 source('00_packages.R')
 
-setwd(here())
 setwd('results')
 dfgplot <- read.csv('gstar.csv')
 
@@ -73,8 +74,6 @@ p1 <- ggplot()+
   geom_tile(data = go, aes(y=y, x=x, fill = n_hotspots_risk1))+ theme_bw() +
   scale_fill_gradientn(colours = pal, breaks = b) +
   geom_sf(data=sf::st_as_sf(target), fill= 'transparent',col="black", size=0.50)+
-  #scale_fill_gradientn(colours=c("lightskyblue", "darkmagenta", "darkorange1"), breaks = b, labels=format(b)) +
-  #scale_fill_gradientn(colours= c("royalblue3", "khaki", "violetred4"), breaks=b, labels=format(b)) +
   theme(legend.title=element_blank(), legend.position = 'bottom',  
         strip.text = element_text(size = 14)) +
   labs(x='Longitude', y="Latitude", 
@@ -114,9 +113,10 @@ go2$dif = go2$n_hotspots_risk2 - go$n_hotspots_risk1
 hist(go2$dif)
 
 p2dif <- ggplot()+
-  geom_tile(data = go2, aes( y=y, x=x, fill = dif))+ theme_bw() +
+  geom_tile(data = go2, aes( y=y, x=x, fill = factor(dif )  ))+ theme_bw() +
   geom_sf(data=sf::st_as_sf(target), fill= 'transparent',col="black", size=0.50)+
-  scale_fill_gradientn(colours = pal) + #, breaks = b
+  scale_fill_manual(values = pal)+
+  #scale_fill_gradientn(colours = pal, breaks = bdif) + #, 
   theme(legend.title=element_blank(), legend.position = 'bottom',  
         strip.text = element_text(size = 14)) +
   labs(x='Longitude', y="Latitude",
@@ -125,6 +125,7 @@ p2dif <- ggplot()+
 
 p2dif
 
+# One-panel plots just in case
 #ggsave(
  # 'Figure_02_scenarios_0102.png',
  # plot = grid.arrange(p1, p2, p2dif, nrow = 1), #last_plot()
@@ -140,7 +141,6 @@ p2dif
 want_risk2_bovliv <- c(want_risk1, 'pig_gilbert', 'bovliv')
 
 dfgplot <- dplyr::mutate(dfgplot, n_hotspots_risk2_bovliv = rowSums(dfgplot[want_risk2_bovliv]  > 1.645, na.rm = TRUE))
-length(unique(dfgplot$n_hotspots_risk3))
 
 unique(dfgplot$n_hotspots_risk2)
 
@@ -166,9 +166,10 @@ hist(go2$dif)
 summary(go2$dif)
 
 p2difb <- ggplot()+
-  geom_tile(data = go3, aes( y=y, x=x, fill = difbovliv))+ theme_bw() +
+  geom_tile(data = go3, aes( y=y, x=x, fill = factor(difbovliv) ))+ theme_bw() +
   geom_sf(data=sf::st_as_sf(target), fill= 'transparent',col="black", size=0.50)+
-  scale_fill_gradientn(colours = pal) + #, breaks = b
+  scale_fill_manual(values = pal)+
+  #scale_fill_gradientn(colours = pal, breaks = bdif) + 
   theme(legend.title=element_blank(), legend.position = 'bottom',  strip.text = element_text(size = 14)) +
   labs(x='Longitude', y="Latitude",
        title = "Difference map", 
@@ -176,33 +177,20 @@ p2difb <- ggplot()+
 
 p2difb
 
-#ggsave(
- # 'Figure_02_scenario_02_bovliv.png',
-#  plot = grid.arrange(p1, p2_bovliv, p2difb, nrow = 1),
-#  dpi = 400,
-#  width = 15,
-#  height = 6,
- # limitsize = TRUE)
-
 # Scenario 3 with bat hosts, other wild mammals but no livestock ----------
 #
 #
-want_risk3_yesbats <- c('mmb', want_risk1 )
+want_risk3 <- c('mmb', want_risk1 )
 
-dfgplot <- dplyr::mutate(dfgplot, 
-                         n_hotspots_risk3_yesbats = rowSums(dfgplot[want_risk3_yesbats]  > 1.645, 
+dfgplot <- dplyr::mutate(dfgplot, n_hotspots_risk3 = rowSums(dfgplot[want_risk3]  > 1.645, 
                                                            na.rm = TRUE))
-length(unique(dfgplot$n_hotspots_risk3_yesbats))
 
-unique(dfgplot$n_hotspots_risk3_yesbats)
-
-go2nb <- dfgplot %>% dplyr::select(c('x','y',starts_with("n_hotspots_risk3_yesbats")))
+go2nb <- dfgplot %>% dplyr::select(c('x','y',starts_with("n_hotspots_risk3")))
 
 p3 <- ggplot()+
-  geom_tile(data = go2nb, aes( y=y, x=x, fill = n_hotspots_risk3_yesbats))+ theme_bw() +
+  geom_tile(data = go2nb, aes( y=y, x=x, fill = n_hotspots_risk3))+ theme_bw() +
   geom_sf(data=sf::st_as_sf(target), fill= 'transparent',col="black", size=0.50)+
   scale_fill_gradientn(colours = pal, breaks = b) +
-  #scale_fill_gradientn(colours = c("royalblue3", "khaki", "violetred4"), breaks=b, labels=format(b)) +
   theme(legend.title=element_blank(), legend.position = 'bottom',  strip.text = element_text(size = 14)) +
   labs(x='Longitude', y="Latitude", title = "Scenario 3", 
        subtitle = 'Landscape change, potential secondary hosts \n (mammal wildlife including bat hosts)'  ) 
@@ -211,14 +199,16 @@ p3
 
 # Difference 
 
-dfgplot$dif3 = dfgplot$n_hotspots_risk3_yesbats -  dfgplot$n_hotspots_risk1 
+dfgplot$dif3 = dfgplot$n_hotspots_risk3 -  dfgplot$n_hotspots_risk1 
 
 summary(go2$dif)
 
+
 p3dif <- ggplot()+
-  geom_tile(data = dfgplot, aes( y=y, x=x, fill = dif3))+ theme_bw() +
+  geom_tile(data = dfgplot, aes( y=y, x=x, fill = factor(dif3) ))+ theme_bw() +
   geom_sf(data=sf::st_as_sf(target), fill= 'transparent', col="black", size=0.50)+
-  scale_fill_gradientn(colours = pal) + #, breaks = b
+  scale_fill_manual(values = pal)+
+  #scale_fill_gradientn(colours = pal, breaks = bdif) + 
   theme(legend.title=element_blank(), legend.position = 'bottom', 
         strip.text = element_text(size = 14)) +
   labs(x='Longitude', y="Latitude",
@@ -226,14 +216,6 @@ p3dif <- ggplot()+
        subtitle = ''  ) 
 
 p3dif
-
-#ggsave(
-#  'Figure_02_scenario_03.png',
-#  plot = grid.arrange(p1, p3, p3dif, nrow = 1), #last_plot()
-#  dpi = 400,
-#  width = 15,
-#  height = 6,
-#  limitsize = TRUE)
 
 # Scenario 4 ---- all components
 #
@@ -275,9 +257,10 @@ head(go2nb)
 head(dfgplot)
 
 p4dif <- ggplot()+
-  geom_tile(data = dfgplot, aes( y=y, x=x, fill = dif4))+ theme_bw() +
+  geom_tile(data = dfgplot, aes( y=y, x=x, fill = factor(dif4) ))+ theme_bw() +
   geom_sf(data=sf::st_as_sf(target), fill= 'transparent',col="black", size=0.50)+
-  scale_fill_gradientn(colours = pal) + #, breaks = b
+  scale_fill_manual(values = pal)+
+  #scale_fill_gradientn(colours = pal, breaks = bdif) + 
   theme(legend.title=element_blank(), legend.position = 'bottom', 
         strip.text = element_text(size = 14)) +
   labs(x='Longitude', y="Latitude",
@@ -285,14 +268,6 @@ p4dif <- ggplot()+
        subtitle = ''  ) 
 
 p4dif
-
-#ggsave(
-#  'Figure_02_scenario_04.png',
-#  plot = grid.arrange(p1, p4, p4dif, nrow = 1), #last_plot()
-#  dpi = 400,
-#  width = 15,
-#  height = 6,
-#  limitsize = TRUE)
 
 # Scenario 4 (all components, all bovidae)
 
@@ -330,9 +305,10 @@ head(go2nb)
 head(dfgplot)
 
 p4difb <- ggplot()+
-  geom_tile(data = dfgplot, aes( y=y, x=x, fill = dif4b))+ theme_bw() +
+  geom_tile(data = dfgplot, aes( y=y, x=x, fill = factor(dif4b) ))+ theme_bw() +
   geom_sf(data=sf::st_as_sf(target), fill= 'transparent',col="black", size=0.50)+
-  scale_fill_gradientn(colours = pal) + #, breaks = b
+  scale_fill_manual(values = pal)+
+  #scale_fill_gradientn(colours = pal,  breaks = bdif) + #, breaks = b
   theme(legend.title=element_blank(), legend.position = 'bottom', 
         strip.text = element_text(size = 14)) +
   labs(x='Longitude', y="Latitude",
@@ -341,23 +317,25 @@ p4difb <- ggplot()+
 
 p4difb
 
-#ggsave(
-#  'Figure_02_scenario_04_bovliv.png',
-#  plot = grid.arrange(p1, p4b, p4difb, nrow = 1), #last_plot()
-#  dpi = 400,
-#  width = 15,
-#  height = 6,
-#  limitsize = TRUE)
-
 # Plots ------------------------------
 
-ggsave(
-  'Figure_02.png',
+# Scenarios cattle-only
+ggsave( 'Figure_02.png',
   plot = grid.arrange(p1, p2, p3, p4, nrow = 1), #last_plot()
   dpi = 400,
   width = 17,
   height = 6,
   limitsize = TRUE)
+
+#---- Bovliv
+ggsave( 'Figure_02_bovliv.png',
+        plot = grid.arrange(p1, p2b, p3, p4b, nrow = 1), #last_plot()
+        dpi = 400,
+        width = 17,
+        height = 6,
+        limitsize = TRUE)
+
+# Dif cattle-only
 
 ggsave('Figure_02_dif.png',
   plot = grid.arrange(p1, p2, p3, p4,
@@ -368,16 +346,10 @@ ggsave('Figure_02_dif.png',
   height = 12,
   limitsize = TRUE)
 
-#---- Bovliv
-ggsave( 'Figure_02_bovliv.png',
-  plot = grid.arrange(p1, p2b, p3, p4b, nrow = 1), #last_plot()
-  dpi = 400,
-  width = 17,
-  height = 6,
-  limitsize = TRUE)
 
+#---- Dif Bovliv
 ggsave('Figure_02_dif_bovliv.png',
-       plot = grid.arrange(p1, p2_bovliv, p3, p4b,
+       plot = grid.arrange(p1, p2b, p3, p4b,
                            p1, p2difb, p3dif, p4difb,
                            nrow = 2), #last_plot()
        dpi = 400,
@@ -388,11 +360,10 @@ ggsave('Figure_02_dif_bovliv.png',
 
 #########################################
 # Bivariate maps ---------------------------------------------------------
-
 setwd(here())
 setwd('region')
 
-raster_access <- raster('motor_travel_time_weiss.tif')
+ raster_access <- raster('motor_travel_time_weiss.tif')
 
 mini <- min(na.omit(values(raster_access)))
 maxi <- max(na.omit(values(raster_access)))
@@ -402,23 +373,59 @@ ras_dom <-raster::raster(xmn=68.25, xmx= 141.0, ymn=-10.25, ymx=53.5,
                          crs="+proj=longlat +datum=WGS84 +no_defs ",
                          resolution=res(raster_access), vals=NA)
 
-db <- dfgplot[c('x', 'y', 'n_hotspots_risk1',
+db <- dfgplot[c('x', 'y', 
+                'n_hotspots_risk1',
                 'n_hotspots_risk2', 
                 'n_hotspots_risk3', 
                 'n_hotspots_risk4')]
 
+db %>% skim()
+
+# Risk scenario 1 (just bat hosts) -----------------------------------
+
+db$risk1 <- (db$n_hotspots_risk1-min(db$n_hotspots_risk1))/
+  (max(db$n_hotspots_risk1)-min(db$n_hotspots_risk1))
+
+hist(db$risk2)
+hist(db$risk1)
+quantile(db$risk1)
+quantile(raster_access )
+coordinates(db) <- ~ x + y 
+
+crs(db) <- "+proj=longlat +datum=WGS84 +no_defs "
+
+raster1 <- rasterize(db, ras_dom, 
+                     field = c("risk1"),
+                     update = TRUE)
+
+# Change labels!
+col.matrix <- bivariatemaps::colmat(nquantiles=3,
+                                    upperleft= 'khaki',#'khaki', #, ##4DDDDD
+                                    upperright= '#ff0000',#"#B22222",#"violetred4", 
+                                    bottomleft= 'azure2',#'#d8d8d8',#'#1B9E77',  #"azure2",
+                                    bottomright='blue', #'#141414',# "#141414",
+                                    xlab="Time to reach healthcare", 
+                                    ylab="Scenario 1")
+
+bivmap1 <- bivariate.map(raster_access, raster1, 
+                         colormatrix=col.matrix, nquantiles=3)
+
+# Bivariate scenario 1
+
+plot(bivmap1,frame.plot=F,axes=F,box=F,add=F,legend=F,
+     col=as.vector(col.matrix), main='Scenario 1')
+
+map(interior=T, add=T)
+
+# Scenario 2 ---------------------------------------------
+# Bat Hosts + mammals mmb + pig + cattle + everything else
 
 db$risk2 <- (db$n_hotspots_risk2-min(db$n_hotspots_risk2))/
   (max(db$n_hotspots_risk2)-min(db$n_hotspots_risk2))
 
 hist(db$risk2)
-quantile(db$risk2)
-quantile(raster_access )
-coordinates(db) <- ~ x + y 
-crs(db) <- "+proj=longlat +datum=WGS84 +no_defs "
+quantile(db$risk3)
 
-# Scenario 2 ---------------------------------------------
-# Bat Hosts + mammals mmb + pig + cattle + everything else
 raster2 <- rasterize(db, ras_dom, 
                      field = c("risk2"),
                      update = TRUE)
@@ -431,57 +438,26 @@ col.matrix <- bivariatemaps::colmat(nquantiles=3,
                    bottomleft= 'azure2',#'#d8d8d8',#'#1B9E77',  #"azure2",
                    bottomright= 'blue',#'#141414',# "#141414",
                    xlab="Time to reach healthcare", 
-                   ylab="Hazard: Scenario 2")
-
-#Green zones are graph nodes with the strongest influence on the total risk of pandemic spread
+                   ylab="Scenario 2")
 
 bivmap2 <- bivariate.map(raster_access, raster2, 
 colormatrix=col.matrix, nquantiles=3)
 
+# Bivariate scenario 2
+
 plot(bivmap2,frame.plot=F,axes=F,box=F,add=F,legend=F,
-     col=as.vector(col.matrix))
+     col=as.vector(col.matrix), main='Scenario 2')
 
 map(interior=T, add=T)
 
-# Risk 2 nobats n_hotspots_risk2_nobats
-# mammals mmb + pig + cattle + everything else
-head(db)
-
-raster2nb <- rasterize(db, ras_dom, 
-                     field = c("n_hotspots_risk4"),
-                     update = TRUE)
-
-#https://encycolorpedia.com/b22222
-
-col.matrix <- bivariatemaps::colmat(nquantiles=3,
-                                    upperleft= 'khaki',#'khaki', #, ##4DDDDD
-                                    upperright= '#ff0000',#"#B22222",#"violetred4", 
-                                    bottomleft= 'azure2',#'#d8d8d8',#'#1B9E77',  #"azure2",
-                                    bottomright= 'blue',#'#141414',# "#141414",
-                                    xlab="Time to reach healthcare", 
-                                    ylab="Hazard: Scenario 4")
-
-#Green zones are graph nodes with the strongest influence on the total risk of pandemic spread
-
-bivmap2nb <- bivariate.map(raster_access, raster2nb, 
-                         colormatrix=col.matrix, nquantiles=3)
-
-plot(bivmap2nb,frame.plot=F,axes=F,box=F,add=F,legend=F,
-     col=as.vector(col.matrix))
-
-map(interior=T, add=T)
-
-
-# Risk scenario 3 
-# Bat Hosts + mammals mmb 
+# Scenario 3
 
 db$risk3 <- (db$n_hotspots_risk3-min(db$n_hotspots_risk3))/
   (max(db$n_hotspots_risk3)-min(db$n_hotspots_risk3))
 
 plot(db$risk3 , db$risk2)
 
-raster3 <- rasterize(db, ras_dom, 
-                     field = c("risk3"),
+raster3 <- rasterize(db, ras_dom, field = c("risk3"),
                      update = TRUE)
 
 #https://encycolorpedia.com/b22222
@@ -497,59 +473,73 @@ col.matrix <- bivariatemaps::colmat(nquantiles=3,
 bivmap3 <- bivariate.map(raster_access, raster3, 
                          colormatrix=col.matrix, nquantiles=3)
 
+# Bivariate scenario 3
+
 plot(bivmap3,frame.plot=F,axes=F,box=F,add=F,legend=F,
-     col=as.vector(col.matrix))
+     col=as.vector(col.matrix), main='Scenario 3')
 
 map(interior=T, add=T)
 
-# Risk scenario 1 (just bat hosts) -----------------------------------
+# --- Scenario 4
 
-db$risk1 <- (db$n_hotspots_risk1-min(db$n_hotspots_risk1))/
-  (max(db$n_hotspots_risk1)-min(db$n_hotspots_risk1))
+db$risk4 <- (db$n_hotspots_risk4-min(db$n_hotspots_risk4))/
+  (max(db$n_hotspots_risk4)-min(db$n_hotspots_risk4))
 
-hist(db$risk2)
 
-hist(db$risk1)
-
-quantile(db$risk1)
-
-quantile(db$risk1)
-
-quantile(raster_access )
-
-raster1 <- rasterize(db, ras_dom, 
-                     field = c("risk1"),
+head(db)
+raster4 <- rasterize(db, ras_dom, 
+                     field = c("risk4"),
                      update = TRUE)
 
-# Change labels!
+#https://encycolorpedia.com/b22222
+
 col.matrix <- bivariatemaps::colmat(nquantiles=3,
                                     upperleft= 'khaki',#'khaki', #, ##4DDDDD
                                     upperright= '#ff0000',#"#B22222",#"violetred4", 
                                     bottomleft= 'azure2',#'#d8d8d8',#'#1B9E77',  #"azure2",
-                                    bottomright='blue', #'#141414',# "#141414",
+                                    bottomright= 'blue',#'#141414',# "#141414",
                                     xlab="Time to reach healthcare", 
-                                    ylab="Hazard: Scenario 1")
+                                    ylab="Scenario 4")
 
-bivmap1 <- bivariate.map(raster_access, raster1, 
-                       colormatrix=col.matrix, nquantiles=3)
+#Green zones are graph nodes with the strongest influence on the total risk of pandemic spread
 
-plot(bivmap1,frame.plot=F,axes=F,box=F,add=F,legend=F,
-     col=as.vector(col.matrix))
+bivmap4 <- bivariate.map(raster_access, raster2nb, 
+                         colormatrix=col.matrix, nquantiles=3)
+
+plot(bivmap4,frame.plot=F,axes=F,box=F,add=F,legend=F,
+     col=as.vector(col.matrix), main= 'Scenario 4')
 
 map(interior=T, add=T)
 
-bivmap1
+
+db %>% skim()
+
+
+# Stack with all of them 
+bivs <- stack(bivmap1, bivmap2, bivmap3, bivmap4)
+names(bivs) <- c('bivmap1', 'bivmap2', 'bivmap3', 'bivmap4')
+
+plot(bivs >11, col=c('snow3', 'red'))
+
+col.matrix
+
+bivshigh <- stack(bivs >11)
+
+table(values(bivshigh$bivmap1))
+table(values(bivshigh$bivmap2))
+table(values(bivshigh$bivmap3))
+table(values(bivshigh$bivmap4))
 
 # Difference in risk
-plot(raster2-raster1)
 
-bivmapdif <-bivariate.map(raster_access, raster2-raster1, 
+bivmapdif <-bivariate.map(raster_access, raster4-raster1, 
                        colormatrix=col.matrix, nquantiles=3)
 
 plot(bivmapdif, frame.plot=F,axes=F,box=F,add=F,legend=F,
      col=as.vector(col.matrix))
 
 #----------------------------------------------
+# Pop plots
 setwd(here())
 setwd('results/')
 
@@ -628,6 +618,8 @@ plot(log10(d$motor_travel_time_weiss),
      ylab='Human population (log)',
      xlab='Time to reach healthcare (log)')
 
+# Ggplot giving weird points on plot 
+
 d$travel_log <- log10(d$motor_travel_time_weiss)
 d$poplog <-log10(d$pop_2020_worldpop)
 
@@ -636,7 +628,6 @@ plot_quantiles_scenario1 <- ggplot(d,
    y = poplog) )+ 
   geom_point(color=d$cores1, alpha=0.2)+
   facet_wrap(~d$cores1 )+
-  #scale_color_manual(aes(color=d$cores1)) +
   labs(x='Time to reach healthcare (log10)',
        y='Human population (log10)')+
   theme_minimal()  +
@@ -688,6 +679,4 @@ plot_quantiles_scenario2 <- ggplot(d,
 
 plot_quantiles_scenario2
 
-
-#
 #----------------------------------------------------------------------
