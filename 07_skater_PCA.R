@@ -72,7 +72,48 @@ fviz_pca_biplot(gpca,
                 legend.title = "Groups") 
 
 
-#-----------------------------
+
+# Ternary map
+
+require(ggtern)
+
+nrow(gpca$eig)
+
+summary(gpca$ind$contrib)
+summary(gpca$ind$coord)
+
+
+g$time_access_healthcare <- 100*(g$motor_travel_time_weiss-min(g$motor_travel_time_weiss))/
+  (max(g$motor_travel_time_weiss)-min(g$motor_travel_time_weiss))
+
+g$Dim1_anthropogenic <- 100*( gpca$ind$coord[,1]-min( gpca$ind$coord[,1]))/
+  (max( gpca$ind$coord[,1])-min( gpca$ind$coord[,1]))
+
+g$Dim2_natural <- 100*( gpca$ind$coord[,2]-min( gpca$ind$coord[,2]))/
+  (max( gpca$ind$coord[,2])-min( gpca$ind$coord[,2]))
+
+summary(g$Dim2_natural)*100
+
+gt <- g
+
+ggtern(gt,aes( time_access_healthcare, Dim2_natural, Dim1_anthropogenic)) +
+  #stat_confidence_tern(geom='polygon',aes(fill=..level..), color='white') +
+  scale_color_gradient(low='green',high='red') +
+  geom_mask() +  
+  geom_point()+
+  theme_showarrows() + 
+  facet_wrap(~cluster)+
+  #limit_tern(.5,1,.5)+
+  #geom_point_swap(aes(colour=Dim1_anthropogenic, shape=cluster),fill='black',size=5) +
+  #scale_shape_manual(values=c(21)) +
+  labs(title="") #color="Temperature",fill='Confidence')
+
+#
+#
+#
+
+#-----------------------------bovliv
+
 
 setwd(here())
 setwd('results/skater_optimal_cluster_size_19_bovliv')
@@ -141,3 +182,5 @@ fviz_pca_biplot(gpca,
                 legend.title = "Groups") 
 
 #-----------------------------
+
+
