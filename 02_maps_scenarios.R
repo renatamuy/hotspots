@@ -504,4 +504,24 @@ table(values(bivshigh$bivmap2))
 table(values(bivshigh$bivmap3))
 table(values(bivshigh$bivmap4))
 
+
+plot(bivs == 3|bivs == 9|bivs ==11, col=c('snow3', 'red'))
+
+
+bivsplot <- bivs
+names(bivsplot) <- c('Scenario 1', 'Scenario 2', 
+                     'Scenario 3', 'Scenario 4')
+
+plot(bivs == 3, col=c('snow3', 'red'), 
+     legend=FALSE,
+     main= 'Close to healthcare, high hostspot convergence')
+
+plot(bivs == 11, 
+     legend=FALSE,
+     col=c('snow3', 'maroon'), 
+     main= 'Far from healthcare, high hostspot convergence',
+     add=TRUE)
+
+
+
 #------------------------------------------
