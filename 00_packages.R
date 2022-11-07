@@ -2,7 +2,7 @@
 # General package set
 #' ----
 
-# extra 
+require(here)
 require(ncdf4)
 library(ggplot2)
 library(dplyr)
@@ -12,9 +12,10 @@ library(randomcoloR)
 require(raster)
 require(stringr)
 require(rnaturalearth)
+library(sf)
+library(fasterize)
 require(tidyverse)
 require(reshape2)
-require(here)
 library(gridExtra)
 library(grid)
 require(bivariatemaps)
@@ -26,7 +27,8 @@ library(maps)
 library(sp)
 
 # package list
-pkg_list_cran <- c('rgeoda','ClustGeo',
+pkg_list_cran <- c('rgeoda',
+                   'ClustGeo',
                     'sp', 
                     'spdep',
                     "here",
@@ -82,6 +84,5 @@ lapply(X = pkg_list_cran,
 # packages from github
 if(!require(scico)) devtools::install_github("thomasp85/scico")
 if(!require(platexpress)) devtools::install_github("raim/platexpress")
-if(!require(Manu)) devtools::install_github("G-Thomson/Manu")
 
 # end ---------------------------------------------------------------------
