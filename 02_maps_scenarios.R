@@ -1,6 +1,6 @@
 # Muylaert et al 2023
-# Figure 02 - Hotspot convergence areas (cattle only and all bovidae livestock)
-# Figure 04 - bivariate maps (cattle only)
+# Figure - Hotspot overlap areas (cattle only and all bovidae livestock)
+# Figure -  bivariate maps (cattle only)
 
 library(here)
 
@@ -386,8 +386,8 @@ raster1 <- rasterize(db, ras_dom,
                      update = TRUE)
 
 col.matrix <- bivariatemaps::colmat(nquantiles=3,
-                                    upperleft= 'khaki',#'khaki', #, ##4DDDDD
-                                    upperright= '#ff0000',#"#B22222",#"violetred4", 
+                                    upperleft= 'khaki',
+                                    upperright= '#ff0000',
                                     bottomleft= 'azure2',#'#d8d8d8',#'#1B9E77',  #"azure2",
                                     bottomright='blue', #'#141414',# "#141414",
                                     xlab="Time to reach healthcare", 
@@ -417,10 +417,10 @@ raster2 <- rasterize(db, ras_dom,
 
 #Color check: https://encycolorpedia.com/b22222
 col.matrix <- bivariatemaps::colmat(nquantiles=3,
-                   upperleft= 'khaki',#'khaki', #, ##4DDDDD
-                   upperright= '#ff0000',#"#B22222",#"violetred4", 
-                   bottomleft= 'azure2',#'#d8d8d8',#'#1B9E77',  #"azure2",
-                   bottomright= 'blue',#'#141414',# "#141414",
+                   upperleft= 'khaki',
+                   upperright= '#ff0000', 
+                   bottomleft= 'azure2',
+                   bottomright= 'blue',
                    xlab="Time to reach healthcare", 
                    ylab="Scenario 2")
 
@@ -445,10 +445,10 @@ raster3 <- rasterize(db, ras_dom, field = c("risk3"),
 #https://encycolorpedia.com/b22222
 
 col.matrix <- bivariatemaps::colmat(nquantiles=3,
-                                    upperleft= 'khaki',#'khaki', #, ##4DDDDD
-                                    upperright= '#ff0000',#"#B22222",#"violetred4", 
-                                    bottomleft= 'azure2',#'#d8d8d8',#'#1B9E77',  #"azure2",
-                                    bottomright= 'blue',#'#141414',# "#141414",
+                                    upperleft= 'khaki',
+                                    upperright= '#ff0000',
+                                    bottomleft= 'azure2',
+                                    bottomright= 'blue',
                                     xlab="Time to reach healthcare", 
                                     ylab="Scenario 3")
 
@@ -487,6 +487,29 @@ plot(bivmap4,frame.plot=F,axes=F,box=F,add=F,legend=F,
 
 map(interior=T, add=T)
 
+# 4 bivariate maps together
+par(mfrow=c(2,2))
+
+plot(bivmap1,frame.plot=F,axes=F,box=F,add=F,legend=F,
+     col=as.vector(col.matrix), main= 'Scenario 1')
+plot(s19s, add=TRUE)
+#map(interior=T, add=T)
+
+plot(bivmap2,frame.plot=F,axes=F,box=F,add=F,legend=F,
+     col=as.vector(col.matrix), main= 'Scenario 2')
+plot(s19s, add=TRUE)
+#map(interior=T, add=T)
+
+plot(bivmap3,frame.plot=F,axes=F,box=F,add=F,legend=F,
+     col=as.vector(col.matrix), main= 'Scenario 3')
+plot(s19s, add=TRUE)
+#map(interior=T, add=T)
+
+plot(bivmap4,frame.plot=F,axes=F,box=F,add=F,legend=F,
+     col=as.vector(col.matrix), main= 'Scenario 4')
+plot(s19s, add=TRUE)
+#map(interior=T, add=T)
+
 # Check risk values
 db %>% skim()
 
@@ -505,23 +528,167 @@ table(values(bivshigh$bivmap3))
 table(values(bivshigh$bivmap4))
 
 
-plot(bivs == 3|bivs == 9|bivs ==11, col=c('snow3', 'red'))
+plot(bivs == 3|bivs == 9|bivs == 12, col=c('snow3', 'red'))
 
+setwd(here())
+setwd('results/skater_optimal_cluster_size_19/')
+s19s <- raster::shapefile('s19s.shp')
 
 bivsplot <- bivs
 names(bivsplot) <- c('Scenario 1', 'Scenario 2', 
                      'Scenario 3', 'Scenario 4')
 
-plot(bivs == 3, col=c('snow3', 'red'), 
+
+#Close to healthcare, high hostspot overlap
+
+table(values(bivs$bivmap1 == 3))[2]
+
+par(mfrow=c(2,2))
+
+plot(bivs$bivmap1 == 3, col=c('snow3', 'yellow'), 
      legend=FALSE,
-     main= 'Close to healthcare, high hostspot convergence')
-
-plot(bivs == 11, 
+     main= c('Scenario 1', table(values(bivs$bivmap1== 3))[2] ))
+plot(s19s, add=TRUE)
+plot(bivs$bivmap2 == 3, col=c('snow3', 'yellow'), 
      legend=FALSE,
-     col=c('snow3', 'maroon'), 
-     main= 'Far from healthcare, high hostspot convergence',
-     add=TRUE)
+     main= c('Scenario 2', table(values(bivs$bivmap2 == 3))[2]) )
+plot(s19s, add=TRUE)
+plot(bivs$bivmap3 == 3, col=c('snow3', 'yellow'), 
+     legend=FALSE,
+     main= c('Scenario 3',  table(values(bivs$bivmap3 == 3))[2])) 
+plot(s19s, add=TRUE)
+plot(bivs$bivmap4 == 3, col=c('snow3', 'yellow'), 
+     legend=FALSE,
+     main= c('Scenario 4',table(values(bivs$bivmap4 == 3))[2] ))
+plot(s19s, add=TRUE)
 
 
+#'Far from healthcare, high hostspot overlap'
+par(mfrow=c(2,2))
 
+plot(bivs$bivmap1 == 12, col=c('snow3', 'red'), 
+     legend=FALSE,
+     main= c('Scenario 1', table(values(bivs$bivmap1== 12))[2] ))
+plot(s19s, add=TRUE)
+#map(interior=T, add=T)
+plot(bivs$bivmap2 == 12, col=c('snow3', 'red'), 
+     legend=FALSE,
+     main= c('Scenario 2', table(values(bivs$bivmap2 == 12))[2]) )
+plot(s19s, add=TRUE)
+plot(bivs$bivmap3 == 12, col=c('snow3', 'red'), 
+     legend=FALSE,
+     main= c('Scenario 3',  table(values(bivs$bivmap3 == 12))[2])) 
+plot(s19s, add=TRUE)
+plot(bivs$bivmap4 == 12, col=c('snow3', 'red'), 
+     legend=FALSE,
+     main= c('Scenario 4',table(values(bivs$bivmap4 == 12))[2] ))
+plot(s19s, add=TRUE)
+
+
+values(bivs) %>% skim()
+
+
+# 60.58% of the total area
+
+100 * (table(values(bivs$bivmap1 == 3))[2] / 25796 )
+100 * (table(values(bivs$bivmap2 == 3))[2]/ 25796 )
+100 * (table(values(bivs$bivmap3 == 3))[2] / 25796 )
+100 * (table(values(bivs$bivmap4 == 3))[2] / 25796 ) 
+
+
+100 * (table(values(bivs$bivmap1 == 12))[2] / 25796 )
+100 * (table(values(bivs$bivmap2 == 12))[2]/ 25796 )
+100 * (table(values(bivs$bivmap3 == 12))[2] / 25796 )
+100 * (table(values(bivs$bivmap4 == 12))[2] / 25796 )
+
+
+# Conditionally safer zones
+
+100 * (table(values(bivs$bivmap1 == 1))[2] / 25796 )
+100 * (table(values(bivs$bivmap2 == 1))[2]/ 25796 )
+100 * (table(values(bivs$bivmap3 == 1))[2] / 25796 )
+100 * (table(values(bivs$bivmap4 == 1))[2] / 25796 )
+
+plot(bivs$bivmap4 == 1, col=c('snow3', 'black'), 
+     legend=FALSE,
+     main= c('',table(values(bivs$bivmap4 == 1))[2] ))
+
+unique(values(bivs$bivmap4))
+
+# Red
+# light blue
+plot(bivs$bivmap4 == 12, 
+     col=c('snow3', 'black'), 
+     legend=FALSE,
+     main= c('',table(values(bivs$bivmap4 == 12))[2] ))
+
+plot(bivs$bivmap4 == 9, 
+     col=c('snow3', 'orange'), 
+     legend=FALSE,
+     main= c('',table(values(bivs$bivmap4 == 12))[2] ))
+
+
+plot(bivs$bivmap4 == 3, 
+     col=c('snow3', 'khaki'), 
+     legend=FALSE,
+     main= c('',table(values(bivs$bivmap4 == 3))[2] ))
+
+# light blue-khaki
+plot(bivs$bivmap4 == 1 , 
+     col=c('black', 'azure2'), 
+     legend=FALSE,
+     main= c('',table(values(bivs$bivmap4 == 1 | bivs$bivmap4 == 2))[2] ))
+
+table(values(bivs$bivmap4))
+
+# light blue
+plot(bivs$bivmap4 == 7, 
+     col=c('snow3', 'black'), 
+     legend=FALSE,
+     main= c('',table(values(bivs$bivmap4 == 7))[2] ))
+
+#dark blue
+plot(bivs$bivmap4 == 10, 
+     col=c('snow3', 'black'), 
+     legend=FALSE,
+     main= c('',table(values(bivs$bivmap4 == 10))[2] ))
+
+# dark purple
+plot(bivs$bivmap4 == 11, 
+     col=c('snow3', 'black'), 
+     legend=FALSE,
+     main= c('',table(values(bivs$bivmap4 == 11))[2] ))
+
+# light purple
+plot(bivs$bivmap4 == 8, 
+     col=c('snow3', 'black'), 
+     legend=FALSE,
+     main= c('',table(values(bivs$bivmap4 == 8))[2] ))
+
+# orange 
+plot(bivs$bivmap4 == 9, 
+     col=c('snow3', 'orange'), 
+     legend=FALSE,
+     main= c('',table(values(bivs$bivmap4 == 9))[2] ))
+
+#  
+plot(bivs$bivmap4 == 1 | bivs$bivmap4 == 7 | bivs$bivmap4 == 10, 
+     col=c('snow3', 'blue'), 
+     legend=FALSE,
+     main= c('',table(values(bivs$bivmap4 == 1  | bivs$bivmap4 == 7 | bivs$bivmap4 == 10))[2] ))
+
+plot(bivs$bivmap4 == 2 | bivs$bivmap4 == 8 | bivs$bivmap4 == 11, 
+     col=c('snow3', 'khaki'), 
+     legend=FALSE,
+     main= c('',table(values(bivs$bivmap4 == 2  | bivs$bivmap4 == 8 | bivs$bivmap4 == 11))[2] ))
+
+plot(bivs$bivmap4 == 3 | bivs$bivmap4 == 9 | bivs$bivmap4 == 12, 
+     col=c('snow3', 'red'), 
+     legend=FALSE,
+     main= c('',table(values(bivs$bivmap4 == 3  | bivs$bivmap4 == 9 | bivs$bivmap4 == 128))[2] ))
+
+
+table(values(bivs$bivmap4))
+
+plot(bivs$bivmap4)
 #------------------------------------------
