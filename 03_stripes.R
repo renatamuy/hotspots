@@ -1,5 +1,5 @@
 # Correlation tests
-# Figure 01
+# Figure 01 Bottom
 ##### Stripes for characterizing hotspot gradients across space
 # Correlation between covariates
 
@@ -63,14 +63,17 @@ sumelt <- melt(su[,tofocus], id=c("x", "y"))
 #-------------------------------------------------------------------
 
 # Wildlife
+sumelt$valuef <- factor(sumelt$value, levels =  c("royalblue3" ,"khaki"  ,    "violetred4"))
+valuesfac <- c("royalblue3", "khaki", "violetred4")
+labelsfac  <- c("Coldspot", "Intermediate", "Hotspot")
 
 pw <- sumelt %>% filter(variable == 'mmb' | variable == 'hosts'  ) %>% 
-ggplot(aes( y=y, x=x, fill = value))+
+ggplot(aes( y=y, x=x, fill = valuef))+
   geom_tile()+
   facet_wrap(case_when(variable == "hosts" ~ "Bat hosts",
                        variable == "mmb" ~ "Wild mammals") ~ . , ncol=3)+
-  scale_fill_manual(values =c("khaki","royalblue3", "violetred4"), 
-                    labels = c("Neutral", "Coldspot", "Hotspot")) + theme_bw() +
+  scale_fill_manual(values =valuesfac, 
+                    labels = labelsfac) + theme_bw() +
   theme(legend.title=element_blank(), legend.position = 'bottom',
         strip.text = element_text(size = 14)) + labs(x='Longitude', y="Latitude",
       
@@ -78,30 +81,30 @@ ggplot(aes( y=y, x=x, fill = value))+
 pw
 
 # Potential domestic secondary hosts
+unique(sumelt$value)
 
-pdom <- sumelt %>% filter(variable == 'pig' | variable == 'cattle'  ) %>% 
-  ggplot(aes(y=y, x=x, fill = value))+
+pdom <- sumelt %>% 
+  filter(variable == 'pig' | variable == 'cattle'  ) %>% 
+  ggplot(aes(y=y, x=x, fill = valuef))+
   geom_tile()+
   facet_wrap(case_when(variable == "pig" ~ "Pig",
                        variable == "cattle" ~ "Cattle") ~ . , ncol=3)+
-  scale_fill_manual(values =c("khaki","royalblue3", "violetred4") ,
-                    labels = c("Neutral", "Coldspot", "Hotspot")) + theme_bw() +
+  scale_fill_manual(values =c("royalblue3", "khaki","violetred4") ,
+                    labels = c( "Coldspot","Intermediate", "Hotspot")) + theme_bw() +
   theme(legend.title=element_blank(), legend.position = 'bottom',
         strip.text = element_text(size = 14)) + labs(x='Longitude', y="Latitude",
-                                                     title = "Potential domestic secondary hosts") 
+      title = "Potential domestic secondary hosts") 
 
 pdom
 
-head(sumelt)
-unique(sumelt$variable)
 
 pdomallbovidae <- sumelt %>% filter(variable == 'bovliv' | variable == 'cattle'  ) %>% 
-  ggplot(aes(y=y, x=x, fill = value))+
+  ggplot(aes(y=y, x=x, fill = valuef))+
   geom_tile()+
   facet_wrap(case_when(variable == "cattle" ~ "Cattle",
                        variable == "bovliv" ~ "All domestic bovidae") ~ . , ncol=3)+
-  scale_fill_manual(values =c("khaki","royalblue3", "violetred4") ,
-                    labels = c("Neutral", "Coldspot", "Hotspot")) + theme_bw() +
+  scale_fill_manual(values =c("royalblue3", "khaki","violetred4") ,
+                    labels = c( "Coldspot","Intermediate", "Hotspot")) + theme_bw() +
   theme(legend.title=element_blank(), legend.position = 'bottom',
         strip.text = element_text(size = 14)) + labs(x='Longitude', y="Latitude",
                                                      title = "Potential domestic secondary hosts") 
@@ -151,8 +154,6 @@ allpp <- sumelt %>%
         strip.text = element_text(size = 14)) + 
   labs(x='Longitude', y="Latitude") 
 
-
-
 allpp
 
 setwd(here())
@@ -168,7 +169,8 @@ setwd('results')
 write.table(file='table_pct.txt', row.names = FALSE,
             round(table(sumelt$variable, sumelt$value)/ nrow(dfgplot)*100, digits=2) )
 
-# Percentages per indicator
+# Proportions per indicator
+
 unique(sumelt$variable)
 
 plotpcts <- sumelt %>%  filter(variable %in% c('hosts', 'mmb',
@@ -199,9 +201,9 @@ plotpcts <- sumelt %>%  filter(variable %in% c('hosts', 'mmb',
                               "Exposure in humans" = 'pop_2020_worldpop')) %>% 
   ggplot(aes(unilabs  )) + 
   facet_grid(~highlevel) +
-  geom_bar(aes(fill= value), alpha=0.8,position="fill") +
-  scale_fill_manual(values =c("khaki","royalblue3", "violetred4" ) ,
-                    labels = c("Neutral", "Coldspot", "Hotspot"))+
+  geom_bar(aes(fill= valuef), alpha=0.8,position="fill") +
+  scale_fill_manual(values =valuesfac,
+                    labels = labelsfac)+
   theme_minimal(base_size = 15) + geom_rug() +
   theme( legend.title = element_blank(), 
          legend.position = "bottom") + coord_flip() + 
@@ -234,11 +236,11 @@ allppb <- sumelt %>%
                               'Agriculture and harvest' = 'agriharv',
                               'Forest integrity' = 'forest_integrity_grantham',
                               'Deforestation potential' ='hewson_forest_transition_potential' )) %>% 
-  ggplot(aes( y=y, x=x, fill = value))+
+  ggplot(aes( y=y, x=x, fill = valuef))+
   geom_tile()+
   facet_wrap(~unilabs, nrow=2)+
-  scale_fill_manual(values =c("khaki","royalblue3", "violetred4") ,
-                    labels = c("Neutral", "Coldspot", "Hotspot")) + theme_bw() +
+  scale_fill_manual(values =valuesfac ,
+                    labels = labelsfac) + theme_bw() +
   theme(legend.title = element_blank(), 
         legend.position = 'none',
         strip.text = element_text(size = 14)) + 
@@ -255,7 +257,6 @@ write.table(file='table_pct_bovliv.txt', row.names = FALSE,
             round(table(sumelt$variable, sumelt$value)/ nrow(dfgplot)*100, digits=2) )
 
 # Percentages per indicator
-unique(sumelt$variable)
 
 plotpctsb <- sumelt %>%  filter(variable %in% c('hosts', 'mmb',
                                                want_landscape,
@@ -285,18 +286,17 @@ plotpctsb <- sumelt %>%  filter(variable %in% c('hosts', 'mmb',
                                 "Exposure in humans" = 'pop_2020_worldpop')) %>% 
   ggplot(aes(unilabs  )) + 
   facet_grid(~highlevel) +
-  geom_bar(aes(fill= value), alpha=0.8,position="fill") +
-  scale_fill_manual(values =c("khaki","royalblue3", "violetred4" ) ,
-                    labels = c("Neutral", "Coldspot", "Hotspot"))+
+  geom_bar(aes(fill= valuef), alpha=0.8,position="fill") +
+  scale_fill_manual(values =valuesfac ,
+                    labels = labelsfac)+
   theme_minimal(base_size = 15) + geom_rug() +
   theme( legend.title = element_blank(), 
          legend.position = "bottom") + coord_flip() + 
   labs( title = "", x = "", y = "Area (%)", caption = "") 
 
-
 plotpcts
 
-# Exporting 
+# Exporting bovliv
 
 ggsave('Figure_01_bovliv.png',
        plot = grid.arrange(allppb, plotpctsb, nrow = 2), #last_plot()
@@ -304,7 +304,6 @@ ggsave('Figure_01_bovliv.png',
        width = 12,
        height = 11,
        limitsize = TRUE)
-
 
 #------------------------------------------------------------------
 # Individual values - Supplements
@@ -348,15 +347,14 @@ allhot_mammals_all <- dplyr::filter(su,
                                   grepl('violetred4', su$`cattle` ) )
 
 
-# -------------------
-# all host layers
+# ------------------------------------
+# Overlapp - all potential host layers
 allhot_mmb <- dplyr::filter(su, 
                                  grepl('violetred4', su$`hosts` ) & 
                                    grepl('violetred4', su$`mmb` )  &
                                    grepl('violetred4', su$`pig`) & 
                                    grepl('violetred4', su$`cattle` ) )
 
-# 
 
 allhot_mammalsb <- dplyr::filter(su, 
                                 grepl('violetred4', su$`hosts` ) & 
@@ -371,9 +369,8 @@ nrow(distinct(allhot_mammals_all[, c('x','y')]))
 
 nrow(distinct(allhot_mmb[, c('x','y')]))
 
-write.csv(file = 'hotspot_convergence_mammals.csv', allhot_mmb, row.names = FALSE)
+write.csv(file = 'hotspot_overlap_mammals.csv', allhot_mmb, row.names = FALSE)
 
-write.csv(file = 'hotspot_convergence_mammals_bovidae.csv', allhot_mammalsb, row.names = FALSE)
-
+write.csv(file = 'hotspot_overlap_mammals_bovidae.csv', allhot_mammalsb, row.names = FALSE)
 
 #--------------------------------------------------------
