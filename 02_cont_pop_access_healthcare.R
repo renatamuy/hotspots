@@ -1,5 +1,6 @@
-#----------------------------------------------
-# Population plots (cont code 02)
+# Muylaert et al. 
+# Supplemental plot log pop log healthcare
+# Population plots (continuation of code 02)
 
 setwd(here())
 setwd('results/')

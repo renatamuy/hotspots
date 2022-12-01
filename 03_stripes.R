@@ -1,43 +1,16 @@
-# Correlation tests
+# Muylaert et al.
 # Figure 01 Bottom
-##### Stripes for characterizing hotspot gradients across space
-# Correlation between covariates
+# Stripes for characterizing hotspot gradients across space
 
-require(stringr)
-require(reshape2)
-require(here)
-require(gridExtra)
-require(tidyverse)
-library(grid)
-
-
+library(here)
 setwd(here())
+
+source('00_packages.R')
+
 setwd('results')
 dfgplot <- read.csv('gstar.csv' )
 
 colnames(dfgplot)
-
-# Correlation tests 
-# Yes
-cor.test(dfgplot$pollution, dfgplot$pop_2020_worldpop)
-cor.test(dfgplot$builtup, dfgplot$trans)
-cor.test(dfgplot$pop_2020_worldpop, dfgplot$trans)
-
-# No
-cor.test(dfgplot$agriharv, dfgplot$pop_2020_worldpop)
-cor.test(dfgplot$pollution, dfgplot$lincomb_hosts)
-cor.test(dfgplot$builtup, dfgplot$energy)
-cor.test(dfgplot$builtup, dfgplot$pop_2020_worldpop)
-cor.test(dfgplot$pop_2020_worldpop, dfgplot$energy)
-cor.test(dfgplot$energy, dfgplot$trans)
-cor.test(dfgplot$forest_integrity_grantham, dfgplot$hewson_forest_transition_potential)
-cor.test(dfgplot$lincomb_hosts, dfgplot$mammals_iucn_mode)
-cor.test(dfgplot$lincomb_hosts, dfgplot$pig_gilbert)
-cor.test(dfgplot$lincomb_hosts, dfgplot$cattle_gilbert)
-cor.test(dfgplot$motor_travel_time_weiss, dfgplot$pop_2020_worldpop)
-cor.test(dfgplot$motor_travel_time_weiss, dfgplot$energy)
-cor.test(dfgplot$motor_travel_time_weiss, dfgplot$builtup)
-
 
 # similar layers presented in supplements
 cor.test(dfgplot$bovliv, dfgplot$cattle_gilbert)

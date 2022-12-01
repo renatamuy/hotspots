@@ -1,9 +1,13 @@
-# Spider graphs from univariate hotspots and multivariate clusters  ---------------------------------
+# Muylaert et al.
+# Supplemental bovliv (bovidae livestock)
+# Univariate hotspots and multivariate clusters  ---------------------------------
+# SLOW
 
-require(tidyverse)
-require(ggplot2)
 library(here)
-require(raster)
+setwd(here())
+
+source('00_packages.R')
+
 
 #remotes::install_github("AllanCameron/geomtextpath")
 

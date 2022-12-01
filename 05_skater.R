@@ -11,7 +11,7 @@ options(digits=7, scipen=999)
 
 library(sp)
 library(spdep)
-library(here())
+library(here)
 library(tidyverse)
 library(rgeoda)
 library(raster)

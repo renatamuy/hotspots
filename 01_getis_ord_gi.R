@@ -1,10 +1,12 @@
+# Muylaert et al. 
+# Univariate Hotspots 
 # Loading libraries 
 
 library(proj4)
 library(rgdal)
 library(spdep)
 library(maptools)
-require(here())
+require(here)
 require(ggplot2)
 
 # Define a list of neighbors for each location, using the k nearest neighbors 

@@ -1,5 +1,5 @@
-# Muylaert et al 2023
-# Figure - Hotspot overlap areas (cattle only and all bovidae livestock)
+# Muylaert et al.
+# Figure - Hotspot overlap areas (cattle only and supplemental all bovidae livestock)
 # Figure -  bivariate maps (cattle only)
 
 library(here)

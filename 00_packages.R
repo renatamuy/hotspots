@@ -1,34 +1,10 @@
 #' ----
+# Muylaert et al. 
 # General package set
 #' ----
 
-require(here)
-require(ncdf4)
-library(ggplot2)
-library(dplyr)
-library(hrbrthemes)
-require(RColorBrewer)
-library(randomcoloR)
-require(raster)
-require(stringr)
-require(rnaturalearth)
-library(sf)
-library(fasterize)
-require(tidyverse)
-require(reshape2)
-library(gridExtra)
-library(grid)
-require(bivariatemaps)
-library(classInt)
-library(rgdal)
-library(dismo)
-library(XML)
-library(maps)
-library(sp)
-
 # package list
 pkg_list_cran <- c('rgeoda',
-                   'ClustGeo',
                     'sp', 
                     'spdep',
                     "here",
@@ -84,5 +60,37 @@ lapply(X = pkg_list_cran,
 # packages from github
 if(!require(scico)) devtools::install_github("thomasp85/scico")
 if(!require(platexpress)) devtools::install_github("raim/platexpress")
+
+# load 
+
+require(stringr)
+require(reshape2)
+require(gridExtra)
+require(tidyverse)
+library(grid)
+require(here)
+require(ncdf4)
+library(ggplot2)
+library(dplyr)
+library(hrbrthemes)
+require(RColorBrewer)
+library(randomcoloR)
+require(raster)
+require(stringr)
+require(rnaturalearth)
+library(sf)
+library(fasterize)
+require(tidyverse)
+library(gridExtra)
+require(bivariatemaps)
+library(classInt)
+library(rgdal)
+library(dismo)
+library(XML)
+library(maps)
+library(sp)
+
+
+
 
 # end ---------------------------------------------------------------------
