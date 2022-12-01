@@ -1,19 +1,16 @@
 # perturbation
 
-* MAIN postprocessing workflow is in github perturbation project.
-* Workflow for preparation of big data, transportation, pollution and travel time is in the OneDrive bat_non_bat project.
+* Postprocessing workflow for Muylaert et al. 
 
-Cluster methods to compare:
+Multivariate spatial cluster method:
 
 * [rgeoda](https://geodacenter.github.io/rgeoda/articles/rgeoda_tutorial.html#spatial-clustering)
-
-* [ClustGeo](https://cran.r-project.org/web/packages/ClustGeo/vignettes/intro_ClustGeo.html)
 
 Draft:
 
 * [Google Docs](https://docs.google.com/document/d/1NN-Y-8p2pzKfhQoE_bO_Yea-Lk9QKzDAWbsNfvQalOE/edit#)
 
-Table 1. Indicators, their description and sources.
+Table S1. Indicators, their description and sources.
 
 | Higher-level indicator | Univariate spatial layer                                                                                                                                                          | Rationale for inclusion                                                                                                                                                                                                                                                                                                              | References                                                                                                                                                                    | Spatial layer details                                                                                                                                                                                                                                                                                                                     | Spatial layer source                                                                                               |
 |------------------------|-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------|--------------------------------------------------------------------------------------------------------------------|
