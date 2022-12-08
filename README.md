@@ -1,4 +1,4 @@
-# perturbation 🗺️:triangular_flag_on_post:
+# hotspots 🗺️:triangular_flag_on_post:
 
 * Workflow for Muylaert et al. 
 
