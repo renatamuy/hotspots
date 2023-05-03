@@ -398,10 +398,17 @@ bivmap1 <- bivariate.map(raster_access, raster1,
 
 # Bivariate scenario 1
 
+setwd(here())
+setwd('results')
+dir.create('Figure_04')
+setwd('Figure_04')
+
 plot(bivmap1,frame.plot=F,axes=F,box=F,add=F,legend=F,
      col=as.vector(col.matrix), main='Scenario 1')
 
 map(interior=T, add=T)
+
+dev.off()
 
 # Scenario 2 ---------------------------------------------
 
@@ -432,7 +439,7 @@ plot(bivmap2,frame.plot=F,axes=F,box=F,add=F,legend=F,
      col=as.vector(col.matrix), main='Scenario 2')
 
 map(interior=T, add=T)
-
+dev.off()
 # Scenario 3
 db$risk3 <- (db$n_hotspots_risk3-min(db$n_hotspots_risk3))/
   (max(db$n_hotspots_risk3)-min(db$n_hotspots_risk3))
@@ -456,18 +463,21 @@ bivmap3 <- bivariate.map(raster_access, raster3,
                          colormatrix=col.matrix, nquantiles=3)
 
 # Bivariate scenario 3
+png(filename = 'scenario_03.png', res = 400, units = 'cm', width = 20, height = 20      )
 plot(bivmap3,frame.plot=F,axes=F,box=F,add=F,legend=F,
      col=as.vector(col.matrix), main='Scenario 3')
 
 map(interior=T, add=T)
-
+dev.off()
 # --- Scenario 4
+
 db$risk4 <- (db$n_hotspots_risk4-min(db$n_hotspots_risk4))/
   (max(db$n_hotspots_risk4)-min(db$n_hotspots_risk4))
 
 raster4 <- rasterize(db, ras_dom, 
                      field = c("risk4"),
                      update = TRUE)
+
 
 #https://encycolorpedia.com/b22222
 
@@ -479,6 +489,7 @@ col.matrix <- bivariatemaps::colmat(nquantiles=3,
                                     xlab="Time to reach healthcare", 
                                     ylab="Scenario 4")
 
+png(filename = 'scenario_04.png', res = 400, units = 'cm', width = 20, height = 20      )
 bivmap4 <- bivariate.map(raster_access, raster4, 
                          colormatrix=col.matrix, nquantiles=3)
 
@@ -486,30 +497,53 @@ plot(bivmap4,frame.plot=F,axes=F,box=F,add=F,legend=F,
      col=as.vector(col.matrix), main= 'Scenario 4')
 
 map(interior=T, add=T)
+dev.off()
 
 # 4 bivariate maps together
-par(mfrow=c(2,2))
-
+#par(mfrow=c(2,2))
+png(filename = 'scenario_01.png', res = 400, units = 'cm', width = 20, height = 20      )
 plot(bivmap1,frame.plot=F,axes=F,box=F,add=F,legend=F,
      col=as.vector(col.matrix), main= 'Scenario 1')
 plot(s19s, add=TRUE)
-#map(interior=T, add=T)
+dev.off()
+
+png(filename = 'scenario_02.png', res = 400, units = 'cm', width = 20, height = 20      )
 
 plot(bivmap2,frame.plot=F,axes=F,box=F,add=F,legend=F,
      col=as.vector(col.matrix), main= 'Scenario 2')
 plot(s19s, add=TRUE)
-#map(interior=T, add=T)
+dev.off()
 
+png(filename = 'scenario_03.png', res = 400, units = 'cm', width = 20, height = 20      )
 plot(bivmap3,frame.plot=F,axes=F,box=F,add=F,legend=F,
      col=as.vector(col.matrix), main= 'Scenario 3')
 plot(s19s, add=TRUE)
-#map(interior=T, add=T)
+dev.off()
 
+png(filename = 'scenario_04.png', res = 400, units = 'cm', width = 20, height = 20      )
 plot(bivmap4,frame.plot=F,axes=F,box=F,add=F,legend=F,
      col=as.vector(col.matrix), main= 'Scenario 4')
 plot(s19s, add=TRUE)
-#map(interior=T, add=T)
+dev.off()
 
+#--
+
+library(png)
+setwd(here())
+
+setwd('results/Figure_04')
+
+pa1 <-  readPNG('scenario_01.png')
+pa2 <-  readPNG('scenario_02.png')
+pa3 <-  readPNG('scenario_03.png')
+pa4 <-  readPNG('scenario_04.png')
+
+
+grid.arrange(rasterGrob(pa4))
+
+dev.off()
+
+#heights=c(3/4, 1/4, 1/4, 1/4)
 # Check risk values
 db %>% skim()
 
@@ -528,7 +562,6 @@ table(values(bivshigh$bivmap3))
 table(values(bivshigh$bivmap4))
 
 
-
 plot(bivs == 3|bivs == 9|bivs == 12, col=c('snow3', 'red'))
 
 setwd(here())
@@ -542,7 +575,6 @@ names(bivsplot) <- c('Scenario 1', 'Scenario 2',
 
 #Close to healthcare, high hostspot overlap
 
-table(values(bivs$bivmap1 == 3))[2]
 
 par(mfrow=c(2,2))
 
@@ -692,6 +724,7 @@ plot(bivs$bivmap4 == 3 | bivs$bivmap4 == 9 | bivs$bivmap4 == 12,
 setwd(here())
 setwd('region')
 #motorized minutes
+
 raster_access <- raster('motor_travel_time_weiss.tif')
 
 raster_access_hours <- raster_access/60
@@ -699,16 +732,9 @@ raster_access_hours <- raster_access/60
 plot(raster1, raster2, pch=19, cex=2)
 plot(raster1, raster4, pch=19, cex=2)
 
-# Average time to healthcare (h) in areas of higher risk (quantiles)
-
-hist(raster_access_hours)
-hist(raster1)
-hist(raster2)
-hist(raster3)
-hist(raster4)
-
-
 dev.off()
+
+# Average time to healthcare (h) in areas of higher risk (third quantiles)
 
 #Table 1
 
@@ -716,11 +742,38 @@ summary(raster_access_hours[which(values(bivs$bivmap1) %in% c (12))])
 summary(raster_access_hours[which(values(bivs$bivmap2) %in% c (12))])
 summary(raster_access_hours[which(values(bivs$bivmap3) %in% c (12))])
 summary(raster_access_hours[which(values(bivs$bivmap4) %in% c (12))])
-raster_access_hours 
 
 sd(raster_access_hours[which(values(bivs$bivmap1) %in% c (12))])
 sd(raster_access_hours[which(values(bivs$bivmap2) %in% c (12))])
 sd(raster_access_hours[which(values(bivs$bivmap3) %in% c (12))])
 sd(raster_access_hours[which(values(bivs$bivmap4) %in% c (12))])
+
+
+boxplot(raster_access_hours[which(values(bivs$bivmap1) %in% c (12))])
+http://127.0.0.1:44513/graphics/plot_zoom_png?width=2099&height=1129
+part1 <- data.frame(Scenario = 'Scenario 1', Time = raster_access_hours[which(values(bivs$bivmap1) %in% c (12))] )
+
+part2 <- data.frame(Scenario = 'Scenario 2', Time = raster_access_hours[which(values(bivs$bivmap2) %in% c (12))] )
+http://127.0.0.1:44513/graphics/plot_zoom_png?width=2099&height=1129
+part3 <- data.frame(Scenario = 'Scenario 3', Time = raster_access_hours[which(values(bivs$bivmap3) %in% c (12))] )
+
+part4 <- data.frame(Scenario = 'Scenario 4', Time = raster_access_hours[which(values(bivs$bivmap4) %in% c (12))] )
+
+allbox <- rbind(part1, part2,part3,part4)
+
+# Violin plot
+p <- ggplot(allbox, aes(Scenario, Time))
+
+p + geom_violin(fill="snow2") + #geom_dotplot(bin axis='y', stackdir='center', dotsize=0.2)+
+  stat_summary(fun.y=mean, geom="point", shape=23, size=2, fill='red') + 
+  labs(y= 'Time to reach healthcare (hours)', x='')+ 
+  theme_bw() +theme( axis.title = element_text(size = 20),  axis.text = element_text(size = 18))
+
+
+#install.packages("violinplotter")
+
+library(violinplotter)
+
+violinplotter(Time ~ Scenario, data = allbox)
 
 #------------------------------------------
