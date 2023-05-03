@@ -353,7 +353,7 @@ ggsave('Figure_02_dif_bovliv.png',
 setwd(here())
 setwd('region')
 
- raster_access <- raster('motor_travel_time_weiss.tif')
+raster_access <- raster('motor_travel_time_weiss.tif')
 
 mini <- min(na.omit(values(raster_access)))
 maxi <- max(na.omit(values(raster_access)))
@@ -528,6 +528,7 @@ table(values(bivshigh$bivmap3))
 table(values(bivshigh$bivmap4))
 
 
+
 plot(bivs == 3|bivs == 9|bivs == 12, col=c('snow3', 'red'))
 
 setwd(here())
@@ -585,6 +586,7 @@ plot(bivs$bivmap4 == 12, col=c('snow3', 'red'),
 plot(s19s, add=TRUE)
 
 values(bivs) %>% skim()
+
 
 # 60.58% of the total area
 
@@ -684,5 +686,41 @@ plot(bivs$bivmap4 == 3 | bivs$bivmap4 == 9 | bivs$bivmap4 == 12,
      col=c('snow3', 'red'), 
      legend=FALSE,
      main= c('',table(values(bivs$bivmap4 == 3  | bivs$bivmap4 == 9 | bivs$bivmap4 == 128))[2] ))
+
+# bivs
+
+setwd(here())
+setwd('region')
+#motorized minutes
+raster_access <- raster('motor_travel_time_weiss.tif')
+
+raster_access_hours <- raster_access/60
+
+plot(raster1, raster2, pch=19, cex=2)
+plot(raster1, raster4, pch=19, cex=2)
+
+# Average time to healthcare (h) in areas of higher risk (quantiles)
+
+hist(raster_access_hours)
+hist(raster1)
+hist(raster2)
+hist(raster3)
+hist(raster4)
+
+
+dev.off()
+
+#Table 1
+
+summary(raster_access_hours[which(values(bivs$bivmap1) %in% c (12))])
+summary(raster_access_hours[which(values(bivs$bivmap2) %in% c (12))])
+summary(raster_access_hours[which(values(bivs$bivmap3) %in% c (12))])
+summary(raster_access_hours[which(values(bivs$bivmap4) %in% c (12))])
+raster_access_hours 
+
+sd(raster_access_hours[which(values(bivs$bivmap1) %in% c (12))])
+sd(raster_access_hours[which(values(bivs$bivmap2) %in% c (12))])
+sd(raster_access_hours[which(values(bivs$bivmap3) %in% c (12))])
+sd(raster_access_hours[which(values(bivs$bivmap4) %in% c (12))])
 
 #------------------------------------------
