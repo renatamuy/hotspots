@@ -72,7 +72,18 @@ fviz_pca_biplot(gpca,
                 legend.title = "Groups") 
 
 
+head(gpca)
 
+gpca$ind
+pcacords <- data.frame( gpca$ind$coord)
+
+cor(dfsub$motor_travel_time_weiss, pcacords$Dim.1, method='spearman')
+cor.test(dfsub$motor_travel_time_weiss, pcacords$Dim.1, method='spearman')
+
+
+cor(dfsub$motor_travel_time_weiss, pcacords$Dim.2, method='spearman')
+cor.test(dfsub$motor_travel_time_weiss, pcacords$Dim.2, method='spearman')
+head( gpca$ind$coord)
 # Ternary map
 
 require(ggtern)
