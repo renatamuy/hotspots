@@ -586,9 +586,9 @@ names(bivsplot) <- c('Scenario 1', 'Scenario 2',
 
 
 #Close to healthcare, high hostspot overlap
-
-
-par(mfrow=c(2,2))
+# Figure S7
+png(filename = 'Figure_S07.png', res = 400, units = 'cm', width = 20, height = 12     )
+par(mfrow=c(2,4))
 
 plot(bivs$bivmap1 == 3, col=c('snow3', 'yellow'), 
      legend=FALSE,
@@ -607,15 +607,14 @@ plot(bivs$bivmap4 == 3, col=c('snow3', 'yellow'),
      main= c('Scenario 4',table(values(bivs$bivmap4 == 3))[2] ))
 plot(s19s, add=TRUE)
 
-
 #'Far from healthcare, high hostspot overlap'
-par(mfrow=c(2,2))
+#par(mfrow=c(2,2))
 
 plot(bivs$bivmap1 == 12, col=c('snow3', 'red'), 
      legend=FALSE,
      main= c('Scenario 1', table(values(bivs$bivmap1== 12))[2] ))
 plot(s19s, add=TRUE)
-#map(interior=T, add=T)
+
 plot(bivs$bivmap2 == 12, col=c('snow3', 'red'), 
      legend=FALSE,
      main= c('Scenario 2', table(values(bivs$bivmap2 == 12))[2]) )
@@ -629,8 +628,10 @@ plot(bivs$bivmap4 == 12, col=c('snow3', 'red'),
      main= c('Scenario 4',table(values(bivs$bivmap4 == 12))[2] ))
 plot(s19s, add=TRUE)
 
-values(bivs) %>% skim()
+dev.off()
 
+
+values(bivs) %>% skim()
 
 # 60.58% of the total area
 
@@ -658,18 +659,20 @@ plot(bivs$bivmap4 == 1, col=c('snow3', 'black'),
 
 unique(values(bivs$bivmap4))
 
-# Red
-# light blue
+# Color codes in bivariate
+# Red 12
 plot(bivs$bivmap4 == 12, 
-     col=c('snow3', 'black'), 
+     col=c('snow3', 'red'), 
      legend=FALSE,
      main= c('',table(values(bivs$bivmap4 == 12))[2] ))
 
+# Orange 9
 plot(bivs$bivmap4 == 9, 
      col=c('snow3', 'orange'), 
      legend=FALSE,
-     main= c('',table(values(bivs$bivmap4 == 12))[2] ))
+     main= c('',table(values(bivs$bivmap4 == 9))[2] ))
 
+# Yellow 3
 
 plot(bivs$bivmap4 == 3, 
      col=c('snow3', 'khaki'), 
@@ -726,6 +729,7 @@ plot(bivs$bivmap4 == 2 | bivs$bivmap4 == 8 | bivs$bivmap4 == 11,
      legend=FALSE,
      main= c('',table(values(bivs$bivmap4 == 2  | bivs$bivmap4 == 8 | bivs$bivmap4 == 11))[2] ))
 
+
 plot(bivs$bivmap4 == 3 | bivs$bivmap4 == 9 | bivs$bivmap4 == 12, 
      col=c('snow3', 'red'), 
      legend=FALSE,
@@ -761,6 +765,7 @@ sd(raster_access_hours[which(values(bivs$bivmap3) %in% c (12))])
 sd(raster_access_hours[which(values(bivs$bivmap4) %in% c (12))])
 
 boxplot(raster_access_hours[which(values(bivs$bivmap1) %in% c (12))])
+
 http://127.0.0.1:44513/graphics/plot_zoom_png?width=2099&height=1129
 part1 <- data.frame(Scenario = 'Scenario 1', Time = raster_access_hours[which(values(bivs$bivmap1) %in% c (12))] )
 
@@ -782,9 +787,96 @@ p + geom_violin(fill="snow2") + #geom_dotplot(bin axis='y', stackdir='center', d
 
 
 #install.packages("violinplotter")
+#library(violinplotter)
+#violinplotter(Time ~ Scenario, data = allbox)
 
-library(violinplotter)
+library(ggpubr)
 
-violinplotter(Time ~ Scenario, data = allbox)
+
+# ---------------
+bartlett.test(Time ~ Scenario, data = allbox) # variance not homogeneous
+
+# variance homogeneity test for non normal data
+fligner.test(Time ~ Scenario, data = allbox)
+
+## Wilcoxon test for multiple groups of different sample sizes: two.sided (default)
+my_comparisons <- list( c("Scenario 1", "Scenario 3"), c("Scenario 2", "Scenario 3"),
+                        c("Scenario 4", "Scenario 3") )
+
+
+viof <- ggplot(allbox, aes(Scenario, Time)) + geom_violin(fill="snow2") + 
+  stat_compare_means(method = "wilcox.test", comparisons = my_comparisons)+
+  stat_summary(fun.y=mean, geom="point", shape=23, size=2, fill='red') + 
+  labs(y= 'Time to reach healthcare (hours)', x='')+ 
+  theme_bw() +theme( axis.title = element_text(size = 20),  axis.text = element_text(size = 18))
+
+viof
+table(allbox$Scenario)
+
+# Export figure 4 B
+setwd(here())
+setwd('results/scenarios')
+
+ggsave( 'Figure_04B.png',
+        plot = viof, #last_plot()
+        dpi = 400,
+        width = 8,
+        height = 8,
+        limitsize = TRUE)
+
+#------------------------------------------------
+# Yellow areas - high risk - close to healthcare
+
+part1y <- data.frame(Scenario = 'Scenario 1', Time = raster_access_hours[which(values(bivs$bivmap1) %in% c (3))] )
+part2y <- data.frame(Scenario = 'Scenario 2', Time = raster_access_hours[which(values(bivs$bivmap2) %in% c (3))] )
+part3y <- data.frame(Scenario = 'Scenario 3', Time = raster_access_hours[which(values(bivs$bivmap3) %in% c (3))] )
+part4y <- data.frame(Scenario = 'Scenario 4', Time = raster_access_hours[which(values(bivs$bivmap4) %in% c (3))] )
+
+allboxy <- rbind(part1y, part2y,part3y,part4y)
+
+table(allboxy$Scenario)
+
+my_comparisons <- list( c("Scenario 1", "Scenario 3"), c("Scenario 2", "Scenario 3"),
+                        c("Scenario 4", "Scenario 3") )
+
+viofy <- ggplot(allboxy, aes(Scenario, Time)) + geom_violin(fill="snow2") + 
+  stat_compare_means(method = "wilcox.test", comparisons = my_comparisons)+
+  stat_summary(fun.y=mean, geom="point", shape=23, size=2, fill='khaki') + 
+  labs(y= 'Time to reach healthcare (hours)', x='')+ 
+  theme_bw() +theme( axis.title = element_text(size = 20),  axis.text = element_text(size = 18))
+
+viofy
+
+summary(raster_access_hours[which(values(bivs$bivmap1) %in% c (3))])
+summary(raster_access_hours[which(values(bivs$bivmap2) %in% c (3))])
+summary(raster_access_hours[which(values(bivs$bivmap3) %in% c (3))])
+summary(raster_access_hours[which(values(bivs$bivmap4) %in% c (3))])
+
+# Orange - high risk, average time to health care
+
+part1o <- data.frame(Scenario = 'Scenario 1', Time = raster_access_hours[which(values(bivs$bivmap1) %in% c (9))] )
+part2o <- data.frame(Scenario = 'Scenario 2', Time = raster_access_hours[which(values(bivs$bivmap2) %in% c (9))] )
+part3o <- data.frame(Scenario = 'Scenario 3', Time = raster_access_hours[which(values(bivs$bivmap3) %in% c (9))] )
+part4o <- data.frame(Scenario = 'Scenario 4', Time = raster_access_hours[which(values(bivs$bivmap4) %in% c (9))] )
+
+allboxo <- rbind(part1o, part2o,part3o,part4o)
+
+my_comparisons <- list( c("Scenario 1", "Scenario 3"), c("Scenario 2", "Scenario 3"),
+                        c("Scenario 4", "Scenario 3") )
+
+
+viofo <- ggplot(allboxo, aes(Scenario, Time)) + geom_violin(fill="snow2") + 
+  stat_compare_means(method = "wilcox.test", comparisons = my_comparisons)+
+  stat_summary(fun.y=mean, geom="point", shape=23, size=2, fill='orange') + 
+  labs(y= 'Time to reach healthcare (hours)', x='')+ 
+  theme_bw() +theme( axis.title = element_text(size = 20),  axis.text = element_text(size = 18))
+
+table(allboxo$Scenario)
+
+summary(raster_access_hours[which(values(bivs$bivmap1) %in% c (9))])
+summary(raster_access_hours[which(values(bivs$bivmap2) %in% c (9))])
+summary(raster_access_hours[which(values(bivs$bivmap3) %in% c (9))])
+summary(raster_access_hours[which(values(bivs$bivmap4) %in% c (9))])
+
 
 #------------------------------------------
