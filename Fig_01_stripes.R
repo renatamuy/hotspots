@@ -136,19 +136,13 @@ allpp <- sumelt %>%
   theme(legend.title = element_blank(), 
         legend.position = 'none', strip.background = element_rect(fill = "whitesmoke"),
         strip.text = element_text(size = 14)) + 
-  labs(x='Longitude', y="Latitude") 
+  labs(x='Longitude', y="Latitude", title="A")  
 
 allpp
 
+#----- 
 setwd(here())
 setwd('results')
-
-#ggsave('Figure_01a.png',
-  #     plot = last_plot(),
- #      dpi = 400,
-  #     width = 14,
-  #     height = 6,
-  #     limitsize = TRUE)
 
 write.table(file='table_pct.txt', row.names = FALSE,
             round(table(sumelt$variable, sumelt$value)/ nrow(dfgplot)*100, digits=2) )
@@ -199,24 +193,76 @@ plotpcts <- sumelt %>%  filter(variable %in% c('hosts', 'mmb',
                                 'Scenario 3 & 4',  
                                 "All scenarios" )) %>%
   ggplot(aes(unilabsr1  )) + 
-  facet_grid(~scenario) +
-  geom_bar(aes(fill= valuef), alpha=0.8,position="fill") +
+  #facet_grid(~scenario) +
+  geom_bar(aes(fill= valuef), alpha=0.8, position="fill") +
   scale_fill_manual(values =valuesfac,
                     labels = labelsfac)+
   theme_minimal(base_size = 15) + geom_rug() +
   theme( legend.title = element_blank(), 
-         legend.position = "bottom") + coord_flip() + 
-  labs( title = "", x = "", y = "Area (%)", caption = "") 
+         legend.position = "right", 
+         axis.text.y=element_blank(),
+         axis.text.x=element_text(size=15,angle=0, vjust=0.3),
+         #axis.text.y=element_text(size=15)
+  ) + coord_flip() + 
+  labs(  x = "", y = "Area (%)",title="") 
 
 
 plotpcts
 
+#--------- Creating scenario dotmatrix
+
+A <- matrix( rev(c(
+  rep(1, 4),
+  1, 0, 1, 1,
+  1, 0, 1, 1,
+  1, 1, 0, 1,
+  rep(1, 4),
+  rep(1, 4),
+  rep(1, 4),
+  rep(1, 4),
+  rep(1, 4),
+  rep(1, 4)           )), byrow=T, nrow=10, ncol=4)
+
+colnames(A) <- c('1', '2', '3', '4')
+
+rownames(A) <- rev(c( 
+  'Bat hosts', 
+  'Cattle' ,  
+  'Pig',
+  'Wild mammals',
+  "Human population" ,
+  'Agriculture and harvest',
+  "Built up area",
+  "Energy and mining",
+  'Forest integrity',
+  'Deforestation potential'))
+
+print(A)
+
+library(reshape2)
+
+longData<-melt(A)
+
+longData<-longData[longData$value!=0,]
+
+# steelblue4
+#stroke = 10 shape = 21, , stroke = 10
+scenariodots <- ggplot(longData, aes(x = Var2, y = Var1)) + 
+  geom_point(shape = 19, colour = "grey30", fill = "white", size=10) + 
+  labs(x="Scenario", y="", title="B") +
+  theme_minimal(base_size = 15) + geom_rug() + 
+  theme(axis.text.x=element_text(size=15,angle=0, vjust=0.3),
+                     axis.text.y=element_text(size=15)                  )
+
+scenariodots
+
+#----------
 # Exporting 
 ggsave('Figure_01.png',
-  plot = grid.arrange(allpp, plotpcts, nrow = 2), #last_plot()
+  plot = grid.arrange(allpp, grid.arrange(scenariodots, plotpcts, ncol = 2), nrow = 2), #last_plot()
   dpi = 400,
-  width = 12,
-  height = 11,
+  width = 14, #12
+  height = 12, #11
   limitsize = TRUE)
 
 #------------ Bovidae Livestock
@@ -311,25 +357,30 @@ plotpctsb <- sumelt %>%  filter(variable %in% c('hosts', 'mmb',
                                 'Scenario 2 & 4', 
                                 'Scenario 3 & 4',  
                                 "All scenarios" )) %>%
-  ggplot(aes(unilabs  )) + 
-  facet_grid(~scenario) +
-  geom_bar(aes(fill= valuef), alpha=0.8,position="fill") +
-  scale_fill_manual(values =valuesfac ,
+  ggplot(aes(unilabs )) + 
+  #facet_grid(~scenario) +
+  geom_bar(aes(fill= valuef), alpha=0.8, position="fill") +
+  scale_fill_manual(values =valuesfac,
                     labels = labelsfac)+
   theme_minimal(base_size = 15) + geom_rug() +
   theme( legend.title = element_blank(), 
-         legend.position = "bottom") + coord_flip() + 
-  labs( title = "", x = "", y = "Area (%)", caption = "") 
+         legend.position = "right", 
+         axis.text.y=element_blank(),
+         axis.text.x=element_text(size=15,angle=0, vjust=0.3),
+         #axis.text.y=element_text(size=15)
+  ) + coord_flip() + 
+  labs(  x = "", y = "Area (%)",title="") 
+
 
 plotpctsb
 
 # Exporting bovliv -------------------------
 
 ggsave('Figure_01_bovliv.png',
-       plot = grid.arrange(allppb, plotpctsb, nrow = 2), #last_plot()
+       plot = grid.arrange(allppb, grid.arrange(scenariodots, plotpctsb, ncol = 2), nrow = 2), #last_plot()
        dpi = 400,
-       width = 12,
-       height = 11,
+       width = 14, #12
+       height = 12, #11
        limitsize = TRUE)
 
 #------------------------------------------------------------------

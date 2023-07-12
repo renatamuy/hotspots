@@ -1,8 +1,9 @@
 # Muylaert et al.
-# Figure 01 Bottom
+# Figure Supplements
 # Stripes for characterizing hotspot gradients across space
 
-rm(list=ls())
+rm(list = ls())
+
 library(here)
 setwd(here())
 
@@ -25,9 +26,9 @@ head(su)
 colnames(su) <- sub('col99_', '', colnames(su))
 
 tofocus <- colnames(su %>% dplyr::select(!c( 
-                                               'trans',
-                                               'pollution',
-                                               'motor_travel_time_weiss'   ))    )
+  'trans',
+  'pollution',
+  'motor_travel_time_weiss'   ))    )
 
 
 sumelt <- melt(su[,tofocus], id=c("x", "y"))
@@ -40,7 +41,7 @@ valuesfac <- c("royalblue3", "khaki", "violetred4")
 labelsfac  <- c("Coldspot", "Intermediate", "Hotspot")
 
 pw <- sumelt %>% filter(variable == 'mmb' | variable == 'hosts'  ) %>% 
-ggplot(aes( y=y, x=x, fill = valuef))+
+  ggplot(aes( y=y, x=x, fill = valuef))+
   geom_tile()+
   facet_wrap(case_when(variable == "hosts" ~ "Bat hosts",
                        variable == "mmb" ~ "Wild mammals") ~ . , ncol=3)+
@@ -48,8 +49,8 @@ ggplot(aes( y=y, x=x, fill = valuef))+
                     labels = labelsfac) + theme_bw() +
   theme(legend.title=element_blank(), legend.position = 'bottom',
         strip.text = element_text(size = 14)) + labs(x='Longitude', y="Latitude",
-      
-                                                                                                    title = "Wildlife indicators") 
+                                                     
+                                                     title = "Wildlife indicators") 
 pw
 
 # Potential domestic secondary hosts
@@ -65,7 +66,7 @@ pdom <- sumelt %>%
                     labels = c( "Coldspot","Intermediate", "Hotspot")) + theme_bw() +
   theme(legend.title=element_blank(), legend.position = 'bottom',
         strip.text = element_text(size = 14)) + labs(x='Longitude', y="Latitude",
-      title = "Potential domestic secondary hosts") 
+                                                     title = "Potential domestic secondary hosts") 
 
 pdom
 
@@ -102,7 +103,7 @@ sumelt$variable <- factor(sumelt$variable,
 
 # --- All
 
-allpp99 <- sumelt %>% 
+allpp <- sumelt %>% 
   filter(variable %in% c('hosts', 'mmb', want_landscape, 'pig', 'cattle',
                          'pop_2020_worldpop')   )%>%  
   mutate(unilabs = fct_recode(variable,
@@ -115,7 +116,7 @@ allpp99 <- sumelt %>%
                               "Energy and mining" =  'energy',
                               'Agriculture and harvest' = 'agriharv',
                               'Forest integrity' = 'forest_integrity_grantham',
-                              'Deforestation potential' = 'hewson_forest_transition_potential' )) %>% 
+                              'Deforestation potential' ='hewson_forest_transition_potential' )) %>% 
   mutate(unilabs = fct_relevel(unilabs, 
                                'Bat hosts',
                                'Cattle' ,
@@ -125,22 +126,21 @@ allpp99 <- sumelt %>%
                                'Agriculture and harvest',
                                "Built up area",
                                "Energy and mining",
-                                 'Forest integrity',
-                                 'Deforestation potential'    )) %>%
+                               'Forest integrity',
+                               'Deforestation potential'    )) %>%
   ggplot(aes( y=y, x=x, fill = value))+
   geom_tile()+
   facet_wrap(~unilabs, nrow=2)+
   scale_fill_manual(values =c("khaki","royalblue3", "violetred4") ,
                     labels = c("Neutral", "Coldspot", "Hotspot")) + theme_bw() +
   theme(legend.title = element_blank(), 
-        legend.position = 'none', 
-        strip.background = element_rect(fill = "whitesmoke"),
+        legend.position = 'none', strip.background = element_rect(fill = "whitesmoke"),
         strip.text = element_text(size = 14)) + 
-  labs(x='Longitude', y="Latitude") 
+  labs(x='Longitude', y="Latitude", title="A")  
 
-allpp99
+allpp
 
-#---- Expots
+#----- 
 setwd(here())
 setwd('results')
 
@@ -155,18 +155,18 @@ plotpcts <- sumelt %>%  filter(variable %in% c('hosts', 'mmb',
                                                'pig', 'cattle',
                                                'pop_2020_worldpop')  ) %>% 
   mutate(unilabsr1 = fct_recode(variable,
-                              'Forest integrity' = 'forest_integrity_grantham',
-                              'Deforestation potential' ='hewson_forest_transition_potential',
+                                'Forest integrity' = 'forest_integrity_grantham',
+                                'Deforestation potential' ='hewson_forest_transition_potential',
                                 "Human population" = 'pop_2020_worldpop',
-                              'Agriculture and harvest' = 'agriharv',
+                                'Agriculture and harvest' = 'agriharv',
                                 "Built up area"    =   "builtup",
                                 "Energy and mining" =  'energy',
-                              'Bat hosts' = 'hosts',
-                              'Wild mammals'= 'mmb',
-                              'Pig' = 'pig',
-                              'Cattle' = 'cattle' )) %>% 
+                                'Bat hosts' = 'hosts',
+                                'Wild mammals'= 'mmb',
+                                'Pig' = 'pig',
+                                'Cattle' = 'cattle' )) %>% 
   mutate(unilabsr1 = fct_relevel(unilabsr1, 
-                                  'Deforestation potential',
+                                 'Deforestation potential',
                                  'Forest integrity',
                                  "Energy and mining",
                                  "Built up area",
@@ -183,39 +183,91 @@ plotpcts <- sumelt %>%  filter(variable %in% c('hosts', 'mmb',
                                'All scenarios' = 'agriharv',
                                'All scenarios' = 'forest_integrity_grantham',
                                'All scenarios' = 'hewson_forest_transition_potential',
-                                'Scenario 1' = 'hosts',
+                               'Scenario 1' = 'hosts',
                                'Scenario 2 & 4' = 'pig',
                                'Scenario 2 & 4' = 'cattle' ,
-                                'Scenario 3 & 4' = 'mmb'    )) %>% 
+                               'Scenario 3 & 4' = 'mmb'    )) %>% 
   mutate(scenario = fct_relevel(scenario, 
                                 'Scenario 1', 
                                 'Scenario 2 & 4', 
                                 'Scenario 3 & 4',  
                                 "All scenarios" )) %>%
   ggplot(aes(unilabsr1  )) + 
-  facet_grid(~scenario) +
-  geom_bar(aes(fill= valuef), alpha=0.8,position="fill") +
+  #facet_grid(~scenario) +
+  geom_bar(aes(fill= valuef), alpha=0.8, position="fill") +
   scale_fill_manual(values =valuesfac,
                     labels = labelsfac)+
   theme_minimal(base_size = 15) + geom_rug() +
   theme( legend.title = element_blank(), 
-         legend.position = "bottom") + coord_flip() + 
-  labs( title = "", x = "", y = "Area (%)", caption = "") 
+         legend.position = "right", 
+         axis.text.y=element_blank(),
+         axis.text.x=element_text(size=15,angle=0, vjust=0.3),
+         #axis.text.y=element_text(size=15)
+  ) + coord_flip() + 
+  labs(  x = "", y = "Area (%)",title="") 
 
 
 plotpcts
 
+#--------- Creating scenario dotmatrix
+
+A <- matrix( rev(c(
+  rep(1, 4),
+  1, 0, 1, 1,
+  1, 0, 1, 1,
+  1, 1, 0, 1,
+  rep(1, 4),
+  rep(1, 4),
+  rep(1, 4),
+  rep(1, 4),
+  rep(1, 4),
+  rep(1, 4)           )), byrow=T, nrow=10, ncol=4)
+
+colnames(A) <- c('1', '2', '3', '4')
+
+rownames(A) <- rev(c( 
+  'Bat hosts', 
+  'Cattle' ,  
+  'Pig',
+  'Wild mammals',
+  "Human population" ,
+  'Agriculture and harvest',
+  "Built up area",
+  "Energy and mining",
+  'Forest integrity',
+  'Deforestation potential'))
+
+print(A)
+
+library(reshape2)
+
+longData<-melt(A)
+
+longData<-longData[longData$value!=0,]
+
+# steelblue4
+#stroke = 10 shape = 21, , stroke = 10
+scenariodots <- ggplot(longData, aes(x = Var2, y = Var1)) + 
+  geom_point(shape = 19, colour = "grey30", fill = "white", size=10) + 
+  labs(x="Scenario", y="", title="B") +
+  theme_minimal(base_size = 15) + geom_rug() + 
+  theme(axis.text.x=element_text(size=15,angle=0, vjust=0.3),
+        axis.text.y=element_text(size=15)                  )
+
+scenariodots
+
+#----------
 # Exporting 
 ggsave('Figure_01_099_cutoff.png',
-  plot = grid.arrange(allpp99, plotpcts, nrow = 2), #last_plot()
-  dpi = 400,
-  width = 12,
-  height = 11,
-  limitsize = TRUE)
+       plot = grid.arrange(allpp, grid.arrange(scenariodots, plotpcts, ncol = 2), nrow = 2), #last_plot()
+       dpi = 400,
+       width = 14, #12
+       height = 12, #11
+       limitsize = TRUE)
 
 #------------ Bovidae Livestock
 
-allppb99 <- sumelt %>% 
+allppb <- sumelt %>% 
   filter(variable %in% c('hosts', 'mmb', want_landscape, 'pig', 'bovliv',
                          'pop_2020_worldpop')   )%>%  
   mutate(unilabs = fct_recode(variable,
@@ -252,7 +304,7 @@ allppb99 <- sumelt %>%
   labs(x='Longitude', y="Latitude") 
 
 
-allppb99
+allppb
 
 #----
 setwd(here())
@@ -264,9 +316,9 @@ write.table(file='table_pct_bovliv_099_cutoff.txt', row.names = FALSE,
 # Percentages per indicator  - bovidae livestock
 
 plotpctsb <- sumelt %>%  filter(variable %in% c('hosts', 'mmb',
-                                               want_landscape,
-                                               'pig', 'bovliv',
-                                               'pop_2020_worldpop')  ) %>% 
+                                                want_landscape,
+                                                'pig', 'bovliv',
+                                                'pop_2020_worldpop')  ) %>% 
   mutate(unilabs = fct_recode(variable,
                               'Bat hosts' = 'hosts',
                               'Wild mammals'= 'mmb',
@@ -279,16 +331,16 @@ plotpctsb <- sumelt %>%  filter(variable %in% c('hosts', 'mmb',
                               'Deforestation potential' ='hewson_forest_transition_potential',
                               "Human population" = 'pop_2020_worldpop' )) %>% 
   mutate(unilabs = fct_relevel(unilabs, 
-                                 'Deforestation potential',
-                                 'Forest integrity',
-                                 "Energy and mining",
-                                 "Built up area",
-                                 'Agriculture and harvest',
-                                 "Human population" , 
-                                 'Wild mammals',
-                                 'Pig',
-                                 'Bovidae livestock' ,
-                                 'Bat hosts')) %>%
+                               'Deforestation potential',
+                               'Forest integrity',
+                               "Energy and mining",
+                               "Built up area",
+                               'Agriculture and harvest',
+                               "Human population" , 
+                               'Wild mammals',
+                               'Pig',
+                               'Bovidae livestock' ,
+                               'Bat hosts')) %>%
   mutate(scenario = fct_recode(variable,
                                "All scenarios" = 'pop_2020_worldpop',
                                "All scenarios"  = "builtup",
@@ -305,25 +357,30 @@ plotpctsb <- sumelt %>%  filter(variable %in% c('hosts', 'mmb',
                                 'Scenario 2 & 4', 
                                 'Scenario 3 & 4',  
                                 "All scenarios" )) %>%
-  ggplot(aes(unilabs  )) + 
-  facet_grid(~scenario) +
-  geom_bar(aes(fill= valuef), alpha=0.8,position="fill") +
-  scale_fill_manual(values =valuesfac ,
+  ggplot(aes(unilabs )) + 
+  #facet_grid(~scenario) +
+  geom_bar(aes(fill= valuef), alpha=0.8, position="fill") +
+  scale_fill_manual(values =valuesfac,
                     labels = labelsfac)+
   theme_minimal(base_size = 15) + geom_rug() +
   theme( legend.title = element_blank(), 
-         legend.position = "bottom") + coord_flip() + 
-  labs( title = "", x = "", y = "Area (%)", caption = "") 
+         legend.position = "right", 
+         axis.text.y=element_blank(),
+         axis.text.x=element_text(size=15,angle=0, vjust=0.3),
+         #axis.text.y=element_text(size=15)
+  ) + coord_flip() + 
+  labs(  x = "", y = "Area (%)",title="") 
+
 
 plotpctsb
 
-# Exporting bovliv
+# Exporting bovliv -------------------------
 
 ggsave('Figure_01_bovliv_099_cutoff.png',
-       plot = grid.arrange(allppb99, plotpctsb, nrow = 2), #last_plot()
+       plot = grid.arrange(allppb, grid.arrange(scenariodots, plotpctsb, ncol = 2), nrow = 2), #last_plot()
        dpi = 400,
-       width = 12,
-       height = 11,
+       width = 14, #12
+       height = 12, #11
        limitsize = TRUE)
 
 #------------------------------------------------------------------
@@ -339,15 +396,15 @@ su$tile <- 1:nrow(su)
 
 allhot <- dplyr::filter(su, 
                         grepl('violetred4', su$`hosts` ) & 
-                        grepl('violetred4', su$`mmb` )  &
-                        grepl('violetred4', su$`pig`) & 
-                        grepl('violetred4', su$`cattle` ) &
+                          grepl('violetred4', su$`mmb` )  &
+                          grepl('violetred4', su$`pig`) & 
+                          grepl('violetred4', su$`cattle` ) &
                           grepl('violetred4', su$`builtup` ) &
-                         grepl('violetred4', su$`energy` ) &
-                         grepl('violetred4', su$`agriharv` ) &
-                           grepl('violetred4', su$`forest_integrity_grantham` ) &
-                           grepl('violetred4', su$`hewson_forest_transition_potential` ) 
-                                         )
+                          grepl('violetred4', su$`energy` ) &
+                          grepl('violetred4', su$`agriharv` ) &
+                          grepl('violetred4', su$`forest_integrity_grantham` ) &
+                          grepl('violetred4', su$`hewson_forest_transition_potential` ) 
+)
 allhot
 
 
@@ -362,27 +419,27 @@ allhot_mammals
 
 
 allhot_mammals_all <- dplyr::filter(su, 
-                                grepl('violetred4', su$`hosts` ) & 
-                                  grepl('violetred4', su$`mammals` )  &
-                                  grepl('violetred4', su$`pig`) & 
-                                  grepl('violetred4', su$`cattle` ) )
+                                    grepl('violetred4', su$`hosts` ) & 
+                                      grepl('violetred4', su$`mammals` )  &
+                                      grepl('violetred4', su$`pig`) & 
+                                      grepl('violetred4', su$`cattle` ) )
 
 
 # ------------------------------------
 # Overlapp - all potential host layers
 
 allhot_mmb <- dplyr::filter(su, 
-                                 grepl('violetred4', su$`hosts` ) & 
-                                   grepl('violetred4', su$`mmb` )  &
-                                   grepl('violetred4', su$`pig`) & 
-                                   grepl('violetred4', su$`cattle` ) )
+                            grepl('violetred4', su$`hosts` ) & 
+                              grepl('violetred4', su$`mmb` )  &
+                              grepl('violetred4', su$`pig`) & 
+                              grepl('violetred4', su$`cattle` ) )
 
 
 allhot_mammalsb <- dplyr::filter(su, 
-                                grepl('violetred4', su$`hosts` ) & 
-                                  grepl('violetred4', su$`mmb` )  &
-                                  grepl('violetred4', su$`pig`) & 
-                                  grepl('violetred4', su$`bovliv` ) )
+                                 grepl('violetred4', su$`hosts` ) & 
+                                   grepl('violetred4', su$`mmb` )  &
+                                   grepl('violetred4', su$`pig`) & 
+                                   grepl('violetred4', su$`bovliv` ) )
 
 
 nrow(distinct(allhot_mammalsb[, c('x','y')]))
