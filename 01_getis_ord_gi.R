@@ -70,7 +70,7 @@ for(t in todo){
 # Checking hot spots from z-scores ---------------------------------------------
 # Host hotspots
 
-critical <- 1.645 #1.645 #1.9546
+critical <- 1.645 
 
 dfgplot <- dfg
 

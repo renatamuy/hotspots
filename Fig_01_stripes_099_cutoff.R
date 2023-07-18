@@ -211,11 +211,12 @@ plotpcts
 
 #--------- Creating scenario dotmatrix
 
+
 A <- matrix( rev(c(
   rep(1, 4),
-  1, 0, 1, 1,
-  1, 0, 1, 1,
-  1, 1, 0, 1,
+  1, 0, 1, 0,
+  1, 0, 1, 0,
+  1, 1, 0, 0,
   rep(1, 4),
   rep(1, 4),
   rep(1, 4),

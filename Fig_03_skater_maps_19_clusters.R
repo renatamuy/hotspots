@@ -59,15 +59,89 @@ positions <- c %>%
   #summarise(mx = sample(x,1), my = sample(y,1))
   summarise(mx = median(x), my = median(y))# + 1
 
+#
+
+coordinates_countries <- data.frame(admin = target$admin,
+                                    x=coordinates(target)[,1], 
+                                    y= coordinates(target)[,2])
+
+
+timor <- data.frame( admin ='Timor East', x=125, y=-8.55)
+
+mala <-  data.frame(admin ='Malaysia',x=102.87, y=4.18)
+
+indo <-  data.frame(admin ='Indonesia',x=102.6, y=-1.26)
+indo2 <-  data.frame(admin ='Indonesia',x=121.74, y=-2.77)
+
+country_positions <- rbind(coordinates_countries, timor, mala, indo)
+
+country_positions_sf <- st_as_sf(country_positions, coords = c("x", "y"), crs= crs(target))
+country_positions$admin
+
+nudge_x_list <- c(0,
+                  6,
+                  0,
+                  0,
+                  6,
+                  0,
+                  7,
+                  7,
+                  0,
+                  -1,
+                  6,
+                  -7, # Nepal
+                  7, #13th Phill
+                  -6,
+                  6,
+                  6,
+                  6,
+                  6) # c(rep(6, 18))
+
+nudge_y_list <- c(-10,
+                  -6,
+                  0,
+                  0, 
+                  -6,
+                  0,
+                  7,
+                  0,
+                  0,
+                  -3,
+                  -6,
+                  -3, #Nepal
+                  -6,#c(rep(-6, 18))
+                  -6,
+                  -6,
+                  -6,
+                  -6,
+                  -6) 
+
 pcone <- ggplot()+
   geom_tile(data = c, aes(y=y, x=x, fill = factor(cluster)))+
   theme_bw() +
   #facet_wrap(~cluster, nrow = 4, ncol=5)+
-  geom_sf(data=sf::st_as_sf(target), fill= 'transparent', col="black", size=0.50)  +
-  #geom_text(data = positions, aes(y=my, x=mx, label=factor(cluster) ))+
+  geom_sf(data=sf::st_as_sf(target), fill= 'transparent', col="black", size=0.5)  +
+  ggrepel::geom_text_repel(data = country_positions_sf, 
+                           aes(x=country_positions[,2] , 
+                               y= country_positions[,3], label = admin), 
+                 size = 2,         
+                  fontface = "italic",
+                  force = 20,
+                  box.padding = 0.3,
+                  max.overlaps = 30,
+                  point.padding = NA,
+                  alpha = 0.7,
+                  min.segment.length = 0.05,
+                  segment.color = "black",
+                  segment.size = 0.6,
+                  seed = 1000,
+                  nudge_x = nudge_x_list, 
+                  nudge_y = nudge_y_list) +
   #geom_label(data = positions, aes(y=my, x=mx, label=factor(cluster) ), label.size = 0.4, alpha = 1)+
-  ggrepel::geom_label_repel(data = positions, aes(y=my, x=mx, label=factor(cluster) ), label.size = 0.1, alpha = 0.7)+
-  theme(legend.title=element_blank(), 
+  ggrepel::geom_label_repel(data = positions, 
+                            aes(y=my, x=mx, label=factor(cluster) ), 
+                            label.size = 0.1, alpha = 0.7)+
+    theme(legend.title=element_blank(), 
         legend.position = 'bottom',  
         strip.text = element_text(size = 14)) +
   scale_fill_manual(values = pal ) +
@@ -75,8 +149,11 @@ pcone <- ggplot()+
 
 pcone
 
+#
+
+# Export
 ggsave(
-  'Figure_03a.png',
+  'Figure_03a_R1.png',
   plot = pcone,
   dpi = 400,
   width = 5,
