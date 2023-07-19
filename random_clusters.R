@@ -56,10 +56,7 @@ queen_w <- queen_weights(st_as_sf(mercator))
 head(dfsub[,tofocus])
 
 # Creating random data
-
-hist(dfsub[,tofocus]$pig_gilbert)
-
-hist(dbeta(runif(nrow(rd)), shape1 = 5, shape2 = 20) )
+#hist(dbeta(runif(nrow(rd)), shape1 = 5, shape2 = 20) )
 
 #dir.create('skater_random')
 setwd('skater_random')
@@ -78,17 +75,17 @@ rd <- read.csv('random_data.csv')
 
 its <- c(40:1)
 
-for(i in its){
+#for(i in its){
   
-  print(i)
+ # print(i)
   
-  clusg <- rgeoda::skater(i,  queen_w,  rd,
+ # clusg <- rgeoda::skater(i,  queen_w,  rd,
                           scale_method = "raw",
                           distance_method = "euclidean" )
   
-  save(clusg, file = paste0(i,'_clusters_random.RData') ) 
+#  save(clusg, file = paste0(i,'_clusters_random.RData') ) 
   
-}
+#}
 
 ratio <- c()
 
@@ -108,8 +105,6 @@ for(lo in loads){
 
 ratio
 twss
-
-
 
 # Elbow plots
 #
@@ -136,7 +131,7 @@ write.csv(data.frame(its, twss, ratio), file = filenametwss, row.names = FALSE)
 # After inspecting
 # assign optimal k clusters to spatial object (careful, col names reduced when exported)
 
-otimo <- 9
+otimo <- 19
 
 result <- dfsub
 
@@ -145,9 +140,9 @@ coordinates(result)<-~x+y
 raster::crs(result) <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0" 
 
 setwd(here())
-setwd('results/skater')
+setwd('results/skater_random')
 
-load(paste0(otimo,'_clusters.RData') ) 
+load(paste0(otimo,'_clusters_random.RData') ) 
 
 table(clusg$Clusters)
 
@@ -160,15 +155,15 @@ class(result)
 #------------------------------
 # Export shapefile of points and csv 
 
-setwd('../')
+getwd()
 
-dir.create('skater_optimal_cluster_size_09')
-setwd('skater_optimal_cluster_size_09')
+dir.create('skater_optimal_cluster_size_19_random')
+setwd('skater_optimal_cluster_size_19_random')
 colwant <- c(tofocus, 'cluster')
 
 colnames(result[colwant]@data)
 
-filenamesh <- paste0('clusters_rgeoda_c09', ".shp")
+filenamesh <- paste0('clusters_rgeoda_c19_random', ".shp")
 
 raster::shapefile(result[colwant], filenamesh,  overwrite=TRUE)
 
@@ -178,7 +173,7 @@ resultdf <- result@data
 resultdf$x <- dfsub$x
 resultdf$y <- dfsub$y
 
-filenamec <- paste0('clusters_rgeoda_c09', ".csv")
+filenamec <- paste0('clusters_rgeoda_c19_random', ".csv")
 
 write.csv(resultdf, file = filenamec, row.names = FALSE)
 
@@ -190,138 +185,3 @@ write.csv(resultdf, file = filenamec, row.names = FALSE)
 #      ####
 #       ##
 #-------------------------------------------------------------------------------
-
-# bovliv (all bovidae livestock) -------------------------
-
-setwd(here())
-setwd('results')
-
-tofocus <- colnames(dfsub %>% dplyr::select(!c('x','y', 
-                                               'hosts_muylaert',
-                                               'hosts_sanchez',
-                                               "mammals_iucn_mode", 
-                                               "cattle_gilbert",
-                                               'trans',
-                                               'pollution',
-                                               'motor_travel_time_weiss'   ))    )
-
-colnames(dfsub[tofocus])
-
-#------------------------------
-# Get projected coords, generate weights matrix ---
-mercator <- raster::shapefile('mercator.shp')
-
-queen_w <- queen_weights(st_as_sf(mercator))
-
-# Rdata may corrupt spatial objects
-#save(queen_w, file = 'queen_w.RData')
-#load('queen_w.RData')
-
-its <- c(40:1)
-
-dir.create('skater_bovliv')
-setwd('skater_bovliv')
-
-for(i in its){
-  
-  print(i)
-  
-  clusg <- rgeoda::skater(i,  queen_w,  dfsub[,tofocus],
-                          scale_method = "raw",
-                          distance_method = "euclidean" )
-  
-  save(clusg, file = paste0(i,'_clusters.RData') ) 
-  
-}
-
-ratio <- c()
-
-twss <-c()
-
-loads <- c(1:40)
-
-for(lo in loads){
-  print(lo)
-  load(paste0(lo,'_clusters.RData') ) 
-  
-  twss <- c(twss, clusg$`Total within-cluster sum of squares`)
-  
-  ratio <- c(ratio,  clusg$`The ratio of between to total sum of squares` )
-  
-}
-
-ratio
-twss
-
-# Elbow plots
-
-png(filename= 'elbow_plot.png', width = 20, height = 14, unit='cm',
-    res=300)
-plot(twss ~ loads, pch = 19, xlab= 'Number of clusters',
-     ylab='Total within-cluster sum of squares'  )
-dev.off()
-
-png(filename= 'elbow_plot_ratio.png', width = 20, height = 14, unit='cm',
-    res=300)
-
-plot(ratio ~ loads, pch = 19, xlab= 'Number of clusters',
-     ylab= 'Ratio of between/total sum of squares')
-dev.off()
-
-# Export ss data
-
-filenametwss <- paste0('clusters_twss_ratio', ".csv")
-
-write.csv(data.frame(its, twss, ratio), file = filenametwss, row.names = FALSE)
-
-# After inspecting
-
-# assign optimal k clusters to spatial object (careful, col names reduced when exported)
-
-otimo <- 19
-
-result <- dfsub
-
-coordinates(result)<-~x+y
-
-raster::crs(result) <- "+proj=longlat +datum=WGS84 +no_defs +ellps=WGS84 +towgs84=0,0,0" 
-
-setwd(here())
-setwd('results/skater_bovliv')
-
-load(paste0(otimo,'_clusters.RData') ) 
-
-table(clusg$Clusters)
-
-result$cluster <- clusg$Clusters
-
-colnames(result@data)
-
-class(result)
-
-#---- 
-#---------
-#------------------------------
-# Export shapefile of points and csv bovliv
-
-setwd('../')
-
-dir.create('skater_optimal_cluster_size_19_bovliv')
-setwd('skater_optimal_cluster_size_19_bovliv')
-colwant <- c(tofocus, 'cluster')
-
-colnames(result[colwant]@data)
-
-filenamesh <- paste0('clusters_rgeoda_c19',  ".shp")
-
-raster::shapefile(result[colwant], filenamesh,  overwrite=TRUE)
-
-resultdf <- result@data
-resultdf$x <- dfsub$x
-resultdf$y <- dfsub$y
-
-filenamec <- paste0('clusters_rgeoda_c19', ".csv")
-
-write.csv(resultdf, file = filenamec, row.names = FALSE)
-
-#--------------------------------------------------------------------------------

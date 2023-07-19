@@ -54,7 +54,6 @@ ggplot(aes( y=y, x=x, fill = valuef))+
 pw
 
 # Potential domestic secondary hosts
-unique(sumelt$value)
 
 pdom <- sumelt %>% 
   filter(variable == 'pig' | variable == 'cattle'  ) %>% 
@@ -70,6 +69,7 @@ pdom <- sumelt %>%
 
 pdom
 
+#-- Including all bovidae livesock
 
 pdomallbovidae <- sumelt %>% filter(variable == 'bovliv' | variable == 'cattle'  ) %>% 
   ggplot(aes(y=y, x=x, fill = valuef))+
@@ -85,7 +85,6 @@ pdomallbovidae <- sumelt %>% filter(variable == 'bovliv' | variable == 'cattle' 
 pdomallbovidae
 
 # landscape change
-#'trans', 'pollution'
 want_landscape <- c('builtup', 'energy',  'agriharv', 
                     'forest_integrity_grantham',
                     'hewson_forest_transition_potential'                  )

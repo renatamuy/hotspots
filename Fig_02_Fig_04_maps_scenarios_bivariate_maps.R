@@ -129,7 +129,7 @@ p2dif <- ggplot()+
 
 p2dif
 
-# One-panel plots just in case
+# One-panel plots
 #ggsave(
  # 'Figure_02_scenarios_0102.png',
  # plot = grid.arrange(p1, p2, p2dif, nrow = 1), #last_plot()
@@ -251,6 +251,34 @@ p4 <- ggplot()+
        #subtitle = 'Bat hosts, mammal wildlife, livestock'  ) 
 
 p4
+
+head(go4)
+
+#---------------------------------------------
+# SARS-Cov-2 zoonotic spillover earliest location
+huanan_market <- data.frame(x= 114.262, y=30.616)
+# SARS early cases
+prince_wales_hospital <- data.frame(x= 114.199, y=22.378)
+# Wang locations
+dafengkou <- data.frame(x= 102.319, y=24.480)
+lvxi<- data.frame(x= 102.273, y=24.487)
+tianjing <- data.frame(x= 97.884, y=24.845)
+# Li locations
+guanxi <- data.frame(x= 100.401, y=26.631)
+yunnan <- data.frame(x= 100.250, y=25.584)
+
+spillover_serology_locations_risk_scenario_4 <- rbind(
+go4[go4$x>114.2 & go4$x<114.5 & go4$y>30.6 & go4$y<30.7,],
+go4[go4$x>114 & go4$x<114.5 & go4$y>22 & go4$y<22.5,],
+go4[go4$x>102.2 & go4$x<102.5 & go4$y>24.2 & go4$y<24.6,],
+go4[go4$x>97.7 & go4$x<97.9 & go4$y>24.7 & go4$y<24.9,],
+# Li locations
+go4[go4$x>100 & go4$x<100.5 & go4$y>26.2 & go4$y<26.6,],
+go4[go4$x>100.2 & go4$x<100.5 & go4$y>25.2 & go4$y<25.6,] )
+
+summary(spillover_serology_locations_risk_scenario_4$n_hotspots_risk4)
+spillover_serology_locations_risk_scenario_4
+nrow(spillover_serology_locations_risk_scenario_4)
 
 # Difference
 
@@ -562,7 +590,16 @@ db %>% skim()
 # Stack 
 bivs <- stack(bivmap1, bivmap2, bivmap3, bivmap4)
 
+
 names(bivs) <- c('bivmap1', 'bivmap2', 'bivmap3', 'bivmap4')
+
+# spillover locations
+
+spillover_serology_locations_risk_scenario_4
+extract(bivs$bivmap4, spillover_serology_locations_risk_scenario_4[,1:2])
+
+
+#------------------------
 
 plot(bivs >11, col=c('snow3', 'red'))
 
@@ -583,7 +620,6 @@ s19s <- raster::shapefile('s19s.shp')
 bivsplot <- bivs
 names(bivsplot) <- c('Scenario 1', 'Scenario 2', 
                      'Scenario 3', 'Scenario 4')
-
 
 #Close to healthcare, high hostspot overlap
 # Figure S7
@@ -792,7 +828,6 @@ p + geom_violin(fill="snow2") + #geom_dotplot(bin axis='y', stackdir='center', d
 
 library(ggpubr)
 
-
 # ---------------
 bartlett.test(Time ~ Scenario, data = allbox) # variance not homogeneous
 
@@ -878,5 +913,6 @@ summary(raster_access_hours[which(values(bivs$bivmap2) %in% c (9))])
 summary(raster_access_hours[which(values(bivs$bivmap3) %in% c (9))])
 summary(raster_access_hours[which(values(bivs$bivmap4) %in% c (9))])
 
+# 
 
 #------------------------------------------
