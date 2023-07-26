@@ -59,12 +59,12 @@ positions <- c %>%
   #summarise(mx = sample(x,1), my = sample(y,1))
   summarise(mx = median(x), my = median(y))# + 1
 
-#
 
 coordinates_countries <- data.frame(admin = target$admin,
                                     x=coordinates(target)[,1], 
                                     y= coordinates(target)[,2])
 
+coordinates_countries[15,'x'] <- 107
 
 timor <- data.frame( admin ='Timor East', x=125, y=-8.55)
 
@@ -75,56 +75,57 @@ indo2 <-  data.frame(admin ='Indonesia',x=121.74, y=-2.77)
 
 country_positions <- rbind(coordinates_countries, timor, mala, indo)
 
-country_positions_sf <- st_as_sf(country_positions, coords = c("x", "y"), crs= crs(target))
+country_positions_sf <- st_as_sf(country_positions, 
+                                 coords = c("x", "y"), 
+                                 crs= crs(target))
 country_positions$admin
 
 nudge_x_list <- c(0,
                   6,
+                  0, #Bhutan
                   0,
+                  2, #Indonesia
                   0,
-                  6,
-                  0,
-                  7,
-                  7,
+                  7, #Camboja
+                  -1, #Laos
                   0,
                   -1,
-                  6,
+                  -4, #Malasia k
                   -7, # Nepal
-                  7, #13th Phill
+                  7, # Phillipines
                   -6,
-                  6,
-                  6,
-                  6,
-                  6) # c(rep(6, 18))
+                  9, #Vietnam
+                  3,
+                  3, # Malasia c
+                  -2) # c(rep(6, 18))
 
 nudge_y_list <- c(-10,
-                  -6,
                   0,
+                  2,
                   0, 
                   -6,
-                  0,
-                  7,
-                  0,
+                  1,
+                  9, # Camboja
+                  2, #Laos
                   0,
                   -3,
-                  -6,
+                  6, # Malasia
                   -3, #Nepal
                   -6,#c(rep(-6, 18))
                   -6,
-                  -6,
-                  -6,
-                  -6,
+                  -7, #Vietnam
+                  -9,
+                  -4, # Malasia c
                   -6) 
 
 pcone <- ggplot()+
   geom_tile(data = c, aes(y=y, x=x, fill = factor(cluster)))+
   theme_bw() +
-  #facet_wrap(~cluster, nrow = 4, ncol=5)+
-  geom_sf(data=sf::st_as_sf(target), fill= 'transparent', col="black", size=0.5)  +
+  geom_sf(data=sf::st_as_sf(target), fill= 'transparent', col="black", linewidth=0.50)  +
   ggrepel::geom_text_repel(data = country_positions_sf, 
                            aes(x=country_positions[,2] , 
                                y= country_positions[,3], label = admin), 
-                 size = 2,         
+                  size = 2,         
                   fontface = "italic",
                   force = 20,
                   box.padding = 0.3,
@@ -137,8 +138,7 @@ pcone <- ggplot()+
                   seed = 1000,
                   nudge_x = nudge_x_list, 
                   nudge_y = nudge_y_list) +
-  #geom_label(data = positions, aes(y=my, x=mx, label=factor(cluster) ), label.size = 0.4, alpha = 1)+
-  ggrepel::geom_label_repel(data = positions, 
+    ggrepel::geom_label_repel(data = positions, 
                             aes(y=my, x=mx, label=factor(cluster) ), 
                             label.size = 0.1, alpha = 0.7)+
     theme(legend.title=element_blank(), 
@@ -149,18 +149,14 @@ pcone <- ggplot()+
 
 pcone
 
-#
 
 # Export
 ggsave(
-  'Figure_03a_R1.png',
+  'Figure_03a_Supplementary_Figure_08.png',
   plot = pcone,
   dpi = 400,
   width = 5,
   height = 6,
   limitsize = TRUE)
 
-# Other Colour schemes:
-#BottleRocket1, BottleRocket2, Rushmore1, Royal1, Royal2, Zissou1, Darjeeling1, Darjeeling2, Chevalier1 , FantasticFox1 ,
-#Moonrise1, Moonrise2, Moonrise3, Cavalcanti1, GrandBudapest1, GrandBudapest2, IsleofDogs1, IsleofDogs2
 #--------------------------------------------------------------------------------------------
