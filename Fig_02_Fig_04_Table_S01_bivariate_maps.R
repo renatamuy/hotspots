@@ -788,7 +788,7 @@ dev.off()
 
 # Average time to healthcare (h) in areas of higher risk (third quantiles)
 
-#Table 1
+#Table S1
 
 summary(raster_access_hours[which(values(bivs$bivmap1) %in% c (12))])
 summary(raster_access_hours[which(values(bivs$bivmap2) %in% c (12))])
