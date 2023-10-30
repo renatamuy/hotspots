@@ -8,7 +8,7 @@
 
 **Citation**: Muylaert, R.L., Wilkinson, D.A., Kingston, T. et al. Using drivers and transmission pathways to identify SARS-like coronavirus spillover risk hotspots. Nat Commun 14, 6854 (2023). [https://doi.org/10.1038/s41467-023-42627-2](https://doi.org/10.1038/s41467-023-42627-2)
 
-<img src="https://github.com/renatamuy/dynamic/blob/main/anim_intersected.gif" width="800" height="800" />
+<img src="https://github.com/renatamuy/hotspots/blob/main/results/Figure_04/GIF_01.gif" width="800" height="800" />
 
 ## On the media :newspaper:
 
